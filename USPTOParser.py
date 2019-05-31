@@ -101,30 +101,6 @@ def start_thread_processes(links_array, args_array):
         link.append("application")
         link_queue.put(link)
 
-    # Calculate a wait time for each link and append to array
-
-    # Create array to hold piles of links
-    #thread_arrays = []
-    # Break links array into separate arrays so that number_of_threads threads will start
-    # If there are less links than desired number of threads make as many threads as len(links_array)
-    #if len(links_array) < number_of_threads:
-        #number_of_links_per_pile = 1
-        #number_of_threads = len(links_array)
-        #remainder_for_last_pile = 0
-    # If there are more links per pile
-    #else:
-        #number_of_links_per_pile = len(links_array) / number_of_threads
-        #remainder_for_last_pile = len(links_array) % number_of_threads
-
-    # Loop through number_of_threads and cut array.  Append section to thread_arrays
-    #for x in range(number_of_threads):
-        # If last element then add remainder
-        #if x == number_of_threads - 1:
-            #thread_arrays.append(links_array[x * number_of_links_per_pile : (x * number_of_links_per_pile) + number_of_links_per_pile + remainder_for_last_pile])
-        #else:
-            #thread_arrays.append(links_array[x * number_of_links_per_pile : (x * number_of_links_per_pile) + number_of_links_per_pile])
-
-
     # Print and log the number of threads that are going to start
     print "Starting " + str(number_of_threads) + " process(es)... "
     logger.info("Starting " + str(number_of_threads) + " process(es)... ")

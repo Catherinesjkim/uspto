@@ -11,7 +11,6 @@ import time
 import os
 import sys
 import traceback
-import zipfile
 import urllib
 
 # Import USPTO Parser Functions
