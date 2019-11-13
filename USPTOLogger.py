@@ -8,9 +8,13 @@
 
 # Import Python Modules
 import logging
+import traceback
 import time
 import os
 import sys
+
+# Import USPTO Parser Functions
+import USPTOProcessLinks
 
 # Setuplogging
 def setup_logger(log_file):
@@ -264,8 +268,8 @@ def build_or_update_link_files(args_array):
     if not os.path.isfile(args_array['grant_process_log_file']) or not os.path.isfile(args_array['application_process_log_file']) or not os.path.isfile(args_array['classification_process_log_file']):
 
         # Print message to stdout and log file
-        print "No existing file lists found. Creating them now.  " + time.strftime("%c")
-        logger.info('No existing file lists found. Creating them now. ' + time.strftime("%c"))
+        print "No existing link file lists found. Creating them now.  " + time.strftime("%c")
+        logger.info('No existing link file lists found. Creating them now. ' + time.strftime("%c"))
 
         try:
             # Get List of all links

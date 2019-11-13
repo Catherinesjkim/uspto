@@ -13,6 +13,10 @@
 # Build scripts that create statistical tables to be run after the initial script and include an updater in
 # the updater script.
 
+# Create a cmd line argument that will reset the entire system to fresh
+-remove download files
+-remove all CSV files
+-delete and refresh the schema
 
 # Are the zip, and extracted xml, or other tmp files being discraded to free memory efficiently properly?
 

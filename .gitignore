@@ -25,3 +25,7 @@ LOG/old_link_files
 # Temp Storage Directory
 ########################
 /TMP/*
+
+# Ignnore Python .pyc files
+###########################
+*.pyc

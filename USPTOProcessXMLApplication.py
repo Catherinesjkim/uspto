@@ -48,7 +48,7 @@ def process_XML_application_content(args_array):
     if args_array['uspto_xml_format'] == "aXML4":
 
         # Loop through all lines in the xml file
-        for line in xml_file.readlines():
+        for line in xml_file_contents.readlines():
 
             # This identifies the start of well formed XML segment for patent
             # application bibliographic information
@@ -81,7 +81,7 @@ def process_XML_application_content(args_array):
         line_count = 1
 
         # Loop through all lines in the xml file
-        for line in xml_file.readlines():
+        for line in xml_file_contents.readlines():
 
             # This identifies the start of well formed XML segment for patent
             # application bibliographic information

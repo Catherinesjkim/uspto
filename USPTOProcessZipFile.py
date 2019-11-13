@@ -14,6 +14,7 @@ import traceback
 import subprocess
 import shutil
 import zipfile
+import urllib
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -86,7 +87,5 @@ def extract_zip_to_array(args_array):
 
     # Finally, if nothing was returned already, return None
     finally:
-        # Print and log that the xml file was not found
-        print '[xml file not found.  Filename: {0}]'.format(args_array['url_link'])
-        logger.error('xml file not found. Filename: ' + args_array['url_link'])
-        return None
+        pass
+        #TODO: need to add close urllibclean up here instead? 

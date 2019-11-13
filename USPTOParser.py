@@ -130,14 +130,16 @@ def start_thread_processes(links_array, args_array):
 # Main function for multiprocessing
 def main_process(link_queue, args_array, spooling_value):
 
+    # Import logger
+    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+
     # Check the spooling value in args_array and set a wait time
     args_array['spooling_value'] = spooling_value
     if args_array['spooling_value'] > 6:
+        print '[Sleeping thread for initial spooling thread number ' + spooling_value + '...]'
+        logger.info('[Sleeping thread for initial spooling thread number ' + spooling_value + '...]')
         time.sleep((args_array['spooling_value']) * 30)
         args_array['spooling_value'] = 0
-
-    # Import logger
-    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
     # Print message to stdout
     print 'Process {0} is starting to work! Start Time: {1}'.format(os.getpid(), time.strftime("%c"))
@@ -177,7 +179,7 @@ def main_process(link_queue, args_array, spooling_value):
         database_connection.remove_previous_file_records(args_array['document_type'], args_array['file_name'], logger)
 
         # Call the function to collect patent data from each link
-        # and store it to specified place
+        # and store it to specified place (csv and/or database)
         try:
             USPTOProcessLinks.process_link_file(args_array)
             # Print and log notification that one .zip package is finished
@@ -196,9 +198,7 @@ def main_process(link_queue, args_array, spooling_value):
             logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
 
 
-    # TODO: Look at the other link_piles from other processes and continue to process
-    # by moving links from another pile to this one.  May have to look at the log file,
-    # check for unprocessed (will have to add "processing" flag.) and add a check before starting
+    # TODO: check for unprocessed (will have to add "processing" flag.) and add a check before starting
     # processing to avoid collisions of link piles.  Make link_pile loop into a function and
     # then call it again.  OR... make link pile a super global, and somehow be able to check against
     # other processes and rebalance and pop off from link piles.
@@ -279,13 +279,13 @@ def load_balancer_thread(link_queue, args_array):
     time.sleep(300)
     # While there is still links in queue
     while not link_queue.empty():
-        # Check the 15 minute average CPU load balance
+        # Check the 5 minute average CPU load balance
         five_minute_load_average = os.getloadavg()[1] / core_count
 
         # Check if CPU load is set to be balanced
         if "balance" in args_array['command_args']:
             # If the load average is very small, start a group of new threads
-            if five_minute_load_average < 0.75:
+            if five_minute_load_average < args_array['target_load_float']:
                 # Print message and log that load balancer is starting another thread
                 print "Starting another thread group due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%"
                 logger.info("Starting another thread group due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%")
@@ -516,7 +516,7 @@ if __name__=="__main__":
     start_time=time.time()
     working_directory = os.getcwd()
     allowed_args_array = ["-csv", "-database", "-update", "-t", "-balance", "-h", "-help"]
-    app_default_threads = 10
+    default_threads = 10
     database_insert_mode = "bulk" # values include `each` and `bulk`
 
     # Declare filepaths
@@ -561,9 +561,10 @@ if __name__=="__main__":
     # Create an array of args that can be passed as a group
     # and appended to as needed
     args_array = {
-        "sandbox" : sandbox,
+        "sandbox" : sandbox, # Sandbox mode will check for csv files already downloaded in the csv dir
         "working_directory" : working_directory,
-        "default_threads" : app_default_threads,
+        "default_threads" : default_threads,
+        "target_load_float" : 0.75,
         "database_type" : database_args['database_type'],
         "database_args" : database_args,
         "database_insert_mode" : database_insert_mode,
