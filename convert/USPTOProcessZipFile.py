@@ -14,7 +14,7 @@ import traceback
 import subprocess
 import shutil
 import zipfile
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -33,14 +33,14 @@ def extract_zip_to_array(args_array):
             if '.xml' in filename:
                 xml_file_name = filename
         # Print stdout message that xml file was found
-        print '[xml file found. Filename: {0}]'.format(xml_file_name)
+        print('[xml file found. Filename: {0}]'.format(xml_file_name))
         logger.info('xml file found. Filename: ' + xml_file_name)
         # Open the file to read lines out of
         xml_file = zip_file.open(xml_file_name, 'r')
         # Extract the contents from the file
         xml_file_contents = xml_file.readlines()
         # Remove the temp files
-        urllib.urlcleanup()
+        urllib.request.urlcleanup()
         #os.remove(file_name)
         # Close the file being read from
         zip_file.close()
@@ -52,7 +52,7 @@ def extract_zip_to_array(args_array):
     except:
         try:
             # Print message to stdout
-            print '[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with python module]'
+            print('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with python module]')
             logger.warning('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with python module]')
             traceback.print_exc()
             # Check if an unzip directory exists in the temp directory
@@ -68,7 +68,7 @@ def extract_zip_to_array(args_array):
                 if filename.endswith(".xml"):
                     xml_file_name = filename
                     # Print stdout message that xml file was found
-                    print '[xml file found. Filename: {0}]'.format(xml_file_name)
+                    print('[xml file found. Filename: {0}]'.format(xml_file_name))
                     logger.info('xml file found. Filename: ' + xml_file_name)
             # Open the file to read lines out of
             xml_file = open(xml_file_name, 'r')
@@ -83,7 +83,7 @@ def extract_zip_to_array(args_array):
 
         except:
             # Print message to stdout
-            print '[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with linux subprocess module]'
+            print('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with linux subprocess module]')
             logger.warning('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip linux subprocess module]')
             traceback.print_exc()
 
@@ -92,7 +92,7 @@ def extract_zip_to_array(args_array):
                 pass
             except:
                 # Print message to stdout
-                print '[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with linux subprocess module]'
+                print('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with linux subprocess module]')
                 logger.warning('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip linux subprocess module]')
                 traceback.print_exc()
 

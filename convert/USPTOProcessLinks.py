@@ -12,7 +12,7 @@ import re
 import os
 import sys
 import traceback
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from bs4 import BeautifulSoup
 
 # Import USPTO Parser Functions
@@ -46,7 +46,7 @@ def extract_data_router(xml_data_string, args_array):
             return USPTOExtractXML4Application.extract_XML4_application(xml_data_string, args_array)
     except Exception as e:
         # Print and log general fail comment
-        print "xml extraction failed for document type: " + args_array['uspto_xml_format'] + " link: " + args_array['url_link']
+        print("xml extraction failed for document type: " + args_array['uspto_xml_format'] + " link: " + args_array['url_link'])
         logger.error("xml extraction for document type: " + args_array['uspto_xml_format'] + " link: " + args_array['url_link'])
         # Print traceback
         traceback.print_exc()
@@ -70,7 +70,7 @@ def return_file_format_from_filename(file_name):
     }
 
     # Check filetype and return value
-    for key, value in format_types.items():
+    for key, value in list(format_types.items()):
         if re.compile(value).match(file_name):
             return key
 
@@ -95,23 +95,23 @@ def download_zip_file(args_array):
             # Check if the file is in the downloads folder first
             if os.path.isfile(args_array['sandbox_downloads_dirpath'] + base_file_name):
                 # Download the file and use system temp directory
-                print '[Using previosly downloaded .zip file: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name)
+                print('[Using previosly downloaded .zip file: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
                 # Use the previously downloaded file as the temp_zip filename
                 return args_array['sandbox_downloads_dirpath'] + base_file_name
             else:
-                print '[Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name)
+                print('[Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
                 logger.info('[Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
-                dl_file_name = urllib.urlretrieve(args_array['url_link'], args_array['sandbox_downloads_dirpath'] + base_file_name)[0]
-                print '[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c"))
+                dl_file_name = urllib.request.urlretrieve(args_array['url_link'], args_array['sandbox_downloads_dirpath'] + base_file_name)[0]
+                print('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c")))
                 logger.info('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c")))
 
         # If not sandbox mode
         else:
             # Download the file and use system temp directory
-            print '[Downloading .zip file: {0}]'.format(args_array['url_link'])
+            print('[Downloading .zip file: {0}]'.format(args_array['url_link']))
             logger.info('[Downloading .zip file: {0}]'.format(args_array['url_link']))
-            dl_file_name = urllib.urlretrieve(args_array['url_link'])[0]
-            print '[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c"))
+            dl_file_name = urllib.request.urlretrieve(args_array['url_link'])[0]
+            print('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c")))
             logger.info('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c")))
 
         # Return the filename
@@ -119,13 +119,13 @@ def download_zip_file(args_array):
 
     except Exception as e:
         traceback.print_exc()
-        print 'Downloading  contents of ' + args_array['url_link'] + ' failed...'
+        print('Downloading  contents of ' + args_array['url_link'] + ' failed...')
         logger.info('Downloading  contents of ' + args_array['url_link'] + ' failed...')
         # Delete the failed zip file if it exists
         if 'base_file_name' in locals():
             if os.path.exists(base_file_name):
                 os.remove(base_file_name)
-                print 'Failed download contents of ' + args_array['url_link'] + ' have been purged...'
+                print('Failed download contents of ' + args_array['url_link'] + ' have been purged...')
                 logger.info('Failed download contents of ' + args_array['url_link'] + ' have been purged...')
 
 # Function to route the extraction of raw data from a link
@@ -147,7 +147,7 @@ def process_link_file(args_array):
     elif args_array['uspto_xml_format'] == "gXML2" or args_array['uspto_xml_format'] == "gXML4":
         USPTOProcessXMLGrant.process_XML_grant_content(args_array)
 
-    print "Finished the data storage process for contents of: " + args_array['url_link'] + " Finished at: " + time.strftime("%c")
+    print("Finished the data storage process for contents of: " + args_array['url_link'] + " Finished at: " + time.strftime("%c"))
 
 
 # get all the formats of grants and publications
@@ -165,24 +165,24 @@ def get_all_links(args_array):
     url_source_UPC_class = "https://www.uspto.gov/web/patents/classification/selectnumwithtitle.htm"
 
     # TODO: fix the class parser
-    print 'Started grabbing patent classification links... ' + time.strftime("%c")
+    print('Started grabbing patent classification links... ' + time.strftime("%c"))
     classification_linklist = []
     classification_linklist.append([args_array['classification_text_filename'], "None"])
-    print 'Finished grabbing patent classification links... ' + time.strftime("%c")
+    print('Finished grabbing patent classification links... ' + time.strftime("%c"))
     # Log finished building all zip filepaths
     logger.info('Finished grabbing patent classification bibliographic links: ' + time.strftime("%c"))
 
-    print 'Started grabbing patent grant bibliographic links... ' + time.strftime("%c")
+    print('Started grabbing patent grant bibliographic links... ' + time.strftime("%c"))
     # Get all patent grant data
     grant_linklist = links_parser("PG", url_source_USPTO)
-    print 'Finished grabbing patent grant bibliographic links... ' + time.strftime("%c")
+    print('Finished grabbing patent grant bibliographic links... ' + time.strftime("%c"))
     # Log finished building all zip filepaths
     logger.info('Finished grabbing patent grant bibliographic links: ' + time.strftime("%c"))
 
-    print 'Started grabbing patent application bibliographic links... ' + time.strftime("%c")
+    print('Started grabbing patent application bibliographic links... ' + time.strftime("%c"))
     # Get all patent application data
     application_linklist = links_parser("PA", url_source_USPTO)
-    print 'Finished grabbing patent application bibliographic links... ' + time.strftime("%c")
+    print('Finished grabbing patent application bibliographic links... ' + time.strftime("%c"))
     # Log finished building all zip filepaths
     logger.info('Finished grabbing patent application bibliographic links: ' + time.strftime("%c"))
 
@@ -208,7 +208,7 @@ def links_parser(link_type, url):
     annualized_file_link = ""
 
     # First collect all links on USPTO bulk data page
-    content = urllib.urlopen(url).read()
+    content = urllib.request.urlopen(url).read()
     soup = BeautifulSoup(content, "html.parser")
     for link in soup.find_all('a', href=True):
         # Collet links based on type requested by argument in function call
@@ -230,7 +230,7 @@ def links_parser(link_type, url):
 
     # Go through each found link on the main USPTO page and get the zip files as links and return that array.
     for item in link_array:
-        content = urllib.urlopen(item).read()
+        content = urllib.request.urlopen(item).read()
         soup = BeautifulSoup(content, "html.parser")
         for link in soup.find_all('a', href=True):
             if ".zip" in link['href']:
@@ -251,7 +251,7 @@ def links_parser(link_type, url):
                 if link not in final_zip_file_link_array:
                     final_zip_file_link_array.append(link)
 
-    print "Number of downloadable .zip files found = " + str(len(final_zip_file_link_array))
+    print("Number of downloadable .zip files found = " + str(len(final_zip_file_link_array)))
 
     # Return the array links to zip files with absolute urls
     return final_zip_file_link_array

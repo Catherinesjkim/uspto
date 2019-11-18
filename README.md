@@ -13,7 +13,10 @@ You should have received a copy of the GNU General Public License along with thi
 **Email:** joseph@ripplesoftware.ca
 
 ## **Description:**
-This python script is based on a script from University of Illinois (http://abel.lis.illinois.edu/UPDC/Downloads.html). Several parts of the script have been improved to increase the data integrity and memory utilization of the original script.  The whole packages is therefore contained into one file which can be run from the command line.
+This python script is based on a script from University of Illinois (http://abel.lis.illinois.edu/UPDC/Downloads.html). Several parts of the script have been improved to increase the data integrity and memory utilization of the original script.
+
+The script is run from the command line and will populate a PostgreSQL or MySQL database.
+It is recommended to use PostgreSQL since PG provides better performance over the large dataset.
 
 The usage of the script is outlined below:
 
@@ -59,10 +62,8 @@ $ python USPTOParser.py -update -t 3
 
 ### CPU Load balancing
 
-The script currently uses a load balancer which initially calculates the number of CPU cores in your computer and then will check periodically how much CPU load is being consumed.  If the overall CPU load is less than 75%, another thread is added.  These settings can be adjusted in the script.
+The script uses a load balancer which detects the number of CPU cores and creates and sleeps threads to maintain a constant CPU.  The default value is 75% so, if the 10 minute CPU load is less than 75%, another thread is added.  If the CPU load exceeds 75% threads are forced to sleep.  These settings can be adjusted in the script.
 
 ### Bulk Database Insertion Performance
 
 The option to insert each document's data into the database can be done two ways.  The script can insert each document record immediately after it is parsed or in bulk after a file is finished being parsed.  Using bulk storage utilizes .csv files to temporarily store the data before it is inserted in bulk.  If the `-csv` command line argument is not set, then the .csv. files are erased after being used to load the data.  
-
-Performance of using bulk uploader resulted in... ???
