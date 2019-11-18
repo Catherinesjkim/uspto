@@ -20,7 +20,7 @@ import urllib.request, urllib.parse, urllib.error
 import USPTOLogger
 
 # Extract a zip file and return the contents of the XML file as an array of lines
-def extract_zip_to_array(args_array):
+def extract_xml_file_from_zip(args_array):
 
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
@@ -39,11 +39,18 @@ def extract_zip_to_array(args_array):
         xml_file = zip_file.open(xml_file_name, 'r')
         # Extract the contents from the file
         xml_file_contents = xml_file.readlines()
-        # Remove the temp files
-        urllib.request.urlcleanup()
-        #os.remove(file_name)
         # Close the file being read from
         zip_file.close()
+        # If not sandbox mode, then delete the .zip file
+        if args_array['sandbox'] == False and os.path.exists(args_array['temp_zip_file_name']):
+            # Print message to stdout
+            print('[Purging .zip file ' + args_array['temp_zip_file_name'] + '...]')
+            logger.info('[Purging .zip file ' + args_array['temp_zip_file_name'] + '...]')
+            os.remove(args_array['temp_zip_file_name'])
+
+        # Print message to stdout
+        print('[xml file contents extracted ' + xml_file_name + '...]')
+        logger.info('[xml file contents extracted ' + xml_file_name + '...]')
         # Return the file contents as array
         return xml_file_contents
 
@@ -102,3 +109,48 @@ def extract_zip_to_array(args_array):
     finally:
         pass
         #TODO: need to add close urllibclean up here instead?
+
+
+
+# Extract a zip file and return the contents of the XML file as an array of lines
+def extract_dat_file_from_zip(args_array):
+
+    # Import logger
+    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+
+    # Extract the zipfile to read it
+    try:
+        zip_file = zipfile.ZipFile(args_array['temp_zip_file_name'], 'r')
+        data_file_name = ""
+        for name in zip_file.namelist():
+            if '.dat' in name or '.txt' in name:
+                data_file_name = name
+        # If xml file not found, then print error message
+        if data_file_name == "":
+            # Print and log that the xml file was not found
+            print('[APS .dat data file not found.  Filename{0}]'.format(args_array['url_link']))
+            logger.error('APS .dat file not found. Filename: ' + args_array['url_link'])
+
+        # Process zip file contents of .dat or .txt file and .xml files
+        data_file_contents = zip_file.open(data_file_name,'r')
+
+        # Close the zip file
+        zip_file.close()
+
+        # If not sandbox mode, then delete the .zip file
+        if args_array['sandbox'] == False and os.path.exists(args_array['temp_zip_file_name']):
+            # Print message to stdout
+            print('[Purging .zip file ' + args_array['temp_zip_file_name'] + '...]')
+            logger.info('[Purging .zip file ' + args_array['temp_zip_file_name'] + '...]')
+            os.remove(args_array['temp_zip_file_name'])
+
+        # Print message to stdout
+        print('[data file contents extracted ' + data_file_name + '...]')
+        logger.info('[data file contents extracted ' + data_file_name + '...]')
+        # Return the file contents as array
+        return data_file_contents
+
+    # The zip file has failed using python's ZipFile
+    # TODO: Unzip the file using subprocess and find the xml file
+    except:
+        return None

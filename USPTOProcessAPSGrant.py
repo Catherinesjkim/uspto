@@ -12,12 +12,12 @@ import traceback
 import os
 import sys
 import zipfile
-import urllib.request, urllib.parse, urllib.error
 
 # Import USPTO Parser Functions
 import USPTOLogger
 import USPTOCSVHandler
 import USPTOSanitizer
+import USPTOProcessZipFile
 import USPTOStoreGrantData
 
 # Used to parse xml files of the type APS
@@ -30,6 +30,9 @@ def process_APS_grant_content(args_array):
     # into args_array
     if "csv" in args_array['command_args'] or ("database" in args_array['command_args'] and args_array['database_insert_mode'] == "bulk"):
         args_array['csv_file_array'] = USPTOCSVHandler.open_csv_files(args_array['document_type'], args_array['file_name'], args_array['csv_directory'])
+
+    # Set the start time of the process
+    start_time = time.time()
 
     # Colect arguments from args array
     url_link = args_array['url_link']
@@ -48,29 +51,8 @@ def process_APS_grant_content(args_array):
     processed_forpatcit = []
     processed_nonpatcit = []
 
-    # Process zip file by getting .dat or .txt file and .xml filenames
-    start_time = time.time()
-
-    # Extract the zipfile to read it
-    zip_file = zipfile.ZipFile(args_array['temp_zip_file_name'],'r')
-
-    data_file_name = ""
-    for name in zip_file.namelist():
-        if '.dat' in name or '.txt' in name:
-            data_file_name = name
-
-    # If xml file not found, then print error message
-    if data_file_name == "":
-        # Print and log that the xml file was not found
-        print('[APS .dat data file not found.  Filename{0}]'.format(args_array['url_link']))
-        logger.error('APS .dat file not found. Filename: ' + args_array['url_link'])
-
-    # Process zip file contents of .dat or .txt file and .xml files
-    data_reader = zip_file.open(data_file_name,'r')
-    # Remove the temp files
-    urllib.request.urlcleanup()
-    #os.remove(file_name)
-    zip_file.close()
+    # Extract the .dat file from the .zip file
+    data_file_contents = USPTOProcessZipFile.extract_dat_file_from_zip(args_array)
 
     # Define variables required to parse the file
     patent_started = False
@@ -83,7 +65,8 @@ def process_APS_grant_content(args_array):
         # read a single line if there is no line content then load another line
         if next_line_loaded_already == False:
             # Load the next line
-            line = data_reader.readline()
+            line = data_file_contents.readline()
+            line = USPTOSanitizer.decode_line(line)
 
         # Every time through the loop, initialize that next line is not loaded
         next_line_loaded_already = False
@@ -293,7 +276,9 @@ def process_APS_grant_content(args_array):
             except: title = None
 
             # If TTL found, can be multi-line.  Load next line and check if should be appended or not
-            line = data_reader.readline()
+            # Load the next line
+            line = data_file_contents.readline()
+            line = USPTOSanitizer.decode_line(line)
             #print line
 
             # Check if line has empty header
@@ -394,7 +379,8 @@ def process_APS_grant_content(args_array):
 
             while data_parse_completed == False:
                 # Read next line
-                line = data_reader.readline().strip()
+                line = data_file_contents.readline()
+                line = USPTOSanitizer.decode_line(line)
 
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:4] == "UREF":
@@ -472,8 +458,9 @@ def process_APS_grant_content(args_array):
             # Loop through all OREF until finished
             while data_parse_completed == False:
 
-                # Read next line
-                line = data_reader.readline()
+                # Load the next line
+                line = data_file_contents.readline()
+                line = USPTOSanitizer.decode_line(line)
 
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:3] == "PAL":
@@ -558,9 +545,10 @@ def process_APS_grant_content(args_array):
             data_parse_completed = False
 
             while data_parse_completed == False:
-                # Read next line
-                line = data_reader.readline().strip()
-                #print "FREF"
+
+                # Load the next line
+                line = data_file_contents.readline()
+                line = USPTOSanitizer.decode_line(line)
 
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:4] == "FREF":
@@ -665,8 +653,9 @@ def process_APS_grant_content(args_array):
             # Loop through all OREF until finished
             while data_parse_completed == False:
 
-                # Read next line
-                line = data_reader.readline().strip()
+                # Load the next line
+                line = data_file_contents.readline()
+                line = USPTOSanitizer.decode_line(line)
 
                 # Collect the main class
                 if line[0:3] == "OCL":
@@ -922,7 +911,10 @@ def process_APS_grant_content(args_array):
             # Loop through all ABST until finished
             while data_parse_completed == False:
 
-                line = data_reader.readline()
+                # Load the next line
+                line = data_file_contents.readline()
+                line = USPTOSanitizer.decode_line(line)
+
                 # Read next line if not then set end_of_file = True
                 if not line:
                     data_parse_completed = True
@@ -978,8 +970,9 @@ def process_APS_grant_content(args_array):
             # Loop through all CLAIMS until finished
             while data_parse_completed == False:
 
-                # Read next line
-                line = data_reader.readline()
+                # Load the next line
+                line = data_file_contents.readline()
+                line = USPTOSanitizer.decode_line(line)
 
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:3] == "PAL":
@@ -1038,9 +1031,9 @@ def process_APS_grant_content(args_array):
             # loop through all inventors
             while data_parse_completed == False:
 
-                # Read next line
-                line = data_reader.readline()
-                #print line
+                # Load the next line
+                line = data_file_contents.readline()
+                line = USPTOSanitizer.decode_line(line)
 
                 # If the inventor tag is found then append last set of data
                 if line[0:4] == "INVT":
@@ -1218,9 +1211,9 @@ def process_APS_grant_content(args_array):
             # loop through all inventors
             while data_parse_completed == False:
 
-                # Read next line
-                line = data_reader.readline()
-                #print line
+                # Load the next line
+                line = data_file_contents.readline()
+                line = USPTOSanitizer.decode_line(line)
 
                 # If the inventor tag is found then append last set of data
                 if line[0:4] == "ASSG":
@@ -1368,9 +1361,9 @@ def process_APS_grant_content(args_array):
             # loop through all inventors
             while data_parse_completed == False:
 
-                # Read next line
-                line = data_reader.readline()
-                #print line
+                # Load the next line
+                line = data_file_contents.readline()
+                line = USPTOSanitizer.decode_line(line)
 
                 # Get the firm name from line
                 if line[0:3] == "FRM":
@@ -1527,8 +1520,6 @@ def process_APS_grant_content(args_array):
                     data_parse_completed = True
                     next_line_loaded_already = True
 
-    # Close the open data reader file being read from
-    data_reader.close()
     # Close all the open .csv files
     USPTOCSVHandler.close_csv_files(args_array)
 

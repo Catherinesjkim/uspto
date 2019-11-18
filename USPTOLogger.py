@@ -16,15 +16,21 @@ import sys
 # Import USPTO Parser Functions
 import USPTOProcessLinks
 
-# Setuplogging
-def setup_logger(log_file):
+# Setup logging
+def setup_logger(log_level, log_file):
 
     logger = logging.getLogger('USPTO_Database_Construction')
     log_handler = logging.FileHandler(log_file)
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     log_handler.setFormatter(formatter)
     logger.addHandler(log_handler)
-    logger.setLevel(logging.INFO)
+    # Set the log level verbosity
+    if log_level == 1:
+        logger.setLevel(logging.ERROR)
+    elif log_level == 2:
+        logger.setLevel(logging.WARNING)
+    elif log_level == 3:
+        logger.setLevel(logging.INFO)
 
 # Check the args_array log_lock_file and switch and write file as processed
 # TODO accept a passed arg to also write the log as processing, if needed by

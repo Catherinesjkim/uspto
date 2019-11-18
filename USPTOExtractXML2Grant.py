@@ -12,9 +12,11 @@ import time
 import traceback
 import os
 import sys
+import re
 
 # Import USPTO Parser Functions
 import USPTOLogger
+import USPTOSanitizer
 
 # Function used to extract data from XML2 formatted patent grants
 def extract_XML2_grant(raw_data, args_array):

@@ -11,6 +11,7 @@ import time
 import re
 import os
 import sys
+import shutil
 import traceback
 import urllib.request, urllib.parse, urllib.error
 from bs4 import BeautifulSoup
@@ -78,19 +79,18 @@ def download_zip_file(args_array):
 
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
-
     # Set process start time
     start_time = time.time()
+    # Strip the file from the url_link
+    base_file_name = args_array['url_link'].split("/")[-1]
 
-    # Try to download the zip file to temporary location
-    try:
-
-        # If Sandbox mode
-        if args_array['sandbox']:
-
-            # Strip the file from the url_link
-            base_file_name = args_array['url_link'].split("/")[-1]
-
+    # Set the attempts number to 0
+    download_attempts = 0
+    max_attempts = 3
+    # Loop for the max attempts
+    while download_attempts < max_attempts:
+        # Try to download the zip file to temporary location
+        try:
             # Check if the file is in the downloads folder first
             if os.path.isfile(args_array['sandbox_downloads_dirpath'] + base_file_name):
                 # Download the file and use system temp directory
@@ -100,28 +100,19 @@ def download_zip_file(args_array):
             else:
                 print('[Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
                 logger.info('[Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
-                dl_file_name = urllib.request.urlretrieve(args_array['url_link'], args_array['sandbox_downloads_dirpath'] + base_file_name)[0]
-                print('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c")))
-                logger.info('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c")))
+                with urllib.request.urlopen(args_array['url_link']) as response, open(args_array['sandbox_downloads_dirpath'] + base_file_name, 'wb') as out_file:
+                    shutil.copyfileobj(response, out_file)
+                print('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(base_file_name,time.time()-start_time, time.strftime("%c")))
+                logger.info('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(base_file_name,time.time()-start_time, time.strftime("%c")))
+                # Return the file name
+                return args_array['sandbox_downloads_dirpath'] + base_file_name
 
-        # If not sandbox mode
-        else:
-            # Download the file and use system temp directory
-            print('[Downloading .zip file: {0}]'.format(args_array['url_link']))
-            logger.info('[Downloading .zip file: {0}]'.format(args_array['url_link']))
-            dl_file_name = urllib.request.urlretrieve(args_array['url_link'])[0]
-            print('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c")))
-            logger.info('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(dl_file_name,time.time()-start_time, time.strftime("%c")))
-
-        # Return the filename
-        return dl_file_name
-
-    except Exception as e:
-        traceback.print_exc()
-        print('Downloading  contents of ' + args_array['url_link'] + ' failed...')
-        logger.info('Downloading  contents of ' + args_array['url_link'] + ' failed...')
-        # Delete the failed zip file if it exists
-        if 'base_file_name' in locals():
+        except Exception as e:
+            download_attempts += 1
+            traceback.print_exc()
+            print('Downloading  contents of ' + args_array['url_link'] + ' failed...')
+            logger.info('Downloading  contents of ' + args_array['url_link'] + ' failed...')
+            # Delete the failed zip file if it exists
             if os.path.exists(base_file_name):
                 os.remove(base_file_name)
                 print('Failed download contents of ' + args_array['url_link'] + ' have been purged...')

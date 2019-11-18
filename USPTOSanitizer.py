@@ -18,6 +18,9 @@ from html.parser import HTMLParser
 import string
 import traceback
 
+# Import USPTO Parser Functions
+import USPTOLogger
+
 # This function checks if a tag of specified tag_name exists and returns true
 # or false if it doesn't exist.
 def check_tag_exists(x, tag_name):
@@ -178,7 +181,7 @@ def strip_leading_zeros(string):
 # Strips tags from XMLTree element
 def return_element_text(xmlElement):
     if(ET.iselement(xmlElement)):
-        elementStr = ET.tostring(xmlElement)
+        elementStr = ET.tostring(xmlElement).decode('utf-8')
         # Strip tags, whitespace and newline and carriage returns
         element_text =  re.sub('<[^<]*>', '', elementStr)
         # If string is empty, then return None, else encode adn return as UTF-8 and escape characters
@@ -230,6 +233,9 @@ def utf_8_encoder(line):
 #Converts html encoding to hex encoding for database insertion
 def replace_new_html_characters(line):
 
+    # Import logger
+    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+
     # Use a regex replacement to replace all html encoded strings
     try:
         # Finally use regex to replace anything that looks like an html entity with nothing
@@ -242,7 +248,7 @@ def replace_new_html_characters(line):
         line = line.replace("\t", "")
 
         # Remove all non ASCII characters
-        line = line.decode("ascii", "ignore")
+        #line = line.decode("ascii", "ignore")
 
     except Exception as e:
         print(line)
@@ -271,7 +277,7 @@ def replace_old_html_characters(line):
         line = line.replace("\t", "")
 
         # Remove all non ASCII characters
-        line = line.decode("ascii", "ignore")
+        #line = line.decode("ascii", "ignore")
 
     except Exception as e:
         print(line)
@@ -461,3 +467,23 @@ def replace_old_html_characters_old_version(line):
         line = None
 
     return line
+
+
+def decode_line(line):
+
+    # Attempt strict decod in to utf-8
+    try:
+        line = line.decode("utf-8", errors='strict')
+        return line
+    except Exception as e:
+        # Attempt replace decode to utf-8
+        try:
+            line = line.decode("utf-8", errors='replace')
+            return line
+        except:
+            # Attempt decode to ascii
+            try:
+                line = line.decode('ascii')
+            except Exception as e:
+                # Return empty string
+                return ""

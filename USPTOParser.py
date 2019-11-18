@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # USPTO Bulk Data Parser
 # Description: Check README.md for instructions on seting up the paser with configuration settings.
 # Author: Joseph Lee
@@ -565,6 +567,7 @@ if __name__=="__main__":
     # and appended to as needed
     args_array = {
         "sandbox" : sandbox, # Sandbox mode will check for csv files already downloaded in the csv dir
+        "log_level" : 2, # Log levels 1 = error, 2 = warning, 3 = info
         "working_directory" : working_directory,
         "default_threads" : default_threads,
         "target_load_float" : 0.75,
@@ -588,7 +591,7 @@ if __name__=="__main__":
     }
 
     # Setup logger
-    USPTOLogger.setup_logger(app_log_file)
+    USPTOLogger.setup_logger(args_array['log_level'], app_log_file)
     # Include logger in the main function
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 

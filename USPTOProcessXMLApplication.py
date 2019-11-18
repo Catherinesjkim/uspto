@@ -11,7 +11,6 @@ import time
 import os
 import sys
 import traceback
-import urllib.request, urllib.parse, urllib.error
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -37,7 +36,7 @@ def process_XML_application_content(args_array):
     start_time = time.time()
 
     # Extract the XML file from the ZIP file
-    xml_file_contents = USPTOProcessZipFile.extract_zip_to_array(args_array)
+    xml_file_contents = USPTOProcessZipFile.extract_xml_file_from_zip(args_array)
 
     # create variables needed to parse the file
     xml_string = ''
@@ -48,7 +47,10 @@ def process_XML_application_content(args_array):
     if args_array['uspto_xml_format'] == "aXML4":
 
         # Loop through all lines in the xml file
-        for line in xml_file_contents.readlines():
+        for line in xml_file_contents:
+
+            # Decode the line from byte-object
+            line = USPTOSanitizer.decode_line(line)
 
             # This identifies the start of well formed XML segment for patent
             # application bibliographic information
@@ -81,7 +83,10 @@ def process_XML_application_content(args_array):
         line_count = 1
 
         # Loop through all lines in the xml file
-        for line in xml_file_contents.readlines():
+        for line in xml_file_contents:
+
+            # Decode the line from byte-object
+            line = USPTOSanitizer.decode_line(line)
 
             # This identifies the start of well formed XML segment for patent
             # application bibliographic information
@@ -109,8 +114,6 @@ def process_XML_application_content(args_array):
             elif patent_xml_started == True:
                 xml_string += USPTOSanitizer.replace_old_html_characters(line)
 
-    # Close the .xml file being read from
-    xml_file.close()
     # Close the all the .csv files being written to
     USPTOCSVHandler.close_csv_files(args_array)
 

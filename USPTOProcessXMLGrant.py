@@ -11,7 +11,6 @@ import time
 import os
 import sys
 import traceback
-import urllib.request, urllib.parse, urllib.error
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -33,11 +32,11 @@ def process_XML_grant_content(args_array):
     if "csv" in args_array['command_args'] or ("database" in args_array['command_args'] and args_array['database_insert_mode'] == "bulk"):
         args_array['csv_file_array'] = USPTOCSVHandler.open_csv_files(args_array['document_type'], args_array['file_name'], args_array['csv_directory'])
 
-    # Process zip file by getting .dat or .txt file and .xml filenames
+    # Set the start time of operation
     start_time = time.time()
 
     # Extract the XML file from the ZIP file
-    xml_file_contents = USPTOProcessZipFile.extract_zip_to_array(args_array)
+    xml_file_contents = USPTOProcessZipFile.extract_xml_file_from_zip(args_array)
 
     # create variables needed to parse the file
     xml_string = ''
@@ -48,10 +47,11 @@ def process_XML_grant_content(args_array):
     #print "The xml format is: " + args_array['uspto_xml_format']
     if args_array['uspto_xml_format'] == "gXML4":
 
-        #print "The xml format is: " + args_array['uspto_xml_format']
-
         # Loop through all lines in the xml file
         for line in xml_file_contents:
+
+            # Decode the line from byte-object
+            line = USPTOSanitizer.decode_line(line)
 
             # This identifies the start of well formed XML segment for patent
             # grant bibliographic information
@@ -83,6 +83,9 @@ def process_XML_grant_content(args_array):
 
         # Loop through all lines in the xml file
         for line in xml_file_contents:
+
+            # Decode the line from byte-object
+            line = USPTOSanitizer.decode_line(line)
 
             # This identifies the start of well formed XML segment for patent
             # grant bibliographic information
