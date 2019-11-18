@@ -32,7 +32,7 @@ import USPTOStoreApplicationData
 
 # Prints the ASCII header of the USPTO application
 def print_ascii_header():
-    print """
+    print("""
 
 UUUUUUUU     UUUUUUUU   SSSSSSSSSSSSSSS PPPPPPPPPPPPPPPPP   TTTTTTTTTTTTTTTTTTTTTTT     OOOOOOOOO
 U::::::U     U::::::U SS:::::::::::::::SP::::::::::::::::P  T:::::::::::::::::::::T   OO:::::::::OO
@@ -51,7 +51,7 @@ UU:::::U     U:::::UUS:::::S     SSSSSSSPP:::::P     P:::::PT:::::TT:::::::TT:::
     UU:::::::::UU    S:::::::::::::::SS P::::::::P                T:::::::::T         OO:::::::::OO
       UUUUUUUUU       SSSSSSSSSSSSSSS   PPPPPPPPPP                TTTTTTTTTTT           OOOOOOOOO
 
-USPTO Parse Patent Parser by Ripple Software Consulting - joseph@ripplesoftware.ca\n\n"""
+USPTO Parse Patent Parser by Ripple Software Consulting - joseph@ripplesoftware.ca\n\n""")
 
 def start_thread_processes(links_array, args_array):
 
@@ -82,7 +82,7 @@ def start_thread_processes(links_array, args_array):
         # If there is a problem creating the number of threads set again and log the error
         number_of_threads = 10
         # Print and log general fail comment
-        print "Calculating number of threads failed... "
+        print("Calculating number of threads failed... ")
         # Print traceback
         traceback.print_exc()
         # Print exception information to file
@@ -102,7 +102,7 @@ def start_thread_processes(links_array, args_array):
         link_queue.put(link)
 
     # Print and log the number of threads that are going to start
-    print "Starting " + str(number_of_threads) + " process(es)... "
+    print("Starting " + str(number_of_threads) + " process(es)... ")
     logger.info("Starting " + str(number_of_threads) + " process(es)... ")
 
     # Loop for number_of_threads and append threads to process
@@ -120,7 +120,7 @@ def start_thread_processes(links_array, args_array):
         p.start()
 
     # Print to stdout and log that all initial threads have been started
-    print "All " + str(number_of_threads) + " initial main process(es) have been loaded... "
+    print("All " + str(number_of_threads) + " initial main process(es) have been loaded... ")
     logger.info("All " + str(number_of_threads) + " initial main process(es) have been loaded... ")
 
     # This .join() function prevents the script from progressing further.
@@ -136,16 +136,16 @@ def main_process(link_queue, args_array, spooling_value):
     # Check the spooling value in args_array and set a wait time
     args_array['spooling_value'] = spooling_value
     if args_array['spooling_value'] > 4:
-        print '[Sleeping thread for initial spooling thread number ' + str(spooling_value) + '...]'
+        print('[Sleeping thread for initial spooling thread number ' + str(spooling_value) + '...]')
         logger.info('[Sleeping thread for initial spooling thread number ' + str(spooling_value) + '...]')
         time.sleep((args_array['spooling_value']) * args_array['thread_spool_delay'])
-        print '[Thread number ' + str(spooling_value) + ' is waking from sleep...]'
+        print('[Thread number ' + str(spooling_value) + ' is waking from sleep...]')
         logger.info('[Thread number ' + str(spooling_value) + ' is waking from sleep...]')
 
         args_array['spooling_value'] = 0
 
     # Print message to stdout
-    print 'Process {0} is starting to work! Start Time: {1}'.format(os.getpid(), time.strftime("%c"))
+    print('Process {0} is starting to work! Start Time: {1}'.format(os.getpid(), time.strftime("%c")))
     # Set process start time
     process_start_time = time.time()
 
@@ -175,7 +175,7 @@ def main_process(link_queue, args_array, spooling_value):
         start_time = time.time()
 
         # Start the main processing of each link in link_pile array
-        print "Processing .zip file: " + args_array['url_link'] + " Started at: " + time.strftime("%c")
+        print("Processing .zip file: " + args_array['url_link'] + " Started at: " + time.strftime("%c"))
 
         # Check if the args_array['file_name'] has previously been partially processed.
         # and if it has, then remove all records from the previous partial processing.
@@ -186,12 +186,12 @@ def main_process(link_queue, args_array, spooling_value):
         try:
             USPTOProcessLinks.process_link_file(args_array)
             # Print and log notification that one .zip package is finished
-            print '[Finished processing one .zip package! Time consuming:{0} Time Finished: {1}]'.format(time.time() - start_time, time.strftime("%c"))
+            print('[Finished processing one .zip package! Time consuming:{0} Time Finished: {1}]'.format(time.time() - start_time, time.strftime("%c")))
             logger.info('[Finished processing one .zip package! Time consuming:{0} Time Finished: {1}]'.format(time.time() - start_time, time.strftime("%c")))
 
         except Exception as e:
             # Print and log general fail comment
-            print "Processing a file failed... " + args_array['file_name'] + " from link " + args_array['url_link'] + " at: " + time.strftime("%c")
+            print("Processing a file failed... " + args_array['file_name'] + " from link " + args_array['url_link'] + " at: " + time.strftime("%c"))
             logger.error("Processing a file failed... " + args_array['file_name'] + " from link " + args_array['url_link'])
             # Print traceback
             traceback.print_exc()
@@ -207,7 +207,7 @@ def main_process(link_queue, args_array, spooling_value):
     # other processes and rebalance and pop off from link piles.
 
     # Print message that process is finished
-    print '[Process {0} is finished. Time consuming:{1} Time Finished: {1}]'.format(time.time() - process_start_time, time.strftime("%c"))
+    print('[Process {0} is finished. Time consuming:{1} Time Finished: {1}]'.format(time.time() - process_start_time, time.strftime("%c")))
 
 
 # Spool down the thread balance when load is too high
@@ -217,7 +217,7 @@ def spool_down_load_balance():
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
     # Print to stdout and log that load balancing process starting
-    print "[Calculating load balancing proccess... ]"
+    print("[Calculating load balancing proccess... ]")
     logger.info("[Calculating load balacing process... ]")
 
     # get the count of CPU cores
@@ -225,7 +225,7 @@ def spool_down_load_balance():
         core_count = psutil.cpu_count()
     except Exception as e:
         core_count = 4
-        print "Number of CPU cores could not be detected. Setting number of CPU cores to 4"
+        print("Number of CPU cores could not be detected. Setting number of CPU cores to 4")
         logger.info("Number of CPU cores could not be detected. Setting number of CPU cores to 4")
         traceback.print_exc()
 
@@ -240,7 +240,7 @@ def spool_down_load_balance():
         one_minute_load_average = os.getloadavg()[0] / core_count
         # If load balance is too high sleep process and print msg to stdout and log
         if one_minute_load_average > 2:
-            print "Unacceptable load balance detected. Process " + os.getpid() + " taking a break..."
+            print("Unacceptable load balance detected. Process " + os.getpid() + " taking a break...")
             logger.info("Unacceptable load balance detected. Process " + os.getpid() + " taking a break...")
             load_check_count = load_check_count + 1
             time.sleep(30)
@@ -260,20 +260,20 @@ def load_balancer_thread(link_queue, args_array):
     # Print to stdout and log that load balancing process starting
     # Check if CPU load is set to be balanced
     if "balance" in args_array['command_args']:
-        print "[Starting load balancing proccess... ]"
+        print("[Starting load balancing proccess... ]")
         logger.info("[Starting load balacing process... ]")
     else:
-        print "[Load balancing inactive... ]"
+        print("[Load balancing inactive... ]")
         logger.info("[Load balancing inactive... ]")
 
     # Get the count of CPU cores
     try:
         core_count = psutil.cpu_count()
-        print str(core_count) + " CPU cores were detected..."
+        print(str(core_count) + " CPU cores were detected...")
         logger.info(str(core_count) + " CPU cores were detected...")
     except Exception as e:
         core_count = 4
-        print "Number of CPU cores could not be detected. Setting number of CPU cores to 4"
+        print("Number of CPU cores could not be detected. Setting number of CPU cores to 4")
         logger.info("Number of CPU cores could not be detected. Setting number of CPU cores to 4")
         traceback.print_exc()
 
@@ -290,7 +290,7 @@ def load_balancer_thread(link_queue, args_array):
             # If the load average is very small, start a group of new threads
             if five_minute_load_average < args_array['target_load_float']:
                 # Print message and log that load balancer is starting another thread
-                print "Starting another thread group due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%"
+                print("Starting another thread group due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%")
                 logger.info("Starting another thread group due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%")
                 # Start another group of threads and pass in i to stagger the downloads
                 for i in range(1):
@@ -302,7 +302,7 @@ def load_balancer_thread(link_queue, args_array):
             # If load average less than 1 start single thread
             elif five_minute_load_average < 1:
                 # Print message and log that load balancer is starting another thread
-                print "Starting another single thread due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%"
+                print("Starting another single thread due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%")
                 logger.info("Starting another single thread due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%")
                 # Start another thread and pass in 0 to start right away
                 start_new_thread = multiprocessing.Process(target=main_process,args=(link_queue, args_array, i))
@@ -311,7 +311,7 @@ def load_balancer_thread(link_queue, args_array):
 
         else:
             # Print message and log that load balancer is starting another thread
-            print "Reporting CPU load balance: " + str(five_minute_load_average * 100) + "%"
+            print("Reporting CPU load balance: " + str(five_minute_load_average * 100) + "%")
             logger.info("Reporting CPU load balance: " + str(five_minute_load_average * 100) + "%")
             # Sleep for another 5 minutes while
             time.sleep(300)
@@ -335,7 +335,7 @@ def validate_existing_file_structure(args_array):
         log_lock.close()
 
         # Print stdout and log the file structure validation process
-        print "Finished creating require directory structure " + time.strftime("%c")
+        print("Finished creating require directory structure " + time.strftime("%c"))
         logger.info('Finished creating require directory structure ' + time.strftime("%c"))
 
         # Return `True` that file structure has been created
@@ -343,7 +343,7 @@ def validate_existing_file_structure(args_array):
 
     except Exception as e:
         # Log finished building all zip filepaths
-        print "Failed to create require directory structure " + time.strftime("%c")
+        print("Failed to create require directory structure " + time.strftime("%c"))
         traceback.print_exc()
         logger.error('Failed to create require directory structure ' + time.strftime("%c"))
         # Log exception error messages
@@ -370,9 +370,9 @@ def build_command_arguments(argument_array, args_array):
         # Check that the argument array is proper length (4)
         if len(argument_array) < 1 or len(argument_array) > 5:
             # Argument length is not ok, print message and return False
-            print "Command argument error [incorrect number of arguments]...."
+            print("Command argument error [incorrect number of arguments]....")
             # Print out full argument help menu
-            print build_argument_output()
+            print(build_argument_output())
             # Return false to the main function to indicate not continue
             return False
 
@@ -385,7 +385,7 @@ def build_command_arguments(argument_array, args_array):
                 # Check for help menu requested
                 if argument_array[i] == "-h" or argument_array[i] == "-help":
                     # Print out full argument help menu
-                    print build_argument_output()
+                    print(build_argument_output())
                     # Return false to the main function to indicate not continue
                     return False
                 elif argument_array[i] == "-t":
@@ -399,9 +399,9 @@ def build_command_arguments(argument_array, args_array):
                     # If the argument for number_of_threads is invalid return error
                     else:
                         # Argument length is not ok, print message and return False
-                        print "Command argument error [illegal number of threads]...."
+                        print("Command argument error [illegal number of threads]....")
                         # Print out full argument help menu
-                        print build_argument_output()
+                        print(build_argument_output())
                         # Return false to the main function to indicate not continue
                         return False
                 else:
@@ -410,9 +410,9 @@ def build_command_arguments(argument_array, args_array):
                     command_args[argument_array[i].replace('-', '')] = True
             else:
                 # Argument is not expected, print message and return False
-                print "Command argument error [illegal argument]...."
+                print("Command argument error [illegal argument]....")
                 # Print out full argument help menu
-                print build_argument_output()
+                print(build_argument_output())
                 # Return false to the main function to indicate not continue
                 return False
 
@@ -425,7 +425,7 @@ def build_command_arguments(argument_array, args_array):
 
     except Exception as e:
         # Print the error to stdout
-        print 'Failed to build command arguments: '
+        print('Failed to build command arguments: ')
         # Print the exception to stdout
         traceback.print_exc()
         # Collect the exception information
@@ -491,11 +491,11 @@ def handle_application_close(start_time, all_files_processed, args_array):
     # Print final completed message to stdout
     if all_files_processed == True:
         # Print final completed message to stdout
-        print ('[All USPTO files have been processed  Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c")))
+        print(('[All USPTO files have been processed  Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c"))))
         logger.info('[All USPTO files have been processed. Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c")))
     else:
         # Print final error message to stdout
-        print ('There was an error attempting to proccess the files.  Check log for details. Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c")))
+        print(('There was an error attempting to proccess the files.  Check log for details. Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c"))))
         logger.info('There was an error attempting to proccess the files. Check log for details. Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c")))
 
 
@@ -607,7 +607,7 @@ if __name__=="__main__":
 
         # Log start message and print to stdout
         logger.info('Starting USPTO Patent Database Builder ' + time.strftime("%c"))
-        print "Starting USPTO Patent Database Builder " + time.strftime("%c")
+        print("Starting USPTO Patent Database Builder " + time.strftime("%c"))
 
         # Check existing app structure and create it if required
         # If true then coninue app process
@@ -639,7 +639,7 @@ if __name__=="__main__":
                 # If collecting the links array failed print error and log error
                 if not all_links_array:
                     # Print the error to stdout and log
-                    print 'Failed to collect links from file ' + time.strftime("%c")
+                    print('Failed to collect links from file ' + time.strftime("%c"))
                     logger.error('Failed to collect links from file ' + time.strftime("%c"))
                     # Set the main loop to exit
                     all_files_processed = "Error"
@@ -649,8 +649,8 @@ if __name__=="__main__":
 
                     # Print message to stdout and log the number of links to be collected and parsed
                     # TODO update with classifcation data and PAIR data output
-                    print str(len(all_links_array["grants"])) + " grant links will be collected. Start time: " + time.strftime("%c")
-                    print str(len(all_links_array["applications"])) + " application links will be collected. Start time: " + time.strftime("%c")
+                    print(str(len(all_links_array["grants"])) + " grant links will be collected. Start time: " + time.strftime("%c"))
+                    print(str(len(all_links_array["applications"])) + " application links will be collected. Start time: " + time.strftime("%c"))
                     logger.info(str(len(all_links_array["grants"])) + " grant links will be collected. Start time: " + time.strftime("%c"))
                     logger.info(str(len(all_links_array["applications"])) + " application links will be collected. Start time: " + time.strftime("%c"))
 

@@ -13,7 +13,7 @@ import time
 import os
 import sys
 import re
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 #from htmlentitydefs import name2codepoint
 import string
 import traceback
@@ -245,7 +245,7 @@ def replace_new_html_characters(line):
         line = line.decode("ascii", "ignore")
 
     except Exception as e:
-        print line
+        print(line)
         traceback.print_exc()
         # Print exception information to file
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -274,7 +274,7 @@ def replace_old_html_characters(line):
         line = line.decode("ascii", "ignore")
 
     except Exception as e:
-        print line
+        print(line)
         traceback.print_exc()
         # Print exception information to file
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -425,24 +425,24 @@ def replace_old_html_characters_old_version(line):
     }
 
     # Replace known html entities
-    for key, value in replacement_dict.items():
+    for key, value in list(replacement_dict.items()):
         #print key, value
         line = line.replace(key, value)
         #print line
 
     #line = set(string.printable)
     # convert to unicode and strip unprintable characters via ASCII
-    line = unicode(line, errors = 'ignore')
+    line = str(line, errors = 'ignore')
 
     # replace further known entities using library
     line =  re.sub('&(%s);' % '|'.join(name2codepoint),
-            lambda m: unichr(name2codepoint[m.group(1)]), line)
+            lambda m: chr(name2codepoint[m.group(1)]), line)
 
     try:
         # further replace known xml char replace to ascii
         line = line.encode('ascii', 'xmlcharrefreplace')
     except Exception as e:
-        print line
+        print(line)
         traceback.print_exc()
         # Print exception information to file
         exc_type, exc_obj, exc_tb = sys.exc_info()

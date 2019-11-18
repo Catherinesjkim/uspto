@@ -12,7 +12,7 @@ import traceback
 import os
 import sys
 import zipfile
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -62,13 +62,13 @@ def process_APS_grant_content(args_array):
     # If xml file not found, then print error message
     if data_file_name == "":
         # Print and log that the xml file was not found
-        print '[APS .dat data file not found.  Filename{0}]'.format(args_array['url_link'])
+        print('[APS .dat data file not found.  Filename{0}]'.format(args_array['url_link']))
         logger.error('APS .dat file not found. Filename: ' + args_array['url_link'])
 
     # Process zip file contents of .dat or .txt file and .xml files
     data_reader = zip_file.open(data_file_name,'r')
     # Remove the temp files
-    urllib.urlcleanup()
+    urllib.request.urlcleanup()
     #os.remove(file_name)
     zip_file.close()
 
@@ -432,7 +432,7 @@ def process_APS_grant_content(args_array):
                         except Exception as e:
                             # Reset the item ready to insert
                             item_ready_to_insert = False
-                            print "Data missing from patent references for grant id : " + document_id + " in url: " + args_array['url_links']
+                            print("Data missing from patent references for grant id : " + document_id + " in url: " + args_array['url_links'])
                             logger.error("Some data was missing from the patent reference data for grant id: " + document_id + " in url: " + args_array['url_link'])
 
                 # CitedID
@@ -595,7 +595,7 @@ def process_APS_grant_content(args_array):
                             item_ready_to_insert = False
 
                         except Exception as e:
-                            print "Data missing from foreign references for grant id : " + document_id + " in url: " + args_array['url_links']
+                            print("Data missing from foreign references for grant id : " + document_id + " in url: " + args_array['url_links'])
                             logger.error("Some data was missing from the Foreign reference data for grant id: " + document_id + " in url: " + args_array['url_link'])
                             # Reset the item ready to insert
                             item_ready_to_insert = False
@@ -1081,7 +1081,7 @@ def process_APS_grant_content(args_array):
                             item_ready_to_insert = False
 
                         except Exception as e:
-                            print "Data missing from inventors for grant id : " + document_id + " in url: " + args_array['url_links']
+                            print("Data missing from inventors for grant id : " + document_id + " in url: " + args_array['url_links'])
                             logger.error("Some data was missing from inventors reference data for grant id: " + document_id + " in url: " + args_array['url_link'])
                             # Reset the item ready to insert
                             item_ready_to_insert = False
@@ -1258,7 +1258,7 @@ def process_APS_grant_content(args_array):
                             item_ready_to_insert = False
 
                         except Exception as e:
-                            print "Data missing from assignee for grant id : " + document_id + " in url: " + args_array['url_links']
+                            print("Data missing from assignee for grant id : " + document_id + " in url: " + args_array['url_links'])
                             logger.error("Some data was missing from assignee reference data for grant id: " + document_id + " in url: " + args_array['url_link'])
                             # Reset the item ready to insert
                             item_ready_to_insert = False
@@ -1547,4 +1547,4 @@ def process_APS_grant_content(args_array):
             USPTOCSVHandler.delete_csv_files(args_array)
 
         # Print message to stdout and log
-        print '[Processed .bat or .txt File. Total time:{0}  Time: {1}]'.format(time.time()-start_time, time.strftime('%c'))
+        print('[Processed .bat or .txt File. Total time:{0}  Time: {1}]'.format(time.time()-start_time, time.strftime('%c')))

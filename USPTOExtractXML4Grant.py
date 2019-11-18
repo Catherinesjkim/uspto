@@ -544,7 +544,7 @@ def extract_XML4_grant(raw_data, args_array):
             "FileName" : args_array['file_name']
         })
     except Exception as e:
-        print "could not append to array"
+        print("could not append to array")
         traceback.print_exc()
         logger.warning("Could not append patent data to array for patent number: " + document_id + " Traceback: " + traceback.format_exc())
 

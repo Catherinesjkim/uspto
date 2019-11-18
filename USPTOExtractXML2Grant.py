@@ -51,7 +51,7 @@ def extract_XML2_grant(raw_data, args_array):
     except ET.ParseError as e:
         print_xml = raw_data.split("\n")
         for num, line in enumerate(print_xml, start = 1):
-            print str(num) + ' : ' + line
+            print(str(num) + ' : ' + line)
         logger.error("Character Entity prevented ET from parsing XML in file: " + url_link )
         # Print traceback
         traceback.print_exc()

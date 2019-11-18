@@ -39,7 +39,7 @@ def store_grant_data(processed_data_array, args_array):
         if "processed_grant" in processed_data_array and len(processed_data_array['processed_grant']):
             for data_item in processed_data_array['processed_grant']:
                 # Print start message to stdout and log
-                print '- Starting to write {0} to .csv file {1} for document: {2}. Start Time: {3}'.format(args_array['document_type'], file_name, data_item['GrantID'], time.strftime("%c"))
+                print('- Starting to write {0} to .csv file {1} for document: {2}. Start Time: {3}'.format(args_array['document_type'], file_name, data_item['GrantID'], time.strftime("%c")))
                 #logger.info('- Starting to write {0} to .csv file {1} for document: {2}. Start Time: {3}'.format(args_array['document_type'], file_name, data_item['GrantID'], time.strftime("%c")))
                 # Move the table name to temp variable and remove from table
                 table_name = data_item['table_name']
@@ -52,7 +52,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['grant']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_applicant" in processed_data_array and len(processed_data_array['processed_applicant']):
@@ -65,7 +65,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['applicant']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_examiner" in processed_data_array and len(processed_data_array['processed_examiner']):
@@ -78,7 +78,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['examiner']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_agent" in processed_data_array and len(processed_data_array['processed_agent']):
@@ -91,7 +91,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['agent']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_assignee" in processed_data_array and len(processed_data_array['processed_assignee']):
@@ -104,7 +104,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['assignee']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_inventor" in processed_data_array and len(processed_data_array['processed_inventor']):
@@ -117,7 +117,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['inventor']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_gracit" in processed_data_array and len(processed_data_array['processed_gracit']):
@@ -130,7 +130,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['gracit']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_nonpatcit" in processed_data_array and len(processed_data_array['processed_nonpatcit']):
@@ -143,7 +143,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['nonpatcit']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_forpatcit" in processed_data_array and len(processed_data_array['processed_forpatcit']):
@@ -156,7 +156,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['forpatcit']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_usclass" in processed_data_array and len(processed_data_array['processed_usclass']):
@@ -169,7 +169,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['usclass']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_intclass" in processed_data_array and len(processed_data_array['processed_intclass']):
@@ -182,7 +182,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['intclass']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
         if "processed_cpcclass" in processed_data_array and len(processed_data_array['processed_cpcclass']):
@@ -195,7 +195,7 @@ def store_grant_data(processed_data_array, args_array):
                     # Append the table onto the array
                     args_array['csv_file_array']['cpcclass']['table_name'] = table_name
                 except Exception as e:
-                    print '- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c"))
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
 
@@ -204,7 +204,7 @@ def store_grant_data(processed_data_array, args_array):
     elif "database" in args_array["command_args"] and args_array['database_insert_mode'] == "each":
 
         # Print start message to stdout
-        print '- Starting to write {0} to database. Start Time: {1}'.format(file_name, time.strftime("%c"))
+        print('- Starting to write {0} to database. Start Time: {1}'.format(file_name, time.strftime("%c")))
 
         # Reset the start time
         start_time = time.time()
@@ -220,7 +220,7 @@ def store_grant_data(processed_data_array, args_array):
             database_connection.load(SQLProcessor.build_sql_insert_query(item, args_array), args_array, logger)
 
         # Loop throught the processed_data_array and create sql queries and execute them
-        for key, value in processed_data_array.items():
+        for key, value in list(processed_data_array.items()):
             for item in value:
                 # Store table name for stdout
                 args_array['table_name'] = item['table_name']

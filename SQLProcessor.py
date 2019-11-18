@@ -47,9 +47,9 @@ class SQLProcess:
                 self._conn.rollback()
 
             # Print and log general fail comment
-            print "Database INSERT query failed... " + args_array['file_name'] + " into table: " + args_array['table_name'] + " Document ID Number " + args_array['document_id']
+            print("Database INSERT query failed... " + args_array['file_name'] + " into table: " + args_array['table_name'] + " Document ID Number " + args_array['document_id'])
             logger.error("Database INSERT query failed..." + args_array['file_name'] + " into table: " + args_array['table_name'] + " Document ID Number " + args_array['document_id'])
-            print "Query string: " + sql
+            print("Query string: " + sql)
             logger.error("Query string: " + sql)
             # Print traceback
             traceback.print_exc()
@@ -64,7 +64,7 @@ class SQLProcess:
     def load_csv_bulk_data(self, args_array, logger):
 
         # Print message to stdout and log starting of bulk upload
-        print '[Staring to load csv files in bulk to ' + args_array['database_type'] + ']'
+        print('[Staring to load csv files in bulk to ' + args_array['database_type'] + ']')
         logger.info('[Staring to load csv files in bulk to ' + args_array['database_type'] + ']')
 
         # Set the start time
@@ -78,11 +78,11 @@ class SQLProcess:
         #logger.warning(str(args_array['csv_file_array'])
 
         # Loop through each csv file and bulk copy into database
-        for key, csv_file in args_array['csv_file_array'].items():
+        for key, csv_file in list(args_array['csv_file_array'].items()):
 
             if "table_name" in csv_file:
                 # Print message to stdout and log about which table is being inserted
-                print "Database bulk load query started for: " + key + " from filename: " + csv_file['csv_file_name']
+                print("Database bulk load query started for: " + key + " from filename: " + csv_file['csv_file_name'])
                 logger.info("Database bulk load query started for: " + key + " from filename: " + csv_file['csv_file_name'])
 
                 # If postgresql build query
@@ -99,9 +99,9 @@ class SQLProcess:
                         # Roll back the transaction
                         self._conn.rollback()
                         # Print and log general fail comment
-                        print "Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name']
+                        print("Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
                         logger.error("Database bulk load query failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
-                        print "Query string: " + sql
+                        print("Query string: " + sql)
                         logger.error("Query string: " + sql)
                         # Print traceback
                         traceback.print_exc()
@@ -137,9 +137,9 @@ class SQLProcess:
                             # Increment the failed counter
                             bulk_insert_failed_attempts += 1
                             # Print and log general fail comment
-                            print "Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name']
+                            print("Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
                             logger.error("Database bulk load query failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
-                            print "Query string: " + bulk_insert_sql
+                            print("Query string: " + bulk_insert_sql)
                             logger.error("Query string: " + bulk_insert_sql)
                             # Print traceback
                             traceback.print_exc()
@@ -179,7 +179,7 @@ class SQLProcess:
         start_time = time.time()
 
         # Print and log starting to check for previous attempt to process file
-        print "[Checking database for previous attempt to process the " + call_type + " file: " + file_name + "...]"
+        print("[Checking database for previous attempt to process the " + call_type + " file: " + file_name + "...]")
         logger.info("[Checking database for previous attempt to process the " + call_type + " file:" + file_name + "...]")
 
         # Connect to database if not connected
@@ -209,7 +209,7 @@ class SQLProcess:
                 self._conn.rollback()
 
             # Print and log general fail comment
-            print "Database check if " + call_type + " file started failed... " + file_name + " from table: uspto.STARTED_FILES"
+            print("Database check if " + call_type + " file started failed... " + file_name + " from table: uspto.STARTED_FILES")
             logger.error("Database check if " + call_type + " file started failed... " + file_name + " from table: uspto.STARTED_FILES")
             # Print traceback
             traceback.print_exc()
@@ -227,7 +227,7 @@ class SQLProcess:
                 insert_file_started_sql = "INSERT INTO uspto." + table_name + " (FileName) VALUES('" + file_name + "')"
 
             # Print and log not found previous attempt to process file
-            print "No previous attempt found to process the " + call_type + " file: " + file_name + " in table: uspto.STARTED_FILES"
+            print("No previous attempt found to process the " + call_type + " file: " + file_name + " in table: uspto.STARTED_FILES")
             logger.info("No previous attempt found to process the " + call_type + " file:" + file_name + " in table: uspto.STARTED_FILES")
 
             # Insert the record into the database that the file has been started.
@@ -241,7 +241,7 @@ class SQLProcess:
                     self._conn.rollback()
 
                 # Print and log general fail comment
-                print "Database insert " + call_type + " file started failed... " + file_name + " into table: uspto.STARTED_FILES"
+                print("Database insert " + call_type + " file started failed... " + file_name + " into table: uspto.STARTED_FILES")
                 logger.error("Database insert " + call_type + " file started failed... " + file_name + " into table: uspto.STARTED_FILES")
                 # Print traceback
                 traceback.print_exc()
@@ -255,7 +255,7 @@ class SQLProcess:
         elif check_file_started[0] != 0:
 
             # Print and log found previous attempt to process file
-            print "Found previous attempt to process the " + call_type + " file: " + file_name + " in table: uspto.STARTED_FILES"
+            print("Found previous attempt to process the " + call_type + " file: " + file_name + " in table: uspto.STARTED_FILES")
             #logger.info("Found previous attempt to process the " + call_type + " file:" + file_name + " in table: uspto.STARTED_FILES")
 
             # Build array to hold all table names to have
@@ -307,7 +307,7 @@ class SQLProcess:
                         records_deleted = True
                         #TODO: check the numer of records deleted from each table and log/print
                         # Print and log finished check for previous attempt to process file
-                        print "Finished database delete of previous attempt to process the " + call_type + " file: " + file_name + " table: " + table_name
+                        print("Finished database delete of previous attempt to process the " + call_type + " file: " + file_name + " table: " + table_name)
                         logger.info("Finished database delete of previous attempt to process the " + call_type + " file:" + file_name + " table: " + table_name)
 
                     except Exception as e:
@@ -321,7 +321,7 @@ class SQLProcess:
                             self._conn.rollback()
 
                         # Print and log general fail comment
-                        print "Database delete attempt " + str(records_deleted_failed_attempts) + " failed... " + file_name + " from table: " + table_name
+                        print("Database delete attempt " + str(records_deleted_failed_attempts) + " failed... " + file_name + " from table: " + table_name)
                         logger.error("Database delete attempt " + str(records_deleted_failed_attempts) + " failed..." + file_name + " from table: " + table_name)
                         # Print traceback
                         traceback.print_exc()
@@ -373,7 +373,7 @@ class SQLProcess:
                     port = self._port,
                     charset = self._charset
                 )
-                print "Connection to MySQL database established."
+                print("Connection to MySQL database established.")
 
             if self._cursor == None:
                 self._cursor = self._conn.cursor()
@@ -390,7 +390,7 @@ class SQLProcess:
             if self._cursor == None:
                 # conn.cursor will return a cursor object, you can use this cursor to perform queries
                 self._cursor = self._conn.cursor()
-                print "Connection to PostgreSQL database established."
+                print("Connection to PostgreSQL database established.")
 
     def close(self):
         if self._cursor != None:
@@ -399,13 +399,13 @@ class SQLProcess:
         if self._conn != None:
             self._conn.close()
             self._conn = None
-        print 'Connection to database closed successfully.'
+        print('Connection to database closed successfully.')
 
 
 # Reset the database using os.system command line
 def reset_database(database_args, args_array):
 
-    print "Resetting database contents...."
+    print("Resetting database contents....")
 
     try:
         # Set the variables to pass to SQL
@@ -418,11 +418,11 @@ def reset_database(database_args, args_array):
 
         if args_array['database_type'] == "mysql":
             command = """mysql -u %s -p="%s" -h %s -P %s %s < %s""" %(user, passwd, host, port, db, filename)
-            print command
+            print(command)
             command_return_string = os.system(command)
-            print command_return_string
+            print(command_return_string)
         else:
-            print "PostgreSQL cannot be automatically reset from commmand argument...."
+            print("PostgreSQL cannot be automatically reset from commmand argument....")
 
     except Exception as e:
         traceback.print_exc()
@@ -445,7 +445,7 @@ def build_sql_insert_query(insert_data_array, args_array):
     sql_column_string = "("
     sql_value_string = " VALUES ("
     # Concatenate the list of keys and values to sql format
-    for key, value in insert_data_array.items():
+    for key, value in list(insert_data_array.items()):
 
         # Don't escape values that are None (NULL)
         if value is not None and isinstance(value, int) == False:

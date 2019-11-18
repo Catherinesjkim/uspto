@@ -188,7 +188,7 @@ def open_csv_files(file_type, file_name, csv_directory):
         csv_writer_array['foreignpriority']['csv_writer'].writeheader()
 
     # Write message to stdout and log that all csv files are open
-    print '[Opened all .csv files for ' + file_type + ' ' + file_name + ' storage Time: {0}]'.format(time.strftime('%c'))
+    print('[Opened all .csv files for ' + file_type + ' ' + file_name + ' storage Time: {0}]'.format(time.strftime('%c')))
     logger.info('[Opened all .csv files for ' + file_type + ' ' + file_name + ' storage Time: {0}]'.format(time.strftime('%c')))
 
     # Return the array
@@ -202,21 +202,21 @@ def close_csv_files(args_array):
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
     # Print message to stdout and log
-    print '[Cleaning up .csv files... ]'
+    print('[Cleaning up .csv files... ]')
     logger.info('[Cleaning up .csv files... ]')
 
     # Loop through each file in array of open csv files
-    for key, csv_file in args_array['csv_file_array'].items():
+    for key, csv_file in list(args_array['csv_file_array'].items()):
         try:
             # Close file being written to
             csv_file['file'].close()
             # Print message to stdout and log
-            print 'Closed .csv file: ' + csv_file['csv_file_name'] + ' Time: {0}'.format(time.strftime('%c'))
+            print('Closed .csv file: ' + csv_file['csv_file_name'] + ' Time: {0}'.format(time.strftime('%c')))
             logger.info('Closed .csv file: ' + csv_file['csv_file_name'] + ' Time: {0}'.format(time.strftime('%c')))
             # Remove csv file from the CSV directory if 'csv' not in args_array['command_args']
         except Exception as e:
             # Print exception information to file
-            print 'Error removing .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c'))
+            print('Error removing .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c')))
             logger.error('Error removing .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c')))
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -230,21 +230,21 @@ def delete_csv_files(args_array):
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
     # Print message to stdout and log
-    print '[Cleaning up .csv files... ]'
+    print('[Cleaning up .csv files... ]')
     logger.info('[Cleaning up .csv files... ]')
 
     # Loop through each file in array of open csv files
-    for key, csv_file in args_array['csv_file_array'].items():
+    for key, csv_file in list(args_array['csv_file_array'].items()):
         try:
             # Remove csv file from the CSV directory if 'csv' not in args_array['command_args']
             if os.path.exists(csv_file['csv_file_name']):
                 os.remove(csv_file['csv_file_name'])
             # Print message to stdout and log
-            print 'Removed .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c'))
+            print('Removed .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c')))
             logger.info('Removed .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c')))
         except Exception as e:
             # Print exception information to file
-            print 'Error removing .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c'))
+            print('Error removing .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c')))
             logger.error('Error removing .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c')))
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

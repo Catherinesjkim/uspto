@@ -11,7 +11,7 @@ import time
 import os
 import sys
 import traceback
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -130,12 +130,12 @@ def process_XML_application_content(args_array):
             USPTOCSVHandler.delete_csv_files(args_array)
 
         # Print message to stdout and log
-        print '[Loaded {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c"))
+        print('[Loaded {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
         logger.info('[Loaded {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
 
     else:
         # Print message to stdout and log
-        print '[Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c"))
+        print('[Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
         logger.info('[Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
 
         # TODO: Use the line by line method of the .csv file to load data.

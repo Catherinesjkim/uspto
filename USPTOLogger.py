@@ -38,7 +38,7 @@ def write_process_log(args_array):
     logger = logging.getLogger("USPTO_Database_Construction")
 
     # Print message to stdout and log file
-    print "Updating the log for processed file: " + args_array['url_link']
+    print("Updating the log for processed file: " + args_array['url_link'])
     logger.info("Updating the log for processed file: " + args_array['url_link'])
 
     # Set the log file to check and rewrite based on the document_type passed
@@ -75,7 +75,7 @@ def write_process_log(args_array):
                 line = line.split(",")
                 #print line
                 if line[0] == args_array["url_link"]:
-                    print "Found the URL link in log file"
+                    print("Found the URL link in log file")
                     # Append the line with "Processed"
                     log_rewrite_array.append([line[0], line[1], "Processed\n"])
                 # If the first element is not the line we are looking for
@@ -97,7 +97,7 @@ def write_process_log(args_array):
             log_lock.close()
 
             # Print message to stdout and log file
-            print "Log updated for processed file: " + args_array['url_link']
+            print("Log updated for processed file: " + args_array['url_link'])
             logger.info("Log updated for processed file: " + args_array['url_link'])
 
             # End the while loop while by setting file_locked
@@ -136,7 +136,7 @@ def write_link_arrays_to_file(all_links_array, args_array):
     # Log finished building all zip filepaths
     logger.info('Finished writing all .zip filepaths to file ' + time.strftime("%c"))
     # Print message finished writing all links to file
-    print "Finished writing all patent grant and application links to files. Finshed Time: " + time.strftime("%c")
+    print("Finished writing all patent grant and application links to files. Finshed Time: " + time.strftime("%c"))
 
 
 # Write all log links to files
@@ -199,7 +199,7 @@ def update_link_arrays_to_file(all_links_array, args_array):
     # Log finished building all zip filepaths
     logger.info('Finished updating all .zip filepaths to file ' + time.strftime("%c"))
     # Print message finished writing all links to file
-    print "Finished updating all patent grant and application links to files. Finshed Time: " + time.strftime("%c")
+    print("Finished updating all patent grant and application links to files. Finshed Time: " + time.strftime("%c"))
 
 
 # Collect all links from file
@@ -213,7 +213,7 @@ def collect_all_unstarted_links_from_file(args_array):
     classification_temp_array = []
 
     # Print start message to stdout and log start of reading links from file
-    print 'Reading all required links to download and parse ' + time.strftime("%c")
+    print('Reading all required links to download and parse ' + time.strftime("%c"))
     logger.info('Reading all required links to download and parse ' + time.strftime("%c"))
 
     try:
@@ -238,7 +238,7 @@ def collect_all_unstarted_links_from_file(args_array):
                     classification_temp_array.append(line.split(","))
 
         # Print finished message to stdout and log file
-        print 'Finished reading all required links to download and parse ' + time.strftime("%c")
+        print('Finished reading all required links to download and parse ' + time.strftime("%c"))
         logger.info('Finished reading all required links to download and parse ' + time.strftime("%c"))
 
         # Return the array to main function
@@ -246,7 +246,7 @@ def collect_all_unstarted_links_from_file(args_array):
 
     except Exception as e:
         # Log failure collecting links from file
-        print "Failed to get all links from log files " + time.strftime("%c")
+        print("Failed to get all links from log files " + time.strftime("%c"))
         traceback.print_exc()
         logger.error('Failed to get all links from log files ' + time.strftime("%c"))
         # Log exception error messages
@@ -268,7 +268,7 @@ def build_or_update_link_files(args_array):
     if not os.path.isfile(args_array['grant_process_log_file']) or not os.path.isfile(args_array['application_process_log_file']) or not os.path.isfile(args_array['classification_process_log_file']):
 
         # Print message to stdout and log file
-        print "No existing link file lists found. Creating them now.  " + time.strftime("%c")
+        print("No existing link file lists found. Creating them now.  " + time.strftime("%c"))
         logger.info('No existing link file lists found. Creating them now. ' + time.strftime("%c"))
 
         try:
@@ -279,7 +279,7 @@ def build_or_update_link_files(args_array):
 
         except Exception as e:
             # Log failure building all zip filepaths
-            print "Failed to get all links from USPTO bulk data site " + time.strftime("%c")
+            print("Failed to get all links from USPTO bulk data site " + time.strftime("%c"))
             traceback.print_exc()
             logger.error('Failed to get all links from USPTO bulk data site ' + time.strftime("%c"))
             # Log exception error messages
@@ -291,7 +291,7 @@ def build_or_update_link_files(args_array):
     elif "update" in args_array['command_args']:
 
         # Print message to stdout and log file
-        print "Updating file lists looking for new patent releases.  " + time.strftime("%c")
+        print("Updating file lists looking for new patent releases.  " + time.strftime("%c"))
         logger.info('Updating file lists looking for new patent releases. ' + time.strftime("%c"))
 
         try:
@@ -301,7 +301,7 @@ def build_or_update_link_files(args_array):
 
         except Exception as e:
             # Log finished building all zip filepaths
-            print "Failed to get all links from USPTO bulk data site " + time.strftime("%c")
+            print("Failed to get all links from USPTO bulk data site " + time.strftime("%c"))
             traceback.print_exc()
             logger.error('Failed to get all links from USPTO bulk data site ' + time.strftime("%c"))
             # Log exception error messages
