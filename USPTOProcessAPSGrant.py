@@ -1528,7 +1528,7 @@ def process_APS_grant_content(args_array):
 
     # If data is to be inserted as bulk csv files, then call the sql function
     if args_array['database_insert_mode'] == 'bulk':
-        file_processed = args_array['database_connection'].load_csv_bulk_data(args_array, logger)
+        file_processed = args_array['database_connection'].load_csv_bulk_data(args_array)
 
     if file_processed:
         # Send the information to USPTOLogger.write_process_log to have log file rewritten to "Processed"

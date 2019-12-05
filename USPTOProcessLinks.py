@@ -99,11 +99,11 @@ def download_zip_file(args_array):
                 return args_array['sandbox_downloads_dirpath'] + base_file_name
             else:
                 print('[Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
-                logger.info('[Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
+                logger.info('Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
                 with urllib.request.urlopen(args_array['url_link']) as response, open(args_array['sandbox_downloads_dirpath'] + base_file_name, 'wb') as out_file:
                     shutil.copyfileobj(response, out_file)
                 print('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(base_file_name,time.time()-start_time, time.strftime("%c")))
-                logger.info('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(base_file_name,time.time()-start_time, time.strftime("%c")))
+                logger.info('Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(base_file_name,time.time()-start_time, time.strftime("%c")))
                 # Return the file name
                 return args_array['sandbox_downloads_dirpath'] + base_file_name
 
@@ -140,7 +140,7 @@ def process_link_file(args_array):
     print("Finished the data storage process for contents of: " + args_array['url_link'] + " Finished at: " + time.strftime("%c"))
 
 
-# get all the formats of grants and publications
+# Collect all patent grant and publications data files
 def get_all_links(args_array):
 
     # Import logger
@@ -151,8 +151,8 @@ def get_all_links(args_array):
     # PA = Patent Applications
 
     # Patent Grant Information Retrieval
-    url_source_USPTO = 'https://bulkdata.uspto.gov/'
-    url_source_UPC_class = "https://www.uspto.gov/web/patents/classification/selectnumwithtitle.htm"
+    url_source_USPTO = args_array['uspto_bulk_data_url']
+    url_source_UPC_class = args_array["uspto_classification_data_url"]
 
     # TODO: fix the class parser
     print('Started grabbing patent classification links... ' + time.strftime("%c"))
@@ -187,8 +187,11 @@ def get_all_links(args_array):
     # Return the array of arrays of required links
     return {"grants" : grant_linklist, "applications" : application_linklist, "classifications" : classification_linklist}
 
-# parse HTML file to get links <a>
+# Parse USPTO bulk-data site to get document links
 def links_parser(link_type, url):
+
+    # Import logger
+    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
     # Define array to hold all links found
     link_array = []
@@ -207,12 +210,10 @@ def links_parser(link_type, url):
         if link_type == "PG":
             if "https://bulkdata.uspto.gov/data/patent/grant/redbook/bibliographic/" in link['href']:
                 link_array.append(link['href'])
-
         # Patent Application
         elif link_type == "PA":
             if "https://bulkdata.uspto.gov/data/patent/application/redbook/bibliographic/" in link['href']:
                 link_array.append(link['href'])
-
         # Patent Application Pair
         elif link_type == "PAP":
             if "" in link['href']:
@@ -241,7 +242,8 @@ def links_parser(link_type, url):
                 if link not in final_zip_file_link_array:
                     final_zip_file_link_array.append(link)
 
-    print("Number of downloadable .zip files found = " + str(len(final_zip_file_link_array)))
+    print("Number of downloadable " + link_type + " .zip files found = " + str(len(final_zip_file_link_array)))
+    logger.info("Number of downloadable " + link_type + " .zip files found = " + str(len(final_zip_file_link_array)))
 
     # Return the array links to zip files with absolute urls
     return final_zip_file_link_array

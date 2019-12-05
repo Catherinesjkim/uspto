@@ -9,6 +9,9 @@ import sys
 import os
 from pprint import pprint
 
+# Import USPTO Parser Functions
+import USPTOLogger
+
 class SQLProcess:
 
     # TODO: write the script to accept a database password from stdin
@@ -28,7 +31,10 @@ class SQLProcess:
         self._cursor = None
 
     # Load the insert query into the database
-    def load(self, sql, args_array, logger):
+    def load(self, sql, args_array):
+
+        # Import logger
+        logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
         # Connect to database if not connected
         if self._conn == None:
@@ -61,11 +67,14 @@ class SQLProcess:
 
     # This function accepts an array of csv files which need to be inserted
     # using COPY command in postgresql and ?? in MySQL
-    def load_csv_bulk_data(self, args_array, logger):
+    def load_csv_bulk_data(self, args_array):
+
+        # Import logger
+        logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
         # Print message to stdout and log starting of bulk upload
         print('[Staring to load csv files in bulk to ' + args_array['database_type'] + ']')
-        logger.info('[Staring to load csv files in bulk to ' + args_array['database_type'] + ']')
+        logger.info('Staring to load csv files in bulk to ' + args_array['database_type'])
 
         # Set the start time
         start_time = time.time()
@@ -161,19 +170,22 @@ class SQLProcess:
             self.connect()
             self._cursor.execute(sql)
             #self._conn.commit()
-            result=self._cursor.fetchone()
+            result = self._cursor.fetchone()
             return int(result[0])
         else:
             self._cursor.execute(sql)
             #self._conn.commit()
-            result=self._cursor.fetchone()
+            result = self._cursor.fetchone()
             return int(result[0])
         #finally:
             #self.close()
 
     # Used to remove records from database when a file previously
     # started being processed and did not finish. (when insert duplicate ID error happens)
-    def remove_previous_file_records(self, call_type, file_name, logger):
+    def remove_previous_file_records(self, call_type, file_name):
+
+        # Import logger
+        logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
         # Set process time
         start_time = time.time()
@@ -361,6 +373,9 @@ class SQLProcess:
 
     def connect(self):
 
+        # Import logger
+        logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+
         # Connect to MySQL
         if self.database_type == "mysql":
 
@@ -374,6 +389,7 @@ class SQLProcess:
                     charset = self._charset
                 )
                 print("Connection to MySQL database established.")
+                logger.info("Connection to MySQL database established.")
 
             if self._cursor == None:
                 self._cursor = self._conn.cursor()
@@ -391,6 +407,7 @@ class SQLProcess:
                 # conn.cursor will return a cursor object, you can use this cursor to perform queries
                 self._cursor = self._conn.cursor()
                 print("Connection to PostgreSQL database established.")
+                logger.info("Connection to PostgreSQL database established.")
 
     def close(self):
         if self._cursor != None:

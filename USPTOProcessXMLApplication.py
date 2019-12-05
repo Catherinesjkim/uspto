@@ -122,7 +122,7 @@ def process_XML_application_content(args_array):
 
     # If data is to be inserted as bulk csv files, then call the sql function
     if args_array['database_insert_mode'] == 'bulk':
-        file_processed = args_array['database_connection'].load_csv_bulk_data(args_array, logger)
+        file_processed = args_array['database_connection'].load_csv_bulk_data(args_array)
 
     # If the file was successfully processed into the database
     if file_processed:
@@ -134,11 +134,11 @@ def process_XML_application_content(args_array):
 
         # Print message to stdout and log
         print('[Loaded {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
-        logger.info('[Loaded {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
+        logger.info('Loaded {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
 
     else:
         # Print message to stdout and log
         print('[Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
-        logger.info('[Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
+        logger.info('Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
 
         # TODO: Use the line by line method of the .csv file to load data.

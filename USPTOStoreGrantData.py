@@ -38,9 +38,9 @@ def store_grant_data(processed_data_array, args_array):
         # Table name must be appended to the dictionary for later processing
         if "processed_grant" in processed_data_array and len(processed_data_array['processed_grant']):
             for data_item in processed_data_array['processed_grant']:
-                # Print start message to stdout and log
-                print('- Starting to write {0} to .csv file {1} for document: {2}. Start Time: {3}'.format(args_array['document_type'], file_name, data_item['GrantID'], time.strftime("%c")))
-                #logger.info('- Starting to write {0} to .csv file {1} for document: {2}. Start Time: {3}'.format(args_array['document_type'], file_name, data_item['GrantID'], time.strftime("%c")))
+                if args_array['stdout_level'] == 1:
+                    # Print start message to stdout and log
+                    print('- Starting to write {0} to .csv file {1} for document: {2}. Start Time: {3}'.format(args_array['document_type'], file_name, data_item['GrantID'], time.strftime("%c")))
                 # Move the table name to temp variable and remove from table
                 table_name = data_item['table_name']
                 del data_item['table_name']
@@ -217,7 +217,7 @@ def store_grant_data(processed_data_array, args_array):
             args_array['table_name'] = item['table_name']
             args_array['document_id'] = item['GrantID']
             # Build query and pass to database loader
-            database_connection.load(SQLProcessor.build_sql_insert_query(item, args_array), args_array, logger)
+            database_connection.load(SQLProcessor.build_sql_insert_query(item, args_array), args_array)
 
         # Loop throught the processed_data_array and create sql queries and execute them
         for key, value in list(processed_data_array.items()):
@@ -226,4 +226,4 @@ def store_grant_data(processed_data_array, args_array):
                 args_array['table_name'] = item['table_name']
                 args_array['document_id'] = item['GrantID']
                 # Build query and pass to database loader
-                database_connection.load(SQLProcessor.build_sql_insert_query(item, args_array), args_array, logger)
+                database_connection.load(SQLProcessor.build_sql_insert_query(item, args_array), args_array)

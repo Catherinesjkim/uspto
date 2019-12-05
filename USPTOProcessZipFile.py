@@ -45,12 +45,12 @@ def extract_xml_file_from_zip(args_array):
         if args_array['sandbox'] == False and os.path.exists(args_array['temp_zip_file_name']):
             # Print message to stdout
             print('[Purging .zip file ' + args_array['temp_zip_file_name'] + '...]')
-            logger.info('[Purging .zip file ' + args_array['temp_zip_file_name'] + '...]')
+            logger.info('Purging .zip file ' + args_array['temp_zip_file_name'] + '...')
             os.remove(args_array['temp_zip_file_name'])
 
         # Print message to stdout
         print('[xml file contents extracted ' + xml_file_name + '...]')
-        logger.info('[xml file contents extracted ' + xml_file_name + '...]')
+        logger.info('xml file contents extracted ' + xml_file_name + '...')
         # Return the file contents as array
         return xml_file_contents
 
@@ -91,7 +91,7 @@ def extract_xml_file_from_zip(args_array):
         except:
             # Print message to stdout
             print('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with linux subprocess module]')
-            logger.warning('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip linux subprocess module]')
+            logger.warning('Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip linux subprocess module')
             traceback.print_exc()
 
             # Attempt to download the file again
@@ -100,7 +100,8 @@ def extract_xml_file_from_zip(args_array):
             except:
                 # Print message to stdout
                 print('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with linux subprocess module]')
-                logger.warning('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip linux subprocess module]')
+                logger.warning('Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip linux subprocess module')
+                delete_zip_file(args_array['temp_zip_file_name'])
                 traceback.print_exc()
 
             return None
@@ -141,12 +142,12 @@ def extract_dat_file_from_zip(args_array):
         if args_array['sandbox'] == False and os.path.exists(args_array['temp_zip_file_name']):
             # Print message to stdout
             print('[Purging .zip file ' + args_array['temp_zip_file_name'] + '...]')
-            logger.info('[Purging .zip file ' + args_array['temp_zip_file_name'] + '...]')
+            logger.info('Purging .zip file ' + args_array['temp_zip_file_name'] + '...')
             os.remove(args_array['temp_zip_file_name'])
 
         # Print message to stdout
         print('[data file contents extracted ' + data_file_name + '...]')
-        logger.info('[data file contents extracted ' + data_file_name + '...]')
+        logger.info('data file contents extracted ' + data_file_name + '...')
         # Return the file contents as array
         return data_file_contents
 
@@ -154,3 +155,17 @@ def extract_dat_file_from_zip(args_array):
     # TODO: Unzip the file using subprocess and find the xml file
     except:
         return None
+
+
+# Deletes a zip file
+def delete_zip_file(filename):
+
+    # Import logger
+    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+    
+    # Check that a zip file
+    if ".zip" in filename:
+        # Remove the file
+        os.remove(args_array['temp_zip_file_name'])
+        print("[.Zip file " + args_array['temp_zip_file_name'] + " has been removed...]")
+        logger.warning(".Zip file " + args_array['temp_zip_file_name'] + " has been removed...")

@@ -121,11 +121,31 @@ def extract_XML4_application(raw_data, args_array):
             for icc in ics.findall('classification-ipcr'):
 
                 for x in icc.getchildren():
-                    if(USPTOSanitizer.check_tag_exists(x,'section')): i_class_sec = x.text[:100]
-                    if(USPTOSanitizer.check_tag_exists(x,'class')): i_class = x.text[:15]
-                    if(USPTOSanitizer.check_tag_exists(x,'subclass')): i_subclass = x.text[:15]
-                    if(USPTOSanitizer.check_tag_exists(x,'main-group')): i_class_mgr = x.text[:15]
-                    if(USPTOSanitizer.check_tag_exists(x,'subgroup')): i_class_sgr = x.text[:15]
+                    try:
+                        if(USPTOSanitizer.check_tag_exists(x,'section')): i_class_sec = x.text[:100]
+                        else: i_class_sec = None
+                    except:
+                        i_class_sec = None
+                    try:
+                        if(USPTOSanitizer.check_tag_exists(x,'class')): i_class = x.text[:15]
+                        else: i_class = None
+                    except:
+                        i_class = None
+                    try:
+                        if(USPTOSanitizer.check_tag_exists(x,'subclass')): i_subclass = x.text[:15]
+                        else: i_subclass = None
+                    except:
+                        i_subclass = None
+                    try:
+                        if(USPTOSanitizer.check_tag_exists(x,'main-group')): i_class_mgr = x.text[:15]
+                        else: i_class_mgr = None
+                    except:
+                        i_class_mgr = None
+                    try:
+                        if(USPTOSanitizer.check_tag_exists(x,'subgroup')): i_class_sgr = x.text[:15]
+                        else: i_class_sgr = None
+                    except:
+                        i_class_sgr = None
 
                 # Append SQL data into dictionary to be written later
                 processed_intclass.append({

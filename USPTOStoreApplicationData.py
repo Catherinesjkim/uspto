@@ -42,8 +42,8 @@ def store_application_data(processed_data_array, args_array):
         if "processed_application" in processed_data_array and len(processed_data_array['processed_application']):
             for data_item in processed_data_array["processed_application"]:
                 # Print start message to stdout and log
-                print('- Starting to write {0} to .csv file {1} for document: {2}. Start Time: {3}'.format(args_array['document_type'], file_name, data_item['ApplicationID'], time.strftime("%c")))
-                #logger.info('- Starting to write {0} to .csv file {1} for document: {2}. Start Time: {3}'.format(args_array['document_type'], file_name, data_item['ApplicationID'], time.strftime("%c")))
+                if args_array['stdout_level'] == 1:
+                    print('- Starting to write {0} to .csv file {1} for document: {2}. Start Time: {3}'.format(args_array['document_type'], file_name, data_item['ApplicationID'], time.strftime("%c")))
                 table_name = data_item['table_name']
                 del data_item['table_name']
                 try:
@@ -162,11 +162,11 @@ def store_application_data(processed_data_array, args_array):
             args_array['table_name'] = item['table_name']
             args_array['document_id'] = item['ApplicationID']
             # Build query and pass to database loader
-            database_connection.load(SQLProcessor.build_sql_insert_query(item, args_array), args_array, logger)
+            database_connection.load(SQLProcessor.build_sql_insert_query(item, args_array), args_array)
 
         # Loop throught the processed_data_array and create sql queries and execute them
         for key, value in list(processed_data_array.items()):
             for item in value:
                 args_array['table_name'] = item['table_name']
                 args_array['document_id'] = item['ApplicationID']
-                database_connection.load(SQLProcessor.build_sql_insert_query(item, args_array), args_array, logger)
+                database_connection.load(SQLProcessor.build_sql_insert_query(item, args_array), args_array)

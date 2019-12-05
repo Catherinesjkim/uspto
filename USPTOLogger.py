@@ -151,62 +151,81 @@ def update_link_arrays_to_file(all_links_array, args_array):
     # Import Logger
     logger = logging.getLogger("USPTO_Database_Construction")
 
-    # Log finished building all zip filepaths
-    logger.info('Updating all required links to file ' + time.strftime("%c"))
+    # Log start of source file update
+    print('Updating all source data links to file ' + time.strftime("%c"))
+    logger.info('Updating all source data links to file ' + time.strftime("%c"))
 
     # Open files and read in data to check lines for links that exist already
     grant_process_file = open(args_array['grant_process_log_file'], "r+")
-    application_process_file = open(args_array['grant_process_log_file'], "r+")
-    grant_process_data_array = grant_process_file.readlines().split(",")
-    application_process_data_array = application_process_file.readlines().split(",")
+    application_process_file = open(args_array['application_process_log_file'], "r+")
+    grant_process_data_array = grant_process_file.readlines()
+    print(str(len(grant_process_data_array)) + " existing grant links were found in the log file")
+    application_process_data_array = application_process_file.readlines()
+    print(str(len(application_process_data_array)) + " existing application links were found in the log file")
+    # Close the process log files
+    grant_process_file.close()
+    application_process_file.close()
 
     # Check if new found grant links exist already in file
     for new_item in all_links_array['grants']:
         # Define a flag for if new link found in existing list
-        link_found_flag = 0
+        link_found_flag = False
         # Loop through all existing links found in file
         for item in grant_process_data_array:
+            # Break the csv format into array
+            item = item.split(",")
             # If match between links is found
             if new_item[0] == item[0]:
                 # Set flag that link is found
-                link_flag_found == 1
+                link_found_flag = True
+                break
         # If flag is not found
-        if link_flag_found == 0:
+        if link_found_flag == False:
+            print("- New patent grant data file found..." + new_item[0])
             # Append the new links to array
             grant_process_data_array.append(new_item[0] + "," + new_item[1] + ",Unprocessed\n")
-
-    # Write the new grant_process_data_array to the original log file
-    for item in grant_process_data_array:
-        grant_process_file.write(item + "\n")
-
 
     # Check if new found grant links exist already in file
     for new_item in all_links_array['applications']:
         # Define a flag for if new link found in existing list
-        link_found_flag = 0
+        link_found_flag = False
         # Loop through all existing links found in file
         for item in application_process_data_array:
+            # Break the csv format into array
+            item = item.split(",")
             # If match between links is found
             if new_item[0] == item[0]:
                 # Set flag that link is found
-                link_flag_found == 1
+                link_found_flag = True
+                break
         # If flag is not found
-        if link_flag_found == 0:
+        if link_found_flag == False:
+            print("- New patent application data file found..." + new_item[0])
             # Append the new links to array
             application_process_data_array.append(new_item[0] + "," + new_item[1] + ",Unprocessed\n")
 
+    # Open the process logs files to write updated lists
+    grant_process_file = open(args_array['grant_process_log_file'], "w")
+    application_process_file = open(args_array['application_process_log_file'], "w")
+    # Write the new grant_process_data_array to the original log file
+    for item in grant_process_data_array:
+        grant_process_file.write(item)
+    # Print message and log finished updating all process log files
+    print('Updated grant links written to log file ' + time.strftime("%c"))
+    logger.info('Updated grant links written to log file ' + time.strftime("%c"))
     # Write the new grant_process_data_array to the original log file
     for item in application_process_data_array:
-        application_process_file.write(item + "\n")
-
+        application_process_file.write(item)
+    # Print message and log finished updating all process log files
+    print('Updated application links written to log file ' + time.strftime("%c"))
+    logger.info('Updated application links written to log file ' + time.strftime("%c"))
     # Close files
     grant_process_file.close()
     application_process_file.close()
-    # Log finished building all zip filepaths
-    logger.info('Finished updating all .zip filepaths to file ' + time.strftime("%c"))
-    # Print message finished writing all links to file
-    print("Finished updating all patent grant and application links to files. Finshed Time: " + time.strftime("%c"))
 
+    # Print message and log finished updating all process log files
+    print("Finished updating all patent grant and application links to log files. Finshed Time: " + time.strftime("%c"))
+    logger.info('Finished updating all patent grant and application links to log files ' + time.strftime("%c"))
 
 # Collect all links from file
 def collect_all_unstarted_links_from_file(args_array):
@@ -297,14 +316,13 @@ def build_or_update_link_files(args_array):
     elif "update" in args_array['command_args']:
 
         # Print message to stdout and log file
-        print("Updating file lists looking for new patent releases.  " + time.strftime("%c"))
-        logger.info('Updating file lists looking for new patent releases. ' + time.strftime("%c"))
+        print("Updating process log files... " + time.strftime("%c"))
+        logger.info('Updating process log files... ' + time.strftime("%c"))
 
         try:
             # Get List of all links and update the existing links based on found links
             all_links_array = USPTOProcessLinks.get_all_links(args_array)
             update_link_arrays_to_file(all_links_array, args_array)
-
         except Exception as e:
             # Log finished building all zip filepaths
             print("Failed to get all links from USPTO bulk data site " + time.strftime("%c"))

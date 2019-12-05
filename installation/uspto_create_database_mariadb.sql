@@ -9,8 +9,8 @@ FLUSH PRIVILEGES;
 SET old_passwords = 0;
 
 -- Create and set password for shtf@localhost
-DROP USER IF EXISTS `uspto`@`localhost`;
-CREATE USER `uspto`@`localhost` IDENTIFIED WITH mysql_native_password BY 'R5wM9N5qCEU3an#&rku8mxrVBuF@ur';
+DROP USER `uspto`@`localhost`;
+CREATE USER `uspto`@`localhost` IDENTIFIED BY 'R5wM9N5qCEU3an#&rku8mxrVBuF@ur';
 
 -- Grant privileges to all corresponding databases
 GRANT ALL ON `uspto`.* TO `uspto`@`localhost`;

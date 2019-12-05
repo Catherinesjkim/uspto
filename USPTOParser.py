@@ -53,7 +53,7 @@ UU:::::U     U:::::UUS:::::S     SSSSSSSPP:::::P     P:::::PT:::::TT:::::::TT:::
     UU:::::::::UU    S:::::::::::::::SS P::::::::P                T:::::::::T         OO:::::::::OO
       UUUUUUUUU       SSSSSSSSSSSSSSS   PPPPPPPPPP                TTTTTTTTTTT           OOOOOOOOO
 
-USPTO Parse Patent Parser by Ripple Software Consulting - joseph@ripplesoftware.ca\n\n""")
+USPTO Bulk-Data Parser by Ripple Software Consulting - joseph@ripplesoftware.ca\n\n""")
 
 def start_thread_processes(links_array, args_array):
 
@@ -139,10 +139,10 @@ def main_process(link_queue, args_array, spooling_value):
     args_array['spooling_value'] = spooling_value
     if args_array['spooling_value'] > 4:
         print('[Sleeping thread for initial spooling thread number ' + str(spooling_value) + '...]')
-        logger.info('[Sleeping thread for initial spooling thread number ' + str(spooling_value) + '...]')
+        logger.info('Sleeping thread for initial spooling thread number ' + str(spooling_value) + '...')
         time.sleep((args_array['spooling_value']) * args_array['thread_spool_delay'])
         print('[Thread number ' + str(spooling_value) + ' is waking from sleep...]')
-        logger.info('[Thread number ' + str(spooling_value) + ' is waking from sleep...]')
+        logger.info('Thread number ' + str(spooling_value) + ' is waking from sleep...')
 
         args_array['spooling_value'] = 0
 
@@ -181,7 +181,7 @@ def main_process(link_queue, args_array, spooling_value):
 
         # Check if the args_array['file_name'] has previously been partially processed.
         # and if it has, then remove all records from the previous partial processing.
-        database_connection.remove_previous_file_records(args_array['document_type'], args_array['file_name'], logger)
+        database_connection.remove_previous_file_records(args_array['document_type'], args_array['file_name'])
 
         # Call the function to collect patent data from each link
         # and store it to specified place (csv and/or database)
@@ -189,7 +189,7 @@ def main_process(link_queue, args_array, spooling_value):
             USPTOProcessLinks.process_link_file(args_array)
             # Print and log notification that one .zip package is finished
             print('[Finished processing one .zip package! Time consuming:{0} Time Finished: {1}]'.format(time.time() - start_time, time.strftime("%c")))
-            logger.info('[Finished processing one .zip package! Time consuming:{0} Time Finished: {1}]'.format(time.time() - start_time, time.strftime("%c")))
+            logger.info('Finished processing one .zip package! Time consuming:{0} Time Finished: {1}]'.format(time.time() - start_time, time.strftime("%c")))
 
         except Exception as e:
             # Print and log general fail comment
@@ -263,10 +263,10 @@ def load_balancer_thread(link_queue, args_array):
     # Check if CPU load is set to be balanced
     if "balance" in args_array['command_args']:
         print("[Starting load balancing proccess... ]")
-        logger.info("[Starting load balacing process... ]")
+        logger.info("Starting load balacing process...")
     else:
         print("[Load balancing inactive... ]")
-        logger.info("[Load balancing inactive... ]")
+        logger.info("Load balancing inactive...")
 
     # Get the count of CPU cores
     try:
@@ -485,6 +485,9 @@ def set_config_using_command_args(args_array):
 # Handles the closing of the application
 def handle_application_close(start_time, all_files_processed, args_array):
 
+    # Import logger
+    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+
     # Close the database connection if opened
     if "database" in args_array['command_args']:
         if "database_connection" in args_array:
@@ -494,7 +497,7 @@ def handle_application_close(start_time, all_files_processed, args_array):
     if all_files_processed == True:
         # Print final completed message to stdout
         print(('[All USPTO files have been processed  Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c"))))
-        logger.info('[All USPTO files have been processed. Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c")))
+        logger.info('All USPTO files have been processed. Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c")))
     else:
         # Print final error message to stdout
         print(('There was an error attempting to proccess the files.  Check log for details. Time consuming:{0} Time Finished: {1}'.format(time.time()-start_time, time.strftime("%c"))))
@@ -543,12 +546,15 @@ if __name__=="__main__":
 
     # Database args
     database_args = {
-        "database_type" : "postgresql", # choose 'mysql' or 'postgresql'
+        "database_type" : "mysql", # choose 'mysql' or 'postgresql'
         "host" : "127.0.0.1",
-        "port" : 5432,
+        #"port" : 5432,
+        "port" : 3306,
         "user" : "uspto",
-        "passwd" : "Ld58KimTi06v2PnlXTFuLG4",
-        "db" : "postgres",
+        #"passwd" : "Ld58KimTi06v2PnlXTFuLG4", # PostgreSQL password
+        "passwd" : "R5wM9N5qCEU3an#&rku8mxrVBuF@ur", # MySQL password
+        "db" : "uspto",
+        #"db" : "postgres", # PostgreSQL database
         "charset" : "utf8"
     }
 
@@ -566,8 +572,11 @@ if __name__=="__main__":
     # Create an array of args that can be passed as a group
     # and appended to as needed
     args_array = {
+        "uspto_bulk_data_url" : 'https://bulkdata.uspto.gov/',
+        "uspto_classification_data_url" : 'https://www.uspto.gov/web/patents/classification/selectnumwithtitle.htm',
         "sandbox" : sandbox, # Sandbox mode will check for csv files already downloaded in the csv dir
-        "log_level" : 2, # Log levels 1 = error, 2 = warning, 3 = info
+        "log_level" : 3, # Log levels 1 = error, 2 = warning, 3 = info
+        "stdout_level" : 1, # Stdout levels 1 = verbose, 0 = non-verbose
         "working_directory" : working_directory,
         "default_threads" : default_threads,
         "target_load_float" : 0.75,
