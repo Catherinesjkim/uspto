@@ -96,20 +96,25 @@ def extract_xml_file_from_zip(args_array):
 
             # Attempt to download the file again
             try:
-                pass
+                # Print message to stdout
+                print('[Removing corrupted zip file ' + args_array['temp_zip_file_name'] + ']')
+                logger.warning('Removing corrupted file ' + args_array['temp_zip_file_name'])
+                # Remove the corrupted zip file
+                delete_zip_file(args_array['temp_zip_file_name'])
+                # Return None to signal failed status
+                return None
             except:
                 # Print message to stdout
-                print('[Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip with linux subprocess module]')
-                logger.warning('Zip file ' + args_array['temp_zip_file_name'] + ' failed to unzip linux subprocess module')
-                delete_zip_file(args_array['temp_zip_file_name'])
+                print('[Failed to remove zip file ' + args_array['temp_zip_file_name'] + ' ]')
+                logger.warning('Failed to remove zip file ' + args_array['temp_zip_file_name'])
                 traceback.print_exc()
-
-            return None
+                # Return False to signify that zip file could not be deleted
+                return False
 
     # Finally, if nothing was returned already, return None
     finally:
         pass
-        #TODO: need to add close urllibclean up here instead?
+        #TODO: need to remove the zip file here if
 
 
 
@@ -151,10 +156,24 @@ def extract_dat_file_from_zip(args_array):
         # Return the file contents as array
         return data_file_contents
 
-    # The zip file has failed using python's ZipFile
-    # TODO: Unzip the file using subprocess and find the xml file
+    # Since zip file could not unzip, remove it
     except:
-        return None
+        # Remove the zip file and return error code
+        try:
+            # Print message to stdout
+            print('[Removing corrupted zip file ' + args_array['temp_zip_file_name'] + ']')
+            logger.warning('Removing corrupted file ' + args_array['temp_zip_file_name'])
+            # Remove the corrupted zip file
+            delete_zip_file(args_array['temp_zip_file_name'])
+            # Return None to signal failed status
+            return None
+        except:
+            # Print message to stdout
+            print('[Failed to remove zip file ' + args_array['temp_zip_file_name'] + ' ]')
+            logger.error('Failed to remove zip file ' + args_array['temp_zip_file_name'])
+            traceback.print_exc()
+            # Return False to signify that zip file could not be deleted
+            return False
 
 
 # Deletes a zip file
@@ -162,7 +181,7 @@ def delete_zip_file(filename):
 
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
-    
+
     # Check that a zip file
     if ".zip" in filename:
         # Remove the file

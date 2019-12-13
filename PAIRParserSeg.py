@@ -12,7 +12,7 @@ import SourceParser
 class PAIRSeg(object):
     """
     This class is used to extract PAIR data and populate them into the database.
-    A file named 'PAIRLinks' (~/ID/PAIRLinks) consisting of all available PAIR data downloadable links is generated manually in the beginning 
+    A file named 'PAIRLinks' (~/ID/PAIRLinks) consisting of all available PAIR data downloadable links is generated manually in the beginning
     in basis of Google Patent USPTO Bulk Downloads website at http://www.google.com/googlebooks/uspto-patents-pair.html .
 
     Coded by Qiyuan Liu
@@ -183,7 +183,7 @@ class PAIRSeg(object):
     def __TransAppPatNum(self,strNum):
         #remove all the symbols like '/' & ','
         return strNum.replace('/','').replace(',','').strip()
-    
+
     def __returnInt(self,s):
         try:
             if(s=='' or s==None):return 'NULL';
@@ -204,7 +204,7 @@ class PAIRSeg(object):
                 ss=(s[6:len(s)],s[0:2],s[3:5])
                 return '-'.join(ss)
         except:return '0000-00-00'
-    
+
     def ExtractTSV(self,filePath):
         #st=time.time()
         myzip=zipfile.ZipFile(filePath,'r')
@@ -219,7 +219,7 @@ class PAIRSeg(object):
             if(re.search('patent_term_extension_history',n)!=None):self.pteh=n
             if(re.search('transaction_history',n)!=None):self.th=n
             else:pass
-        
+
         # *** application data ***
         if(len(self.ad)>1):
             tsvFile=myzip.open(self.ad,'r')
@@ -533,7 +533,7 @@ class PAIRSeg(object):
         self.processor.load("""LOAD DATA LOCAL INFILE '{filePath}'
         IGNORE INTO TABLE qliu14.FOREIGNPRIORITY      FIELDS TERMINATED BY '\\t'        OPTIONALLY ENCLOSED BY '\"'        LINES TERMINATED BY '\\n';
         """.format(filePath=self.csvPath_foreignpriority+addPath))
-        
+
         #print '***** CORRESPONDENCE *****'
         self.processor.load("""LOAD DATA LOCAL INFILE '{filePath}'
         IGNORE INTO TABLE qliu14.CORRESPONDENCE      FIELDS TERMINATED BY '\\t'        OPTIONALLY ENCLOSED BY '\"'        LINES TERMINATED BY '\\n';
@@ -571,12 +571,12 @@ class PAIRSeg(object):
 
         self.processor.load("""SET foreign_key_checks = 1;""")
         self.processor.close()
-        print 'Loaded CSV File. Time:{0}'.format(time.time()-st)
+        print('Loaded CSV File. Time:{0}'.format(time.time()-st))
         self.__init__()
         self.__ResetSQLVariables()
 
 def mainProcess(linkList=[]):
-    print 'Process {0} is starting to work!'.format(os.getpid())
+    print('Process {0} is starting to work!'.format(os.getpid()))
     st=time.time()
     p=PAIRSeg()
     p._PAIRSeg__ResetSQLVariables()
@@ -599,12 +599,12 @@ def mainProcess(linkList=[]):
                 os.remove(filePath)
             log.write(log.logPath_PAIR,fileName+'\t'+link+'\t'+'PAIR\tProcessed')
         except:
-            print 'ERROR: time out. {fileName}'.format(fileName)
+            print('ERROR: time out. {fileName}'.format(fileName))
             log.write(log.logPath_PAIR_Error,fileName+'\t'+link+'\t'+'PAIR\tProcessed')
     p.writeCSV(numRange)
-    print 'Processed range:{range}'.format(range=numRange)
-    print '[Process {0} is finished. Populated {1} links. Time:{2}]'.format(os.getpid(),len(linkList),time.time()-st)
-    
+    print('Processed range:{range}'.format(range=numRange))
+    print('[Process {0} is finished. Populated {1} links. Time:{2}]'.format(os.getpid(),len(linkList),time.time()-st))
+
 def partTen(bList):
     n=10
     m=len(bList)
@@ -616,14 +616,14 @@ def multiProcess(allLinkList,numStep):
         st=time.time()
         linkList=allLinkList[i:i+numStep]
         linkListProcesses=partTen(linkList)
-        processes=[]    
+        processes=[]
         for linkList in linkListProcesses:
             processes.append(multiprocessing.Process(target=mainProcess,args=(linkList,)))
         for ps in processes:
             ps.start()
         for ps in processes:
             ps.join()
-        print '[multiProcess finished! Time:{time}]'.format(time=time.time()-st)
+        print('[multiProcess finished! Time:{time}]'.format(time=time.time()-st))
 
 
 if __name__=="__main__":
@@ -632,6 +632,4 @@ if __name__=="__main__":
     allLinkList=sp.getdLinksPAIR()
     multiProcess(allLinkList,1000)
 
-    print 'All PAIR data have been POPULATED successfully! Cost time:{0}'.format(time.time()-st)
-
-
+    print('All PAIR data have been POPULATED successfully! Cost time:{0}'.format(time.time()-st))

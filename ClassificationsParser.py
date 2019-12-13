@@ -36,11 +36,11 @@ if __name__ == "__main__":
         # Returns a array of items parsed from the line
         class_item = return_classification_array(line)
 
-        print class_item
+        print(class_item)
 
         number_of_records += 1
 
     # Close connections and read file
     class_data_file.close()
     processor.close()
-    print '**********\nCongratulations!{0} records have been inserted into the database successfully!\n**********'.format(number_of_records)
+    print('**********\nCongratulations!{0} records have been inserted into the database successfully!\n**********'.format(number_of_records))

@@ -38,6 +38,10 @@ def process_XML_application_content(args_array):
     # Extract the XML file from the ZIP file
     xml_file_contents = USPTOProcessZipFile.extract_xml_file_from_zip(args_array)
 
+    # If xml_file_contents is None or False, then return immediately
+    if xml_file_contents == None or xml_file_contents == False:
+        return False
+
     # create variables needed to parse the file
     xml_string = ''
     patent_xml_started = False
@@ -118,11 +122,13 @@ def process_XML_application_content(args_array):
     USPTOCSVHandler.close_csv_files(args_array)
 
     # Set a flag file_processed to ensure that the bulk insert succeeds
+    # This should be true, in case the database insertion method is not bulk
     file_processed = True
 
     # If data is to be inserted as bulk csv files, then call the sql function
     if args_array['database_insert_mode'] == 'bulk':
         file_processed = args_array['database_connection'].load_csv_bulk_data(args_array)
+        # TODO: Use the line by line method of the .csv file to load data.
 
     # If the file was successfully processed into the database
     if file_processed:
@@ -135,10 +141,11 @@ def process_XML_application_content(args_array):
         # Print message to stdout and log
         print('[Loaded {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
         logger.info('Loaded {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
-
+        # Return the file procecssed status
+        return file_processed
     else:
         # Print message to stdout and log
         print('[Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
         logger.info('Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
-
-        # TODO: Use the line by line method of the .csv file to load data.
+        # Return None to show database insertion failed
+        return None

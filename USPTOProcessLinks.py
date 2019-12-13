@@ -124,20 +124,41 @@ def process_link_file(args_array):
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
-    # Download the file and append temp location to args array
-    args_array['temp_zip_file_name'] = download_zip_file(args_array)
+    # Declare variable to track if file was extracted successfully
+    file_processed_success = False
+    file_processed_attempts = 0
 
-    #print args_array['uspto_xml_format']
+    # Loop until file extraction completes or attempts exhausted
+    while file_extration_success == False:
+        # Download the file and append temp location to args array
+        args_array['temp_zip_file_name'] = download_zip_file(args_array)
 
-    # Process the contents of file baed on type
-    if args_array['uspto_xml_format'] == "gAPS":
-        USPTOProcessAPSGrant.process_APS_grant_content(args_array)
-    elif args_array['uspto_xml_format'] == "aXML1" or args_array['uspto_xml_format'] == "aXML4":
-        USPTOProcessXMLApplication.process_XML_application_content(args_array)
-    elif args_array['uspto_xml_format'] == "gXML2" or args_array['uspto_xml_format'] == "gXML4":
-        USPTOProcessXMLGrant.process_XML_grant_content(args_array)
+        #print args_array['uspto_xml_format']
 
-    print("Finished the data storage process for contents of: " + args_array['url_link'] + " Finished at: " + time.strftime("%c"))
+        # Process the contents of file baed on type
+        if args_array['uspto_xml_format'] == "gAPS":
+            file_processed_success = USPTOProcessAPSGrant.process_APS_grant_content(args_array)
+        elif args_array['uspto_xml_format'] == "aXML1" or args_array['uspto_xml_format'] == "aXML4":
+            file_processed_success = USPTOProcessXMLApplication.process_XML_application_content(args_array)
+        elif args_array['uspto_xml_format'] == "gXML2" or args_array['uspto_xml_format'] == "gXML4":
+            file_processed_success = USPTOProcessXMLGrant.process_XML_grant_content(args_array)
+
+        # If the file was not extracted add to attempts count
+        if file_processed_success == False:
+            file_processed_attempts += 1
+            # If the file extraction limit breached then break loop
+            if file_processed_attempts > 2:
+                print("Extraction process for contents of: " + args_array['url_link'] + " failed 3 times at: " + time.strftime("%c"))
+                logger.warning("Extraction process for contents of: " + args_array['url_link'] + " failed 3 times at: " + time.strftime("%c"))
+                break
+        # If the database insertion failed then break the loop
+        elif file_processed_success == None:
+            break
+        # If the file was processed then
+        elif file_processed_success == True:
+            # Print to stdout and log
+            print("Finished the data storage process for contents of: " + args_array['url_link'] + " Finished at: " + time.strftime("%c"))
+            logger.info("Finished the data storage process for contents of: " + args_array['url_link'] + " Finished at: " + time.strftime("%c"))
 
 
 # Collect all patent grant and publications data files

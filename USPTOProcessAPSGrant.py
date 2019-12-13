@@ -54,6 +54,10 @@ def process_APS_grant_content(args_array):
     # Extract the .dat file from the .zip file
     data_file_contents = USPTOProcessZipFile.extract_dat_file_from_zip(args_array)
 
+    # If xml_file_contents is None or False, then return immediately
+    if data_file_contents == None or data_file_contents == False:
+        return False
+
     # Define variables required to parse the file
     patent_started = False
     next_line_loaded_already = False
@@ -1524,7 +1528,7 @@ def process_APS_grant_content(args_array):
     USPTOCSVHandler.close_csv_files(args_array)
 
     # Set a flag file_processed to ensure that the bulk insert succeeds
-    #file_processed = True
+    file_processed = True
 
     # If data is to be inserted as bulk csv files, then call the sql function
     if args_array['database_insert_mode'] == 'bulk':
@@ -1539,3 +1543,11 @@ def process_APS_grant_content(args_array):
 
         # Print message to stdout and log
         print('[Processed .bat or .txt File. Total time:{0}  Time: {1}]'.format(time.time()-start_time, time.strftime('%c')))
+        # Return the file processed status
+        return file_processed
+    else:
+        # Print message to stdout and log
+        print('[Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
+        logger.info('Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
+        # Return None to show database insertion failed
+        return None
