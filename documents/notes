@@ -1,0 +1,23 @@
+- IssueDate is not present in many grant files
+- Some tables are completely empty.. what about csv files
+- Applications have r1-r2 etc, and how are those processed? / what are they?  revision files?
+- are they complete revision files?  How to deal with them?
+- has ipgb20190813_wk33 been failing processing?
+- yes Database bulk load query failed,the table was locked. So, this needs to have try catch + loop to keep trying until processed.
+
+- Database bulk load query failed - this is not looped, and fails due to timeout
+- Failed to bulk load grant data for
+
+- Look for MySQL exception types in Python
+- If it's a table lock condition, don't add 1 to the failed attempts counter
+- then the file will never have to be reprocessed due to table lock timeouts
+
+- Should all previous attempt database records be cleared before ANY files are started to process
+- every time the processor starts, to avoid the traffic-jam of clearing the database during normal
+- processing operations?
+
+- need to prevent the removal of previous attempts from failing, remove the counter based return on fail
+
+- can move the insertion of a file_name into STARTED_FILES until after the file is finished processing
+- if bulk insertion is being used, and also move the cleaning of the database until after the file
+- has been processed

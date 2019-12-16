@@ -27,6 +27,9 @@ def process_XML_application_content(args_array):
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
+    # Pass the database_connection to variable
+    database_connection = args_array['database_connection']
+
     # If csv file insertion is required, then open all the files
     # into args_array
     if "csv" in args_array['command_args'] or ("database" in args_array['command_args'] and args_array['database_insert_mode'] == "bulk"):
@@ -127,8 +130,10 @@ def process_XML_application_content(args_array):
 
     # If data is to be inserted as bulk csv files, then call the sql function
     if args_array['database_insert_mode'] == 'bulk':
-        file_processed = args_array['database_connection'].load_csv_bulk_data(args_array)
-        # TODO: Use the line by line method of the .csv file to load data.
+        # Check for previous attempt to process the file and clean database if required
+        database_connection.remove_previous_file_records(args_array['document_type'], args_array['file_name'])
+        # Load the CSV file into the database
+        file_processed = database_connection.load_csv_bulk_data(args_array)
 
     # If the file was successfully processed into the database
     if file_processed:
@@ -146,6 +151,6 @@ def process_XML_application_content(args_array):
     else:
         # Print message to stdout and log
         print('[Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
-        logger.info('Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
+        logger.error('Failed to bulk load {0} data for {1} into database. Time:{2} Finished Time: {3} ]'.format(args_array['document_type'], args_array['url_link'], time.time() - start_time, time.strftime("%c")))
         # Return None to show database insertion failed
         return None

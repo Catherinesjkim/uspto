@@ -129,7 +129,7 @@ def process_link_file(args_array):
     file_processed_attempts = 0
 
     # Loop until file extraction completes or attempts exhausted
-    while file_extration_success == False:
+    while file_processed_success == False:
         # Download the file and append temp location to args array
         args_array['temp_zip_file_name'] = download_zip_file(args_array)
 
@@ -203,7 +203,6 @@ def get_all_links(args_array):
     #print 'Finished grabbing patent application pair bibliographic links... ' + time.strftime("%c")
     # Log finished building all zip filepaths
     #logger.info('Finished grabbing patent application pair bibliographic links: ' + time.strftime("%c"))
-
 
     # Return the array of arrays of required links
     return {"grants" : grant_linklist, "applications" : application_linklist, "classifications" : classification_linklist}

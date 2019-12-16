@@ -129,12 +129,12 @@ class SQLProcess:
                     bulk_insert_failed_attempts = 1
                     # Loop until the file was successfully deleted
                     # NOTE : Used because MySQL has table lock errors
-                    while bulk_insert_successful == False and bulk_insert_failed_attempts <= 10:
+                    while bulk_insert_successful == False:
 
                         try:
                             # TODO: consider "SET foreign_key_checks = 0" to ignore
-                            # LOCAL is used to set duplicate key to warning instead of error
-                            # IGNORE is also used to ignore rows that violate duplicate unique key constraints
+                            # TODO: LOCAL is used to set duplicate key to warning instead of error
+                            # TODO: IGNORE is also used to ignore rows that violate duplicate unique key constraints
                             bulk_insert_sql = "LOAD DATA LOCAL INFILE '" + csv_file['csv_file_name'] + "' INTO TABLE " + csv_file['table_name'] + " FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' IGNORE 1 LINES"
                             # Execute the query built above
                             self._cursor.execute(bulk_insert_sql)
@@ -146,8 +146,8 @@ class SQLProcess:
                             # Increment the failed counter
                             bulk_insert_failed_attempts += 1
                             # Print and log general fail comment
-                            print("Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
-                            logger.error("Database bulk load query failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
+                            print("Database bulk load query attempt " + str(bulk_insert_failed_attempts) + " failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
+                            logger.error("Database bulk load query attempt " + str(bulk_insert_failed_attempts) + " failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
                             print("Query string: " + bulk_insert_sql)
                             logger.error("Query string: " + bulk_insert_sql)
                             # Print traceback
@@ -230,7 +230,7 @@ class SQLProcess:
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
 
-        # If the file has not been started processing yet
+        # If the no previous attempts to process the file have been found
         if check_file_started[0] == 0:
             # Insert the file_name into the table keeping track of STARTED_FILES
             if self.database_type == "postgresql":
@@ -253,8 +253,8 @@ class SQLProcess:
                     self._conn.rollback()
 
                 # Print and log general fail comment
-                print("Database insert " + call_type + " file started failed... " + file_name + " into table: uspto.STARTED_FILES")
-                logger.error("Database insert " + call_type + " file started failed... " + file_name + " into table: uspto.STARTED_FILES")
+                print("Database check for previous attempt to process " + call_type + " file failed... " + file_name + " into table: uspto.STARTED_FILES")
+                logger.error("Database check for previous attempt to process " + call_type + " file failed... " + file_name + " into table: uspto.STARTED_FILES")
                 # Print traceback
                 traceback.print_exc()
                 # Print exception information to file
@@ -263,7 +263,8 @@ class SQLProcess:
                 logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
 
 
-        # If the file was found in the STARTED_FILES table, delete all the records of that file in all tables.
+        # If the file was found in the STARTED_FILES table,
+        # delete all the records of that file in all tables.
         elif check_file_started[0] != 0:
 
             # Print and log found previous attempt to process file
@@ -499,7 +500,7 @@ def build_sql_insert_query(insert_data_array, args_array):
     sql_column_string += ") "
     sql_value_string += ");"
 
-    # Concatnate the pieces of the query
+    # Concatenate the pieces of the query
     sql_query_string += sql_column_string + sql_value_string
     # Return the query string
     return sql_query_string

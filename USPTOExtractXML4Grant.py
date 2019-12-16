@@ -53,37 +53,37 @@ def extract_XML4_grant(raw_data, args_array):
         # Find the main patent grant data
         for pr in r.findall('publication-reference'):
             for di in pr.findall('document-id'):
-                try: pub_country = di.findtext('country')
+                try: pub_country = di.findtext('country').strip()
                 except: pub_country = None
                 try:
-                    document_id = di.findtext('doc-number')
+                    document_id = di.findtext('doc-number').strip()
                     document_id = USPTOSanitizer.fix_patent_number(document_id)[:20]
                 except:
                     document_id = None
                     logger.error("No Patent Number was found for: " + url_link)
-                try: kind = di.findtext('kind')[:2]
+                try: kind = di.findtext('kind')[:2].strip()
                 except: kind = None
                 try: pub_date = USPTOSanitizer.return_formatted_date(di.findtext('date'), args_array, document_id)
                 except: pub_date = None
 
         # Find the main application data
         for ar in r.findall('application-reference'):
-            try: app_type = ar.attrib['appl-type'][:45]
+            try: app_type = ar.attrib['appl-type'][:45].strip()
             except: app_type = None
             for di in ar.findall('document-id'):
-                try: app_country = di.findtext('country')
+                try: app_country = di.findtext('country').strip()
                 except: app_country = None
-                try: app_no = di.findtext('doc-number')[:20]
+                try: app_no = di.findtext('doc-number')[:20].strip()
                 except: app_no = None
                 try: app_date = USPTOSanitizer.return_formatted_date(di.findtext('date'), args_array, document_id)
                 except: app_date = None
 
         # Get the series code
-        try: series_code = r.findtext('us-application-series-code')[:2]
+        try: series_code = r.findtext('us-application-series-code')[:2].strip()
         except: series_code = None
 
         # Get the length of grant
-        try: terms_of_grant = r.find("us-term-of-grant").findtext("length-of-grant")
+        try: terms_of_grant = r.find("us-term-of-grant").findtext("length-of-grant").strip()
         except: terms_of_grant = None
 
         # Find all international classifications
@@ -217,7 +217,7 @@ def extract_XML4_grant(raw_data, args_array):
                 position += 1
 
         # Find the title of the patent
-        try: title = r.findtext('invention-title')[:500]
+        try: title = r.findtext('invention-title')[:500].strip()
         except: title = None
 
         # Find all references cited in the grant
@@ -325,9 +325,9 @@ def extract_XML4_grant(raw_data, args_array):
         nof = r.find('figures')
         try:
             number_of_drawings = nof.findtext('number-of-drawing-sheets')
-            number_of_drawings = number_of_drawings.split("/")[0]
+            number_of_drawings = number_of_drawings.split("/")[0].strip()
         except: number_of_drawings = None
-        try: number_of_figures = nof.findtext('number-of-figures')
+        try: number_of_figures = nof.findtext('number-of-figures').strip()
         except: number_of_figures = None
 
         # Find the parties
@@ -337,17 +337,17 @@ def extract_XML4_grant(raw_data, args_array):
                 position = 1
                 for apt in apts.findall('us-applicant'):
                     if(apt.find('addressbook') != None):
-                        try: applicant_orgname = apt.find('addressbook').findtext('orgname')[:300]
+                        try: applicant_orgname = apt.find('addressbook').findtext('orgname')[:300].strip()
                         except: applicant_orgname = None
-                        try: applicant_first_name = apt.find('addressbook').findtext('first-name')[:100]
+                        try: applicant_first_name = apt.find('addressbook').findtext('first-name')[:100].strip()
                         except: applicant_first_name = None
-                        try: applicant_last_name = apt.find('addressbook').findtext('last-name')[:100]
+                        try: applicant_last_name = apt.find('addressbook').findtext('last-name')[:100].strip()
                         except: applicant_last_name = None
-                        try: applicant_city = apt.find('addressbook').find('address').findtext('city')[:100]
+                        try: applicant_city = apt.find('addressbook').find('address').findtext('city')[:100].strip()
                         except: applicant_city = None
-                        try: applicant_state = apt.find('addressbook').find('address').findtext('state')[:100]
+                        try: applicant_state = apt.find('addressbook').find('address').findtext('state')[:100].strip()
                         except: applicant_state = None
-                        try: applicant_country = apt.find('addressbook').find('address').findtext('country')[:100]
+                        try: applicant_country = apt.find('addressbook').find('address').findtext('country')[:100].strip()
                         except: applicant_country = None
 
                         # Append SQL data into dictionary to be written later
@@ -374,17 +374,17 @@ def extract_XML4_grant(raw_data, args_array):
                     try: inventor_sequence = USPTOSanitizer.strip_leading_zeros(apt.attrib['sequence'])
                     except: inventor_sequence = position
                     if(apt.find('addressbook') != None):
-                        try: inventor_first_name = apt.find('addressbook').findtext('first-name')[:100]
+                        try: inventor_first_name = apt.find('addressbook').findtext('first-name')[:100].strip()
                         except: inventor_first_name = None
-                        try: inventor_last_name = apt.find('addressbook').findtext('last-name')[:100]
+                        try: inventor_last_name = apt.find('addressbook').findtext('last-name')[:100].strip()
                         except: inventor_last_name = None
-                        try: inventor_city = apt.find('addressbook').find('address').findtext('city')[:100]
+                        try: inventor_city = apt.find('addressbook').find('address').findtext('city')[:100].strip()
                         except: inventor_city = None
-                        try: inventor_state = apt.find('addressbook').find('address').findtext('state')[:100]
+                        try: inventor_state = apt.find('addressbook').find('address').findtext('state')[:100].strip()
                         except: inventor_state = None
-                        try: inventor_country = apt.find('addressbook').find('address').findtext('country')[:100]
+                        try: inventor_country = apt.find('addressbook').find('address').findtext('country')[:100].strip()
                         except: inventor_country = None
-                        try: inventor_residence = apt.find('addressbook').find('address').findtext('country')[:300]
+                        try: inventor_residence = apt.find('addressbook').find('address').findtext('country')[:300].strip()
                         except: inventor_residence = None
 
                         # Append SQL data into dictionary to be written later
@@ -411,13 +411,13 @@ def extract_XML4_grant(raw_data, args_array):
                     try: agent_sequence = USPTOSanitizer.strip_leading_zeros(agn.attrib['sequence'])
                     except: agent_sequence = position
                     if(agn.find('addressbook') != None):
-                        try: agent_orgname = agn.find('addressbook').findtext('orgname')[:300]
+                        try: agent_orgname = agn.find('addressbook').findtext('orgname')[:300].strip()
                         except: agent_orgname = None
-                        try: agent_last_name = agn.find('addressbook').findtext('last-name')[:100]
+                        try: agent_last_name = agn.find('addressbook').findtext('last-name')[:100].strip()
                         except: agent_last_name = None
-                        try: agent_first_name = agn.find('addressbook').findtext('first-name')[:100]
+                        try: agent_first_name = agn.find('addressbook').findtext('first-name')[:100].strip()
                         except: agent_first_name = None
-                        try: agent_country = agn.find('addressbook').find('address').findtext('country')[:100]
+                        try: agent_country = agn.find('addressbook').find('address').findtext('country')[:100].strip()
                         except: agent_country = None
 
                         # Append SQL data into dictionary to be written later
@@ -439,15 +439,15 @@ def extract_XML4_grant(raw_data, args_array):
             position = 1
             for x in asn.findall('assignee'):
                 if(x.find('addressbook') != None):
-                    try: asn_orgname = x.find('addressbook').findtext('orgname')[:500]
+                    try: asn_orgname = x.find('addressbook').findtext('orgname')[:500].strip()
                     except: asn_orgname = None
-                    try: asn_role = x.find('addressbook').findtext('role')[:45]
+                    try: asn_role = x.find('addressbook').findtext('role')[:45].strip()
                     except: asn_role = None
-                    try: asn_city = x.find('addressbook').find('address').findtext('city')[:100]
+                    try: asn_city = x.find('addressbook').find('address').findtext('city')[:100].strip()
                     except: asn_city = None
-                    try: asn_state = x.find('addressbook').find('address').findtext('state')[:100]
+                    try: asn_state = x.find('addressbook').find('address').findtext('state')[:100].strip()
                     except: asn_state = None
-                    try: asn_country = x.find('addressbook').find('address').findtext('country')[:100]
+                    try: asn_country = x.find('addressbook').find('address').findtext('country')[:100].strip()
                     except: asn_country = None
 
                     # Append SQL data into dictionary to be written later
@@ -469,11 +469,11 @@ def extract_XML4_grant(raw_data, args_array):
         for exm in r.findall('examiners'):
             position = 1
             for x in exm.findall('primary-examiner'):
-                try: exm_last_name = x.findtext('last-name')[:50]
+                try: exm_last_name = x.findtext('last-name')[:50].strip()
                 except: exm_last_name = None
-                try: exm_first_name = x.findtext('first-name')[:50]
+                try: exm_first_name = x.findtext('first-name')[:50].strip()
                 except: exm_first_name = None
-                try: exm_department = x.findtext('department')[:100]
+                try: exm_department = x.findtext('department')[:100].strip()
                 except: exm_department = None
 
                 # Append SQL data into dictionary to be written later
@@ -490,11 +490,11 @@ def extract_XML4_grant(raw_data, args_array):
                 position += 1
 
             for x in exm.findall('assistant-examiner'):
-                try: exm_last_name = x.findtext('last-name')[:50]
+                try: exm_last_name = x.findtext('last-name')[:50].strip()
                 except: exm_last_name = None
-                try: exm_first_name = x.findtext('first-name')[:50]
+                try: exm_first_name = x.findtext('first-name')[:50].strip()
                 except: exm_first_name = None
-                try: exm_department = x.findtext('department')[:100]
+                try: exm_department = x.findtext('department')[:100].strip()
                 except: exm_department = None
 
                 # Append SQL data into dictionary to be written later
@@ -511,7 +511,7 @@ def extract_XML4_grant(raw_data, args_array):
                 position += 1
 
     # TODO: see if it's claims or description and store accordingly
-    try: claims = patent_root.findtext('description')
+    try: claims = patent_root.findtext('description').strip()
     except: claims = None
     #print claims
 

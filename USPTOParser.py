@@ -179,9 +179,12 @@ def main_process(link_queue, args_array, spooling_value):
         # Start the main processing of each link in link_pile array
         print("Processing .zip file: " + args_array['url_link'] + " Started at: " + time.strftime("%c"))
 
-        # Check if the args_array['file_name'] has previously been partially processed.
-        # and if it has, then remove all records from the previous partial processing.
-        database_connection.remove_previous_file_records(args_array['document_type'], args_array['file_name'])
+        # If using item by item database insertion check if the args_array['file_name']
+        # has previously been partially processed.
+        # If it has, then remove all records from the previous partial processing.
+        # If it has not, then insert into STARTED_FILES as having been started.
+        if "database" in args_array['command_args'] and args_array['database_insert_mode'] != "bulk":
+            database_connection.remove_previous_file_records(args_array['document_type'], args_array['file_name'])
 
         # Call the function to collect patent data from each link
         # and store it to specified place (csv and/or database)
@@ -222,7 +225,7 @@ def spool_down_load_balance():
     print("[Calculating load balancing proccess... ]")
     logger.info("[Calculating load balacing process... ]")
 
-    # get the count of CPU cores
+    # Get the count of CPU cores
     try:
         core_count = psutil.cpu_count()
     except Exception as e:
@@ -263,7 +266,7 @@ def load_balancer_thread(link_queue, args_array):
     # Check if CPU load is set to be balanced
     if "balance" in args_array['command_args']:
         print("[Starting load balancing proccess... ]")
-        logger.info("Starting load balacing process...")
+        logger.info("Starting load balancing process...")
     else:
         print("[Load balancing inactive... ]")
         logger.info("Load balancing inactive...")
@@ -295,6 +298,7 @@ def load_balancer_thread(link_queue, args_array):
                 print("Starting another thread group due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%")
                 logger.info("Starting another thread group due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%")
                 # Start another group of threads and pass in i to stagger the downloads
+                # TODO: calculate the number of new threads to start
                 for i in range(1):
                     start_new_thread = multiprocessing.Process(target=main_process,args=(link_queue, args_array, i))
                     start_new_thread.start()
@@ -524,7 +528,7 @@ if __name__=="__main__":
     start_time=time.time()
     working_directory = os.getcwd()
     allowed_args_array = ["-csv", "-database", "-update", "-t", "-balance", "-h", "-help"]
-    default_threads = 10
+    default_threads = 5
     database_insert_mode = "bulk" # values include `each` and `bulk`
 
     # Declare filepaths
@@ -657,7 +661,7 @@ if __name__=="__main__":
                     all_files_processed = "Error"
 
                 # Else if the read list of unprocessed links is not empty
-                elif len(all_links_array["grants"]) != 0 or len(all_links_array["applications"]) != 0 or len(all_links_array["classifications"]) != 0:
+                elif len(all_links_array["grants"]) != 0 or len(all_links_array["applications"]) != 0:
 
                     # Print message to stdout and log the number of links to be collected and parsed
                     # TODO update with classifcation data and PAIR data output

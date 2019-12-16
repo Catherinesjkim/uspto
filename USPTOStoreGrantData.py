@@ -19,7 +19,7 @@ import SQLProcessor
 # Function used to store grant data in CSV and/or database
 def store_grant_data(processed_data_array, args_array):
 
-    # Extract critical variables from args_array
+    # Extract some variables from args_array
     uspto_xml_format = args_array['uspto_xml_format']
     database_connection = args_array['database_connection']
     file_name = args_array['file_name']

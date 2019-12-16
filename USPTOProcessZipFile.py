@@ -185,6 +185,6 @@ def delete_zip_file(filename):
     # Check that a zip file
     if ".zip" in filename:
         # Remove the file
-        os.remove(args_array['temp_zip_file_name'])
-        print("[.Zip file " + args_array['temp_zip_file_name'] + " has been removed...]")
-        logger.warning(".Zip file " + args_array['temp_zip_file_name'] + " has been removed...")
+        os.remove(filename)
+        print("[.Zip file " + filename + " has been removed...]")
+        logger.warning(".Zip file " + filename + " has been removed...")

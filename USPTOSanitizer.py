@@ -9,10 +9,11 @@
 # Import Python Modules
 import xml.etree.ElementTree as ET
 import logging
-import time
 import os
 import sys
 import re
+import datetime
+import time
 from html.parser import HTMLParser
 #from htmlentitydefs import name2codepoint
 import string
@@ -107,43 +108,71 @@ def return_formatted_date(time_str, args_array, document_id):
             else: year = time_str[0:4]
 
             # If the month value is out of range
-            if time_str[4:6] == "00" : month = "01"
+            if time_str[4:6] == "00" : month = "1"
             elif int(time_str[4:6]) > 12 or int(time_str[4:6]) < 1: month = "01"
-            else: month = time_str[4:6]
+            else: month = time_str[4:6].replace("0", "")
 
             # If the day value is out of range
-            if time_str[6:8] == "00" : day = "01"
+            if time_str[6:8] == "00" : day = "1"
             elif int(time_str[6:8]) > 31 or int(time_str[6:8]) < 1 : day = "01"
-            else: day = time_str[6:8]
+            else: day = time_str[6:8].replace("0", "")
 
             # Validate the date for other erors such as leap year, etc.
             try:
                 # Validate the date
-                datetime.datetime(year, month, day)
-                # Finally return the fixed time string
-                return year + '-' + month + '-' + day
+                #print(year + "-" + month + "-" + day)
+                #print(datetime.date(int(year), int(month), int(day)))
+                return datetime.date(int(year), int(month), int(day))
             except ValueError:
+                # Print the exception to stdout
+                traceback.print_exc()
                 logger.warning("Could not validate date: " + time_str +  " for " + args_array['document_type'] + " documentID: " + document_id + " in the link: " + args_array['url_link'])
-                return False
-
-            # Finally return the fixed time string
-            return year + '-' + month + '-' + day
+                return None
+            except Exception as e:
+                # Print the exception to stdout
+                traceback.print_exc()
+                logger.warning("Could not validate date: " + time_str +  " for " + args_array['document_type'] + " documentID: " + document_id + " in the link: " + args_array['url_link'])
+                return None
 
         # If the string length is too long
         elif len(time_str) == 9:
             #print "Date length == 9"
-            time_str = time_str.replace("\n", "").replace("\r", "")
+            time_str = time_str.replace("\n", "").replace("\r", "").strip()
             if len(time_str) == 9:
                 # Log that a bad date was found and could not be cleaned
                 logger.warning("Malformed date was found on length == 9 string: " + time_str + " for " + args_array['document_type'] + " documentID: " + document_id + " in the link: " + args_array['url_link'])
             if  time_str[0:4] == "0000":
                  return None
             else:
-                if  time_str[4:6] == "00" : month = "01"
-                else: month = time_str[4:6]
-                if time_str[6:8] == "00" : day = "01"
-                else: day = time_str[6:8]
-                return time_str[0:4] + '-' + month + '-' + day
+                # If the year value is out of range
+                if time_str[0:4] == "0000":
+                    logger.warning("'0000' was found as year for " + args_array['document_type'] + " documentID: " + document_id + " in the link: " + args_array['url_link'])
+                    return None
+                # Else set the year value
+                else: year = time_str[0:4]
+                # Get the month
+                if  time_str[4:6] == "00" : month = "1"
+                else: month = time_str[4:6].replace("0", "")
+                # Get the day
+                if time_str[6:8] == "00" : day = "1"
+                else: day = time_str[6:8].replace("0", "")
+
+                # Validate the date for other erors such as leap year, etc.
+                try:
+                    # Validate the date
+                    #print(year + "-" + month + "-" + day)
+                    #print(datetime.date(int(year), int(month), int(day)))
+                    return datetime.date(int(year), int(month), int(day))
+                except ValueError:
+                    # Print the exception to stdout
+                    traceback.print_exc()
+                    logger.warning("Could not validate date: " + time_str +  " for " + args_array['document_type'] + " documentID: " + document_id + " in the link: " + args_array['url_link'])
+                    return None
+                except Exception as e:
+                    # Print the exception to stdout
+                    traceback.print_exc()
+                    logger.warning("Could not validate date: " + time_str +  " for " + args_array['document_type'] + " documentID: " + document_id + " in the link: " + args_array['url_link'])
+                    return None
         else:
             # Log that a bad date was found and could not be cleaned
             logger.warning("Malformed date was found on length != 8 or 9 string: " + time_str + " for " + args_array['document_type'] + " documentID: " + document_id + " in the link: " + args_array['url_link'])
@@ -184,10 +213,14 @@ def return_element_text(xmlElement):
         elementStr = ET.tostring(xmlElement).decode('utf-8')
         # Strip tags, whitespace and newline and carriage returns
         element_text =  re.sub('<[^<]*>', '', elementStr)
+        # Strip leading and following quotes
+        # Strip any linebreaks
+        element_text = element_text.replace("\n", " ").replace("\r", " ")
+        element_text = ' '.join(element_text.split())
         # If string is empty, then return None, else encode adn return as UTF-8 and escape characters
         if element_text == "":
             return None
-        else: return element_text
+        else: return element_text.strip()
 
     else:return None
 
