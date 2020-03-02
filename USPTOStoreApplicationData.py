@@ -11,6 +11,7 @@ import time
 import traceback
 import os
 import sys
+from pprint import pprint
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -23,8 +24,9 @@ def store_application_data(processed_data_array, args_array):
 
     # Extract critical variables from args_array
     uspto_xml_format = args_array['uspto_xml_format']
-    database_connection = args_array['database_connection']
     file_name = args_array['file_name']
+    if "database" in args_array["command_args"]:
+        database_connection = args_array['database_connection']
 
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
@@ -34,8 +36,6 @@ def store_application_data(processed_data_array, args_array):
 
     # If the argument specified to store data into csv file or csv is needed for bulk database insertion
     if "csv" in args_array["command_args"] or ("database" in args_array['command_args'] and args_array['database_insert_mode'] == "bulk"):
-
-
 
         # Process all the collected application data for one patent record into .csv file
         # Using the already opened csv.DictWriter object stored in args array.
@@ -75,6 +75,9 @@ def store_application_data(processed_data_array, args_array):
                 try:
                     # Write the dictionary of document data to .csv file
                     args_array['csv_file_array']['assignee']['csv_writer'].writerow(data_item)
+                    #args_array['csv_file_array']['assignee']['file'].flush()
+                    #pprint(data_item)
+                    #exit()
                     # Append the table onto the array
                     args_array['csv_file_array']['assignee']['table_name'] = table_name
                 except Exception as e:

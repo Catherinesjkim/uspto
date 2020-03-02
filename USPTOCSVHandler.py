@@ -34,7 +34,8 @@ def open_csv_files(file_type, file_name, csv_directory):
     # If the grant CSV file will be written
     if file_type == "grant":
 
-        # Create array of field names for each application table and append to array to be passed back with args array
+        # Create array of field names for each grant table
+        # and append to array to be passed back with args array
         field_names_array['grant'] = ['GrantID', 'IssueDate', 'Kind', 'USSeriesCode', 'Title', 'Abstract', 'Claims', 'ClaimsNum', 'DrawingsNum', 'FiguresNum', 'GrantLength', 'ApplicationID', 'FileDate', 'AppType', 'FileName']
         field_names_array['applicant'] = ['GrantID', 'Position', 'OrgName', 'FirstName', 'LastName', 'City', 'State', 'Country', 'FileName']
         field_names_array['examiner'] = ['GrantID', 'Position', 'LastName', 'FirstName', 'Department', 'FileName']
@@ -121,7 +122,8 @@ def open_csv_files(file_type, file_name, csv_directory):
     # If the application CSV file will be written
     elif file_type == "application":
 
-        # Create array of field names for each application table and append to array to be passed back with args array
+        # Create array of field names for each application table
+        # and append to array to be passed back with args array
         field_names_array['application'] = ['ApplicationID', 'PublicationID', 'FileDate', 'Kind', 'USSeriesCode', 'AppType', 'PublishDate', 'Title', 'Abstract', 'ClaimsNum', 'DrawingsNum', 'FiguresNum', 'FileName']
         field_names_array['agent'] = ['ApplicationID', 'Position', 'OrgName', 'LastName', 'FirstName', 'Country', 'FileName']
         field_names_array['assignee'] = ['ApplicationID', 'Position', 'OrgName', 'Role', 'City', 'State', 'Country', 'FileName']
@@ -213,7 +215,6 @@ def close_csv_files(args_array):
             # Print message to stdout and log
             print('Closed .csv file: ' + csv_file['csv_file_name'] + ' Time: {0}'.format(time.strftime('%c')))
             logger.info('Closed .csv file: ' + csv_file['csv_file_name'] + ' Time: {0}'.format(time.strftime('%c')))
-            # Remove csv file from the CSV directory if 'csv' not in args_array['command_args']
         except Exception as e:
             # Print exception information to file
             print('Error removing .csv file: {0} Time: {1}'.format(csv_file['csv_file_name'], time.strftime('%c')))

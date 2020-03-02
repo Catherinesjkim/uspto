@@ -21,3 +21,9 @@
 - can move the insertion of a file_name into STARTED_FILES until after the file is finished processing
 - if bulk insertion is being used, and also move the cleaning of the database until after the file
 - has been processed
+
+- Error in the spacing of contatenated lines of the abstract
+
+- Some years are not correct....
+- 1996 |    19171
+- 

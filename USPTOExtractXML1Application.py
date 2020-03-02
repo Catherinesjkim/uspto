@@ -304,18 +304,15 @@ def extract_XML1_application(raw_data, args_array):
 
                     # Increment position
                     position += 1
-
-                    #print processed_inventor
+                    #print(processed_inventor)
 
     assignee_element = r.find('assignee')
     if assignee_element is not None:
         # init position
         position = 1
-
         try: asn_role = assignee_element.findtext('assignee-type')[:100]
         except: asn_role = None
-        on = assignee_element.find('organization-name')
-        try: asn_orgname = USPTOSanitizer.return_element_text(on)[:300]
+        try: asn_orgname = assignee_element.findtext('organization-name')[:300]
         except: asn_orgname = None
         ad = assignee_element.find('address')
         try: asn_city = ad.findtext('city')[:100]
@@ -337,7 +334,7 @@ def extract_XML1_application(raw_data, args_array):
             "Country" : asn_country,
             "FileName" : args_array['file_name']
         })
-
+        #print(processed_assignee)
         # increment position
         position += 1
 
@@ -348,10 +345,12 @@ def extract_XML1_application(raw_data, args_array):
     if agent_element is not None:
         try: agent_orgname = agent_element.findtext('name-1')
         except: agent_orgname = None
-        try:
-            agent_orgname += agent_element.findtext('name-2')
+        try: agent_orgname_2 = agent_element.findtext('name-2')
+        except: agent_orgname_2 = None
+        # Combine Orgname 1 and 2 and shorten if needed
+        if agent_orgname != None and agent_orgname_2 != None:
+            agent_orgname = agent_orgname + " " + agent_orgname_2
             agent_orgname = agent_orgname[:300]
-        except: agent_orgname = None
         try:
             adresss_element = agent_element.find('address')
             if address_element is not None:
@@ -380,7 +379,7 @@ def extract_XML1_application(raw_data, args_array):
         position += 1
 
     # Find the abstract of the application
-    try: abstract = USPTOSanitizer.return_element_text(document_root.find('subdoc-abstract')).replace("\n", " ").strip()
+    try: abstract = USPTOSanitizer.return_element_text(document_root.find('subdoc-abstract'))
     except: abstract = None
 
     # Append SQL data into dictionary to be written later

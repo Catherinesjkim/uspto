@@ -21,8 +21,9 @@ def store_grant_data(processed_data_array, args_array):
 
     # Extract some variables from args_array
     uspto_xml_format = args_array['uspto_xml_format']
-    database_connection = args_array['database_connection']
     file_name = args_array['file_name']
+    if "database" in args_array["command_args"]:
+        database_connection = args_array['database_connection']
 
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")

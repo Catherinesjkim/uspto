@@ -350,7 +350,8 @@ def extract_XML4_application(raw_data, args_array):
                     # Increment position
                     position += 1
 
-                    #print processed_applicant
+                    #print(processed_applicant)
+                    #exit()
 
             # Get the inventor data element
             invs = parties_element.find('inventors')
@@ -434,7 +435,7 @@ def extract_XML4_application(raw_data, args_array):
         # Get assignee data
         assignee_element = r.find('assignees')
         # Init position
-        position += 1
+        position = 1
         if assignee_element is not None:
             for assignee_item in assignee_element.findall('assignee'):
                 if(assignee_item.find('addressbook') != None):

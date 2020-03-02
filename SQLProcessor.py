@@ -269,7 +269,7 @@ class SQLProcess:
 
             # Print and log found previous attempt to process file
             print("Found previous attempt to process the " + call_type + " file: " + file_name + " in table: uspto.STARTED_FILES")
-            #logger.info("Found previous attempt to process the " + call_type + " file:" + file_name + " in table: uspto.STARTED_FILES")
+            logger.info("Found previous attempt to process the " + call_type + " file:" + file_name + " in table: uspto.STARTED_FILES")
 
             # Build array to hold all table names to have
             # records deleted for patent grants
@@ -302,11 +302,16 @@ class SQLProcess:
                     "APPLICANT_A"
                 ]
 
+            # Print and log found previous attempt to process file
+            print("Starting attempt to remove previous attempt to process the " + call_type + " file: " + file_name + " in table: uspto.STARTED_FILES")
+            logger.info("Starting attempt to remove previous attempt to process the " + call_type + " file:" + file_name + " in table: uspto.STARTED_FILES")
+
             # Loop through each table_name defined by call_type
             for table_name in table_name_array:
 
                 # Build the SQL query here
                 remove_previous_record_sql = "DELETE FROM uspto." + table_name + " WHERE FileName = '" + file_name + "'"
+                print(remove_previous_record_sql)
 
                 # Set flag to determine if the query was successful
                 records_deleted = False
@@ -316,6 +321,7 @@ class SQLProcess:
                 while records_deleted == False and records_deleted_failed_attempts < 10:
                     # Execute the query pass into funtion
                     try:
+
                         self._cursor.execute(remove_previous_record_sql)
                         records_deleted = True
                         #TODO: check the numer of records deleted from each table and log/print
@@ -325,9 +331,6 @@ class SQLProcess:
 
                     except Exception as e:
 
-                        # Increment the failed attempts
-                        records_deleted_failed_attempts += 1
-
                         # If there is an error and using databse postgresql
                         # Then rollback the commit??
                         if self.database_type == "postgresql":
@@ -336,6 +339,10 @@ class SQLProcess:
                         # Print and log general fail comment
                         print("Database delete attempt " + str(records_deleted_failed_attempts) + " failed... " + file_name + " from table: " + table_name)
                         logger.error("Database delete attempt " + str(records_deleted_failed_attempts) + " failed..." + file_name + " from table: " + table_name)
+
+                        # Increment the failed attempts
+                        records_deleted_failed_attempts += 1
+
                         # Print traceback
                         traceback.print_exc()
                         # Print exception information to file
@@ -380,21 +387,25 @@ class SQLProcess:
         # Connect to MySQL
         if self.database_type == "mysql":
 
-            if self._conn == None:
-                self._conn = MySQLdb.connect(
-                    host = self._host,
-                    user = self._username,
-                    passwd = self._password,
-                    db = self._dbname,
-                    port = self._port,
-                    charset = self._charset
-                )
-                print("Connection to MySQL database established.")
-                logger.info("Connection to MySQL database established.")
+            try:
+                if self._conn == None:
+                    self._conn = MySQLdb.connect(
+                        host = self._host,
+                        user = self._username,
+                        passwd = self._password,
+                        db = self._dbname,
+                        port = self._port,
+                        charset = self._charset
+                    )
+                    print("Connection to MySQL database established.")
+                    logger.info("Connection to MySQL database established.")
 
-            if self._cursor == None:
-                self._cursor = self._conn.cursor()
-                self._cursor.connection.autocommit(True)
+                if self._cursor == None:
+                    self._cursor = self._conn.cursor()
+                    self._cursor.connection.autocommit(True)
+            except:
+                traceback.print_exc()
+                exit()
 
         # Connect to PostgreSQL
         if self.database_type == "postgresql":

@@ -159,7 +159,6 @@ def main_process(link_queue, args_array, spooling_value):
         database_connection.connect()
         args_array['database_connection'] = database_connection
 
-
     # Go through each link in the array passed in.
     while not link_queue.empty():
     #for item in link_pile:

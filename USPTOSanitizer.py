@@ -212,7 +212,7 @@ def return_element_text(xmlElement):
     if(ET.iselement(xmlElement)):
         elementStr = ET.tostring(xmlElement).decode('utf-8')
         # Strip tags, whitespace and newline and carriage returns
-        element_text =  re.sub('<[^<]*>', '', elementStr)
+        element_text =  re.sub('<[^<]*>', ' ', elementStr)
         # Strip leading and following quotes
         # Strip any linebreaks
         element_text = element_text.replace("\n", " ").replace("\r", " ")

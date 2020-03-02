@@ -11,6 +11,7 @@ import time
 import os
 import sys
 import traceback
+from pprint import pprint
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -27,8 +28,9 @@ def process_XML_application_content(args_array):
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
-    # Pass the database_connection to variable
-    database_connection = args_array['database_connection']
+    if "database" in args_array["command_args"]:
+        # Pass the database connection to variable
+        database_connection = args_array['database_connection']
 
     # If csv file insertion is required, then open all the files
     # into args_array
@@ -78,7 +80,7 @@ def process_XML_application_content(args_array):
                 # Call function to write data to csv or database
                 USPTOStoreApplicationData.store_application_data(processed_data_array, args_array)
 
-                # reset the xml string
+                # Reset the xml string
                 xml_string = ''
 
             # This is used to append lines of file when inside single patent grant
@@ -129,7 +131,7 @@ def process_XML_application_content(args_array):
     file_processed = True
 
     # If data is to be inserted as bulk csv files, then call the sql function
-    if args_array['database_insert_mode'] == 'bulk':
+    if "database" in args_array["command_args"] and args_array['database_insert_mode'] == 'bulk':
         # Check for previous attempt to process the file and clean database if required
         database_connection.remove_previous_file_records(args_array['document_type'], args_array['file_name'])
         # Load the CSV file into the database
