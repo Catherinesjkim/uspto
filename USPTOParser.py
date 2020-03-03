@@ -55,7 +55,7 @@ UU:::::U     U:::::UUS:::::S     SSSSSSSPP:::::P     P:::::PT:::::TT:::::::TT:::
 
 USPTO Bulk-Data Parser by Ripple Software Consulting - joseph@ripplesoftware.ca\n\n""")
 
-def start_thread_processes(links_array, args_array):
+def start_thread_processes(links_array, args_array, database_args):
 
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
@@ -112,7 +112,7 @@ def start_thread_processes(links_array, args_array):
     for i in range(number_of_threads):
         # Set an argument to hold the thread number for spooling up downloads.
         # Create a thread and append to list
-        processes.append(multiprocessing.Process(target=main_process,args=(link_queue, args_array, i)))
+        processes.append(multiprocessing.Process(target=main_process,args=(link_queue, args_array, database_args, i)))
 
     # Append the load balancer thread once to the loop
     processes.append(multiprocessing.Process(target=load_balancer_thread, args=(link_queue, args_array)))
@@ -130,7 +130,7 @@ def start_thread_processes(links_array, args_array):
         p.join()
 
 # Main function for multiprocessing
-def main_process(link_queue, args_array, spooling_value):
+def main_process(link_queue, args_array, database_args, spooling_value):
 
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
@@ -670,7 +670,7 @@ if __name__=="__main__":
                     logger.info(str(len(all_links_array["applications"])) + " application links will be collected. Start time: " + time.strftime("%c"))
 
                     # Start the threading processes for the stack of links to process
-                    start_thread_processes(all_links_array, args_array)
+                    start_thread_processes(all_links_array, args_array, database_args)
 
                 # If both link lists are empty then all files have been processed, set main loop to exit
                 else:
