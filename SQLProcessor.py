@@ -66,7 +66,7 @@ class SQLProcess:
 
 
     # This function accepts an array of csv files which need to be inserted
-    # using COPY command in postgresql and ?? in MySQL
+    # using COPY command in postgresql and LOAD INFILE in MySQL
     def load_csv_bulk_data(self, args_array):
 
         # Import logger

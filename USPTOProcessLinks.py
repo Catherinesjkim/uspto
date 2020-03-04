@@ -14,6 +14,7 @@ import sys
 import shutil
 import traceback
 import urllib.request, urllib.parse, urllib.error
+import ssl
 from bs4 import BeautifulSoup
 
 # Import USPTO Parser Functions
@@ -83,6 +84,8 @@ def download_zip_file(args_array):
     start_time = time.time()
     # Strip the file from the url_link
     base_file_name = args_array['url_link'].split("/")[-1]
+    # Set the context for SSL (not checking!)
+    context = ssl.SSLContext()
 
     # Set the attempts number to 0
     download_attempts = 0
@@ -100,7 +103,7 @@ def download_zip_file(args_array):
             else:
                 print('[Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
                 logger.info('Downloading .zip file to sandbox directory: {0}]'.format(args_array['sandbox_downloads_dirpath'] + base_file_name))
-                with urllib.request.urlopen(args_array['url_link']) as response, open(args_array['sandbox_downloads_dirpath'] + base_file_name, 'wb') as out_file:
+                with urllib.request.urlopen(args_array['url_link'], context=context) as response, open(args_array['sandbox_downloads_dirpath'] + base_file_name, 'wb') as out_file:
                     shutil.copyfileobj(response, out_file)
                 print('[Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(base_file_name,time.time()-start_time, time.strftime("%c")))
                 logger.info('Downloaded .zip file: {0} Time:{1} Finish Time: {2}]'.format(base_file_name,time.time()-start_time, time.strftime("%c")))
@@ -213,6 +216,9 @@ def links_parser(link_type, url):
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
+    # Set the context for SSL (not checking!)
+    context = ssl.SSLContext()
+
     # Define array to hold all links found
     link_array = []
     temp_zip_file_link_array = []
@@ -220,8 +226,9 @@ def links_parser(link_type, url):
     annualized_file_found = False
     annualized_file_link = ""
 
+    print("Grabbing " + link_type + " links...")
     # First collect all links on USPTO bulk data page
-    content = urllib.request.urlopen(url).read()
+    content = urllib.request.urlopen(url, context=context).read()
     soup = BeautifulSoup(content, "html.parser")
     for link in soup.find_all('a', href=True):
         # Collet links based on type requested by argument in function call
@@ -241,7 +248,7 @@ def links_parser(link_type, url):
 
     # Go through each found link on the main USPTO page and get the zip files as links and return that array.
     for item in link_array:
-        content = urllib.request.urlopen(item).read()
+        content = urllib.request.urlopen(item, context=context).read()
         soup = BeautifulSoup(content, "html.parser")
         for link in soup.find_all('a', href=True):
             if ".zip" in link['href']:
