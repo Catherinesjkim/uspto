@@ -84,7 +84,8 @@ class SQLProcess:
             self.connect()
 
         # Log the contents of the args_array['csv_file_array']
-        #logger.warning(str(args_array['csv_file_array'])
+        #logger.warning(str(args_array['csv_file_array']))
+        #print(args_array['csv_file_array'])
 
         # Loop through each csv file and bulk copy into database
         for key, csv_file in list(args_array['csv_file_array'].items()):
@@ -98,13 +99,45 @@ class SQLProcess:
                 if self.database_type == "postgresql":
 
                     try:
-                        sql = "COPY " + csv_file['table_name'] + " FROM STDIN DELIMITER '|' CSV HEADER"
-                        #self._cursor.copy_from(open(csv_file['csv_file_name'], "r"), csv_file['table_name'], sep = ",", null = "")
+                        sql = "COPY uspto." + csv_file['table_name'] + " FROM STDIN DELIMITER '|' CSV HEADER"
+                        #self._cursor.copy_from(open(csv_file['csv_file_name'], "r"), csv_file['table_name'], sep = "|", null = "")
                         self._cursor.copy_expert(sql, open(csv_file['csv_file_name'], "r"))
-                        # Return a successfull insertion flag
-                        return True
 
                     except Exception as e:
+                        # Roll back the transaction
+                        self._conn.rollback()
+                        # Print and log general fail comment
+                        print("Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
+                        logger.error("Database bulk load query failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
+                        print("Query string: " + sql)
+                        logger.error("Query string: " + sql)
+                        # Print traceback
+                        traceback.print_exc()
+                        # Print exception information to file
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                        logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
+                        # Return a unsucessful flag
+                        return False
+
+                    except psycopg2.DatabaseError as e:
+                        # Roll back the transaction
+                        self._conn.rollback()
+                        # Print and log general fail comment
+                        print("Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
+                        logger.error("Database bulk load query failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
+                        print("Query string: " + sql)
+                        logger.error("Query string: " + sql)
+                        # Print traceback
+                        traceback.print_exc()
+                        # Print exception information to file
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                        logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
+                        # Return a unsucessful flag
+                        return False
+
+                    except:
                         # Roll back the transaction
                         self._conn.rollback()
                         # Print and log general fail comment
@@ -230,7 +263,7 @@ class SQLProcess:
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
 
-        # If the no previous attempts to process the file have been found
+        # If no previous attempts to process the file have been found
         if check_file_started[0] == 0:
             # Insert the file_name into the table keeping track of STARTED_FILES
             if self.database_type == "postgresql":
@@ -311,7 +344,7 @@ class SQLProcess:
 
                 # Build the SQL query here
                 remove_previous_record_sql = "DELETE FROM uspto." + table_name + " WHERE FileName = '" + file_name + "'"
-                print(remove_previous_record_sql)
+                #print(remove_previous_record_sql)
 
                 # Set flag to determine if the query was successful
                 records_deleted = False
@@ -351,7 +384,7 @@ class SQLProcess:
                         logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
 
 
-    # used to verify whether the applicationID is in the current table APPLICATION
+    # Used to verify whether the applicationID is in the current table APPLICATION
     def verify(self,sql):
         if self._conn == None:
             self.connect()
@@ -411,7 +444,7 @@ class SQLProcess:
         if self.database_type == "postgresql":
 
             if self._conn == None:
-                # get a connection, if a connect cannot be made an exception will be raised here
+                # Get a connection, if a connect cannot be made an exception will be raised here
                 self._conn = psycopg2.connect("host=" + self._host +  " dbname=" + self._dbname + " user=" + self._username + " password=" + self._password + " port=" + str(self._port))
                 self._conn.autocommit = True
 
@@ -420,6 +453,67 @@ class SQLProcess:
                 self._cursor = self._conn.cursor()
                 print("Connection to PostgreSQL database established.")
                 logger.info("Connection to PostgreSQL database established.")
+
+            # Get a list of all tables available in the database
+            table_list = self.get_list_of_all_uspto_tables();
+
+
+    # Get a list of all tables in the uspto database
+    def get_list_of_all_uspto_tables(self):
+
+        # Import logger
+        logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+
+        # Set process time
+        start_time = time.time()
+
+        # Print and log starting to check for previous attempt to process file
+        print("[Checking database for list of all tables...]")
+        logger.info("[Checking database for list of all tables...]")
+
+        # Connect to database if not connected
+        if self._conn == None:
+            self.connect()
+
+        # Execute the query to check if file has been stared before
+        try:
+
+            # If using postgresql
+            if self.database_type == "postgresql":
+                # Build query to get list of all tables in uspto database
+                get_table_list_sql = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'"
+                self._cursor.execute(get_table_list_sql)
+                # Check the count is true or false.
+                table_list = self._cursor.fetchall()
+                # Print list of tables found
+                for item in table_list:
+                    print("--  Table Found: " + item[1])
+
+            elif self.database_type == "mysql":
+                # Build query to get list of all tables in uspto database
+                get_table_list_sql = "SHOW TABLES"
+                self._cursor.execute(get_table_list_sql)
+                # Check the count is true or false.
+                table_list = self._cursor.fetchall()
+                #pprint(check_file_started[0]['count'])
+                #print check_file_started
+
+        except Exception as e:
+            # If there is an error and using databse postgresql
+            # Then rollback the commit??
+            if self.database_type == "postgresql":
+                self._conn.rollback()
+
+            # Print and log general fail comment
+            print("Database check for table list failed...")
+            logger.error("Database check for table list failed")
+            # Print traceback
+            traceback.print_exc()
+            # Print exception information to file
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
+
 
     def close(self):
         if self._cursor != None:

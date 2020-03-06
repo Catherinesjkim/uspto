@@ -1,3 +1,10 @@
+\i /tmp/uspto_create_database_postgresql.sql;
+
+COPY INVENTOR_G FROM '/tmp/inventor_ipgb20050111_wk02.csv.csv' DELIMITER '|' CSV HEADER;
+
+SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'
+
+
 - IssueDate is not present in many grant files
 - Some tables are completely empty.. what about csv files
 - Applications have r1-r2 etc, and how are those processed? / what are they?  revision files?
@@ -26,4 +33,4 @@
 
 - Some years are not correct....
 - 1996 |    19171
-- 
+-

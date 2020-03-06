@@ -136,7 +136,7 @@ def process_XML_grant_content(args_array):
         # Check for previous attempt to process the file and clean database if required
         database_connection.remove_previous_file_records(args_array['document_type'], args_array['file_name'])
         # Load CSV file into database
-        database_connection.load_csv_bulk_data(args_array)
+        file_processed = database_connection.load_csv_bulk_data(args_array)
 
     if file_processed:
         # Send the information to USPTOLogger.write_process_log to have log file rewritten to "Processed"

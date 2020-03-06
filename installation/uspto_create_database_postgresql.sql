@@ -524,6 +524,9 @@ CREATE TABLE IF NOT EXISTS uspto.STARTED_FILES (
 DROP USER IF EXISTS uspto;
 CREATE USER uspto LOGIN PASSWORD 'Ld58KimTi06v2PnlXTFuLG4';
 
+-- Change the owner of uspto database to uspto user
+ALTER DATABASE uspto OWNER TO uspto;
+
 -- Grant privileges to all corresponding databases
 GRANT USAGE ON SCHEMA uspto TO uspto;
 GRANT ALL ON ALL TABLES IN SCHEMA uspto TO uspto;
