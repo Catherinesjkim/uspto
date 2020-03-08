@@ -577,7 +577,7 @@ if __name__=="__main__":
     args_array = {
         "uspto_bulk_data_url" : 'https://bulkdata.uspto.gov/',
         "uspto_classification_data_url" : 'https://www.uspto.gov/web/patents/classification/selectnumwithtitle.htm',
-        "sandbox" : sandbox, # Sandbox mode will check for csv files already downloaded in the csv dir
+        "sandbox" : sandbox, # Sandbox mode will check for XML files already downloaded in the XML dir
         "log_level" : 3, # Log levels 1 = error, 2 = warning, 3 = info
         "stdout_level" : 1, # Stdout levels 1 = verbose, 0 = non-verbose
         "working_directory" : working_directory,
