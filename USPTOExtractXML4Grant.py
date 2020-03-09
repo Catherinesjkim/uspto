@@ -221,30 +221,39 @@ def extract_XML4_grant(raw_data, args_array):
         except: title = None
 
         # Find all references cited in the grant
-        for rf in r.findall('us-references-cited'):
-            for rfc in rf.findall('us-citation'):
+        # Check if the XML format is using 'us-references-cited' or 'references-cited'
+        if r.find('us-references-cited') != None: ref_cited_id_string = "us-references-cited"
+        elif r.find('references-cited') != None: ref_cited_id_string = "references-cited"
+        else: ref_cited_id_string = "references"
+        rf = r.find(ref_cited_id_string)
+        if rf != None:
+            # Check if the XML format is using 'citation' or 'us-citation'
+            if rf.find('citation') != None: citation_id_string = "citation"
+            elif rf.find('us-citation') != None: citation_id_string = "us-citation"
+            else: citation_id_string = "us-citation"
+            position = 1
+            for rfc in rf.findall(citation_id_string):
                 # If the patent citation child is found must be a patent citation
-                if(rfc.find('patcit') != None):
-                    position = 1
+                if rfc.find('patcit') != None:
                     try: citation_position = USPTOSanitizer.strip_leading_zeros(rfc.find('patcit').attrib['num'])
                     except: citation_position = position
-                    for x in rfc.findall('patcit'):
-                        try: citation_country = x.find('document-id').findtext('country')[:100]
-                        except: citation_country = None
-                        try: citation_grant_id = x.find('document-id').findtext('doc-number')[:20]
-                        except: citation_grant_id = None
-                        try: citation_kind = x.find('document-id').findtext('kind')[:10]
-                        except: citation_kind = None
-                        try: citation_name = x.find('document-id').findtext('name')[:100]
-                        except: citation_name = None
-                        try: citation_date = USPTOSanitizer.return_formatted_date(x.find('document-id').findtext('date'), args_array, document_id)
-                        except: citation_date = None
-                        try:
-                            if rfc.findtext('category') == "cited by examiner":
-                                citation_category = 1
-                            else:
-                                citation_category = 0
-                        except: citation_category = None
+                    x = rfc.find('patcit')
+                    try: citation_country = x.find('document-id').findtext('country')[:100]
+                    except: citation_country = None
+                    try: citation_grant_id = x.find('document-id').findtext('doc-number')[:20]
+                    except: citation_grant_id = None
+                    try: citation_kind = x.find('document-id').findtext('kind')[:10]
+                    except: citation_kind = None
+                    try: citation_name = x.find('document-id').findtext('name')[:100]
+                    except: citation_name = None
+                    try: citation_date = USPTOSanitizer.return_formatted_date(x.find('document-id').findtext('date'), args_array, document_id)
+                    except: citation_date = None
+                    try:
+                        if rfc.findtext('category') == "cited by examiner":
+                            citation_category = 1
+                        else:
+                            citation_category = 0
+                    except: citation_category = None
 
                     # US patent citations
                     if(citation_country.strip().upper() == 'US'):
@@ -263,9 +272,7 @@ def extract_XML4_grant(raw_data, args_array):
                             "FileName" : args_array['file_name']
                         })
 
-                        position += 1
-
-                    elif(citation_country.strip().upper() != 'US'):
+                    elif citation_country.strip().upper() != 'US':
 
                         # Append SQL data into dictionary to be written later
                         processed_forpatcit.append({
@@ -281,41 +288,42 @@ def extract_XML4_grant(raw_data, args_array):
                             "FileName" : args_array['file_name']
                         })
 
-                        position += 1
+                    position += 1
 
                 # If the non patent citations are found
-                elif(rfc.find('nplcit') != None):
-                    position = 1
-                    for x in rfc.findall('nplcit'):
-                        try: citation_position = USPTOSanitizer.strip_leading_zeros(rfc.find('nplcit').attrib['num'])
-                        except: citation_position = position
-                        # Sometimes, there will be '<i> or <sup>, etc.' in the reference string; we need to remove it
-                        try: non_patent_citation_text = x.findtext('othercit')
-                        except: non_patent_citation_text = None
-                        # TODO: check that strip tags is working
-                        try: non_patent_citation_text = re.sub('<[^>]+>','',non_patent_citation_text).replace('\n', "")
-                        except: non_patent_citation_text = None
-                        # TODO: parse the category into boolean for now  How many categories are there and what are they??
-                        # TODO: change category to boolean in schema
-                        try:
-                            if x.findtext('category') == "cited by examiner":
-                                citation_category = 1
-                            else:
-                                citation_category = 0
-                        except:
-                            citation_category = None
+                elif rfc.find('nplcit') != None:
+                    x = rfc.find('nplcit')
+                    try: citation_position = USPTOSanitizer.strip_leading_zeros(rfc.find('nplcit').attrib['num'])
+                    except: citation_position = position
+                    # Sometimes, there will be '<i> or <sup>, etc.' in the reference string; we need to remove it
+                    try:
+                        ocit = x.find('othercit')
+                        non_patent_citation_text = ocit.findtext()
+                        non_patent_citation_text.replace("<", "").replace(">","")
+                    except: non_patent_citation_text = None
+                    # TODO: check that strip tags is working
+                    #try: non_patent_citation_text = re.sub('<[^>]+>','',non_patent_citation_text).replace('\n', "")
+                    # TODO: parse the category into boolean for now  How many categories are there and what are they??
+                    # TODO: change category to boolean in schema
+                    try:
+                        if x.findtext('category') == "cited by examiner":
+                            citation_category = 1
+                        else:
+                            citation_category = 0
+                    except:
+                        citation_category = None
 
-                        # Append SQL data into dictionary to be written later
-                        processed_nonpatcit.append({
-                            "table_name" : "uspto.NONPATCIT_G",
-                            "GrantID" : document_id,
-                            "Position" : citation_position,
-                            "Citation" : non_patent_citation_text,
-                            "Category" : citation_category,
-                            "FileName" : args_array['file_name']
-                        })
+                    # Append SQL data into dictionary to be written later
+                    processed_nonpatcit.append({
+                        "table_name" : "uspto.NONPATCIT_G",
+                        "GrantID" : document_id,
+                        "Position" : citation_position,
+                        "Citation" : non_patent_citation_text,
+                        "Category" : citation_category,
+                        "FileName" : args_array['file_name']
+                    })
 
-                        position += 1
+                    position += 1
 
         # Find number of claims
         try: claims_num = r.findtext('number-of-claims')
@@ -331,11 +339,32 @@ def extract_XML4_grant(raw_data, args_array):
         except: number_of_figures = None
 
         # Find the parties
-        for prt in r.findall('us-parties'):
+        # Check if XML format uses 'us-parties' or 'parties'
+        if r.find('us-parties') != None: parties_id_string = "us-parties"
+        elif r.find('parties') != None: parties_id_string = "parties"
+        else: parties_id_string = "parties"
+        # Get the main parties XML tag
+        prt =  r.find(parties_id_string)
+        if prt != None:
             # Find all applicant data
-            for apts in prt.findall('us-applicants'):
+            # Check if the XML format uses 'applicants' or 'us-applicants'
+            if prt.find('us-applicants') != None : applicants_id_string = 'us-applicants'
+            elif prt.find('applicants') != None : applicants_id_string = 'applicants'
+            else: applicants_id_string = 'applicants'
+            # Grab the layered applicants tag
+            apts = prt.find(applicants_id_string)
+            if apts != None:
                 position = 1
-                for apt in apts.findall('us-applicant'):
+                if prt.find('us-applicant') != None : applicant_id_string = 'us-applicant'
+                elif prt.find('applicant') != None : applicant_id_string = 'applicant'
+                else: applicant_id_string = 'applicant'
+                for apt in apts.findall(applicant_id_string):
+                    # Get the inventor status of the applicant
+                    try: inventor_status = apt.attrib['app-type']
+                    except: inventor_status = ""
+                    # Get the position number
+                    try: inventor_sequence = apt.attrib['sequence']
+                    except: inventor_sequence = None
                     if(apt.find('addressbook') != None):
                         try: applicant_orgname = apt.find('addressbook').findtext('orgname')[:300].strip()
                         except: applicant_orgname = None
@@ -349,9 +378,10 @@ def extract_XML4_grant(raw_data, args_array):
                         except: applicant_state = None
                         try: applicant_country = apt.find('addressbook').find('address').findtext('country')[:100].strip()
                         except: applicant_country = None
+                        try: inventor_residence = apt.findtext('residence')[:100].strip()
+                        except: inventor_residence = None
 
                         # Append SQL data into dictionary to be written later
-
                         processed_applicant.append({
                             "table_name" : "uspto.APPLICANT_G",
                             "GrantID" : document_id,
@@ -367,28 +397,43 @@ def extract_XML4_grant(raw_data, args_array):
 
                         position += 1
 
+                        # Check if the applicant is inventor
+                        if "inventor" in inventor_status:
+                            # Append SQL data into dictionary to be written later
+                            processed_inventor.append({
+                                "table_name" : "uspto.INVENTOR_G",
+                                "GrantID" : document_id,
+                                "Position" : inventor_sequence,
+                                "FirstName" : applicant_first_name,
+                                "LastName" : applicant_last_name,
+                                "City" : applicant_city,
+                                "State" : applicant_state,
+                                "Country" : applicant_country,
+                                "Residence" : inventor_residence,
+                                "FileName" : args_array['file_name']
+                            })
+
             # Find all inventor data
-            for apts in prt.findall('inventors'):
+            for invts in prt.findall('inventors'):
                 position = 1
-                for apt in apts.findall('inventor'):
-                    try: inventor_sequence = USPTOSanitizer.strip_leading_zeros(apt.attrib['sequence'])
+                for inv in invts.findall('inventor'):
+                    try: inventor_sequence = USPTOSanitizer.strip_leading_zeros(inv.attrib['sequence'])
                     except: inventor_sequence = position
                     if(apt.find('addressbook') != None):
-                        try: inventor_first_name = apt.find('addressbook').findtext('first-name')[:100].strip()
+                        try: inventor_first_name = inv.find('addressbook').findtext('first-name')[:100].strip()
                         except: inventor_first_name = None
-                        try: inventor_last_name = apt.find('addressbook').findtext('last-name')[:100].strip()
+                        try: inventor_last_name = inv.find('addressbook').findtext('last-name')[:100].strip()
                         except: inventor_last_name = None
-                        try: inventor_city = apt.find('addressbook').find('address').findtext('city')[:100].strip()
+                        try: inventor_city = inv.find('addressbook').find('address').findtext('city')[:100].strip()
                         except: inventor_city = None
-                        try: inventor_state = apt.find('addressbook').find('address').findtext('state')[:100].strip()
+                        try: inventor_state = inv.find('addressbook').find('address').findtext('state')[:100].strip()
                         except: inventor_state = None
-                        try: inventor_country = apt.find('addressbook').find('address').findtext('country')[:100].strip()
+                        try: inventor_country = inv.find('addressbook').find('address').findtext('country')[:100].strip()
                         except: inventor_country = None
-                        try: inventor_residence = apt.find('addressbook').find('address').findtext('country')[:300].strip()
+                        try: inventor_residence = inv.find('addressbook').find('address').findtext('country')[:300].strip()
                         except: inventor_residence = None
 
                         # Append SQL data into dictionary to be written later
-
                         processed_inventor.append({
                             "table_name" : "uspto.INVENTOR_G",
                             "GrantID" : document_id,
