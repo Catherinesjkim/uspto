@@ -98,68 +98,51 @@ class SQLProcess:
                 # If postgresql build query
                 if self.database_type == "postgresql":
 
-                    try:
-                        sql = "COPY uspto." + csv_file['table_name'] + " FROM STDIN DELIMITER '|' CSV HEADER"
-                        #self._cursor.copy_from(open(csv_file['csv_file_name'], "r"), csv_file['table_name'], sep = "|", null = "")
-                        self._cursor.copy_expert(sql, open(csv_file['csv_file_name'], "r"))
+                    # Set flag to determine if the query was successful
+                    bulk_insert_successful = False
+                    bulk_insert_failed_attempts = 0
+                    # Loop until successfull insertion
+                    while bulk_insert_successful == False:
 
-                    except Exception as e:
-                        # Roll back the transaction
-                        self._conn.rollback()
-                        # Print and log general fail comment
-                        print("Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
-                        logger.error("Database bulk load query failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
-                        print("Query string: " + sql)
-                        logger.error("Query string: " + sql)
-                        # Print traceback
-                        traceback.print_exc()
-                        # Print exception information to file
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                        logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
-                        # Return a unsucessful flag
-                        return False
+                        try:
+                            sql = "COPY uspto." + csv_file['table_name'] + " FROM STDIN DELIMITER '|' CSV HEADER"
+                            #self._cursor.copy_from(open(csv_file['csv_file_name'], "r"), csv_file['table_name'], sep = "|", null = "")
+                            self._cursor.copy_expert(sql, open(csv_file['csv_file_name'], "r"))
+                            # Return a successfull insertion flag
+                            bulk_insert_successful = True
 
-                    except psycopg2.DatabaseError as e:
-                        # Roll back the transaction
-                        self._conn.rollback()
-                        # Print and log general fail comment
-                        print("Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
-                        logger.error("Database bulk load query failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
-                        print("Query string: " + sql)
-                        logger.error("Query string: " + sql)
-                        # Print traceback
-                        traceback.print_exc()
-                        # Print exception information to file
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                        logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
-                        # Return a unsucessful flag
-                        return False
+                        except Exception as e:
+                            # Roll back the transaction
+                            self._conn.rollback()
+                            # Increment the failed counter
+                            bulk_insert_failed_attempts += 1
+                            # Print and log general fail comment
+                            print("Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
+                            logger.error("Database bulk load query failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
+                            print("Query string: " + sql)
+                            logger.error("Query string: " + sql)
+                            # Print traceback
+                            traceback.print_exc()
+                            # Print exception information to file
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                            logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
+                            # If the cause was a dupllicate entry error, then try to clean the file
+                            traceback_array = traceback.format_exc().splitlines()
+                            for line in traceback_array:
+                                if "duplicate key" in line:
+                                    self.remove_item_from_csv(traceback_array, csv_file['csv_file_name'])
 
-                    except:
-                        # Roll back the transaction
-                        self._conn.rollback()
-                        # Print and log general fail comment
-                        print("Database bulk load query failed... " + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
-                        logger.error("Database bulk load query failed..." + csv_file['csv_file_name'] + " into table: " + csv_file['table_name'])
-                        print("Query string: " + sql)
-                        logger.error("Query string: " + sql)
-                        # Print traceback
-                        traceback.print_exc()
-                        # Print exception information to file
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                        logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
-                        # Return a unsucessful flag
-                        return False
+                            # Return a unsucessful flag
+                            if bulk_insert_failed_attempts > 20:
+                                return False
 
                 # If MySQL build query
                 elif self.database_type == "mysql":
 
                     # Set flag to determine if the query was successful
                     bulk_insert_successful = False
-                    bulk_insert_failed_attempts = 1
+                    bulk_insert_failed_attempts = 0
                     # Loop until the file was successfully deleted
                     # NOTE : Used because MySQL has table lock errors
                     while bulk_insert_successful == False:
@@ -190,7 +173,7 @@ class SQLProcess:
                             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                             logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
                             # Return a unsucessful flag
-                            if bulk_insert_failed_attempts > 9:
+                            if bulk_insert_failed_attempts > 8:
                                 return False
 
         # Return a successfull message from the database query insert.
@@ -514,7 +497,6 @@ class SQLProcess:
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
 
-
     def close(self):
         if self._cursor != None:
             self._cursor.close()
@@ -524,6 +506,61 @@ class SQLProcess:
             self._conn = None
         print('Connection to database closed successfully.')
 
+
+    # Searches a csv file and extracts any items with the ID in traceback string
+    def remove_item_from_csv(self, traceback_array, csv_file_name):
+
+        # Import logger
+        logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+
+        # Set process time
+        start_time = time.time()
+
+        print("[Looking for duplicate ID lines in file " + csv_file_name + "]")
+        logger.warning("[Looking for duplicate ID lines in file " + csv_file_name + "]")
+
+        # Search traceback_array for the item ID
+        for line in traceback_array:
+            # Find the line that indicates the line of csv file
+            # that causese error
+            if line.startswith("CONTEXT:"):
+                # Get the error line number
+                error_line = line.split("line")[1].strip()
+                print("Duplicate line number in file " + csv_file_name + " identified as line number " + error_line)
+                logger.warning("Duplicate line number in file " + csv_file_name + " identified as line number " + error_line)
+                is_skipped = False
+                current_index = 1
+                # Create a temp file to move data to
+                temp_file_name = csv_file_name + '.bak'
+                # Open original file in read only mode and dummy file in write mode
+                with open(csv_file_name, 'r') as read_file, open(temp_file_name, 'w+') as write_file:
+                    # Line by line copy data from original file to temp file
+                    for line in read_file:
+                        print("Current line: " + str(current_index) + " looking for line: " + str(error_line))
+                        # If current line number matches the given line number then skip copying
+                        if int(current_index) != int(error_line):
+                            write_file.write(line)
+                        else:
+                            logger.warning("skipping line...")
+                            is_skipped = True
+                        current_index += 1
+
+                # If any line is skipped then rename temp file as original file
+                if is_skipped:
+                    print("Duplicate ID line(s) have been found and removed from: " + csv_file_name)
+                    logger.warning("Duplicate ID line(s) have been found and removed from: " + csv_file_name)
+                    os.remove(csv_file_name)
+                    print("Original .csv file: " + csv_file_name + " removed...")
+                    logger.warning("Original .csv file: " + csv_file_name + " removed...")
+                    os.rename(temp_file_name, csv_file_name)
+                    print("Temp file: " + temp_file_name + " renamed to " + csv_file_name)
+                    logger.warning("Temp file: " + temp_file_name + " renamed to " + csv_file_name)
+                else:
+                    print("No Duplicate ID line(s) were found in: " + csv_file_name)
+                    logger.warning("No Duplicate ID line(s) were found in: " + csv_file_name)
+                    os.remove(temp_file_name)
+                    print("Temp file: " + temp_file_name + " removed...")
+                    logger.warning("Temp file: " + temp_file_name + " removed...")
 
 # Reset the database using os.system command line
 def reset_database(database_args, args_array):
