@@ -419,7 +419,7 @@ def extract_XML4_grant(raw_data, args_array):
                 for inv in invts.findall('inventor'):
                     try: inventor_sequence = USPTOSanitizer.strip_leading_zeros(inv.attrib['sequence'])
                     except: inventor_sequence = position
-                    if(apt.find('addressbook') != None):
+                    if inv.find('addressbook') != None:
                         try: inventor_first_name = inv.find('addressbook').findtext('first-name')[:100].strip()
                         except: inventor_first_name = None
                         try: inventor_last_name = inv.find('addressbook').findtext('last-name')[:100].strip()
