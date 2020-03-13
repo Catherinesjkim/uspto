@@ -12,18 +12,22 @@ You should have received a copy of the GNU General Public License along with thi
 
 **Email:** joseph@ripplesoftware.ca
 
-## **Description:**
-This python script is based on a script from University of Illinois (http://abel.lis.illinois.edu/UPDC/Downloads.html). Several parts of the script have been improved to increase the data integrity and memory utilization of the original script.
+**Website:** https://www.ripplesoftware.ca
 
-The script is run from the command line and will populate a PostgreSQL or MySQL database.
-It is recommended to use PostgreSQL since PG provides better performance over the large dataset.
+**Github Repository:** https://github.com/rippledj/uspto
+
+## **Description:**
+This python script is based on a project from University of Illinois (http://abel.lis.illinois.edu/UPDC/Downloads.html). Several parts of the script have been improved to increase the data integrity and performance of the original script.
+
+The script is run from the command line and will populate a PostgreSQL or MySQL database with the USPTO patent grant and patent application red-book bulk-data.
+It is recommended to use PostgreSQL since PG provides better performance over the large data-set.
 
 The usage of the script is outlined below:
 
 ## **Instructions:**
 There are three steps.
-1. Install the database
-2. Run the parser
+1. Install the required database
+2. Run the parser USPTOparser.py
 3. Schedule the updater
 
 ### 1. Install the database

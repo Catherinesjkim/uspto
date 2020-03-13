@@ -461,7 +461,7 @@ class SQLProcess:
         # Execute the query to check if file has been stared before
         try:
 
-            # If using postgresql
+            # If using PostgreSQL
             if self.database_type == "postgresql":
                 # Build query to get list of all tables in uspto database
                 get_table_list_sql = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'"
@@ -471,7 +471,7 @@ class SQLProcess:
                 # Print list of tables found
                 for item in table_list:
                     print("--  Table Found: " + item[1])
-
+            # MySQL
             elif self.database_type == "mysql":
                 # Build query to get list of all tables in uspto database
                 get_table_list_sql = "SHOW TABLES"

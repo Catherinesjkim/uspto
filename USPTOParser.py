@@ -281,11 +281,10 @@ def load_balancer_thread(link_queue, args_array):
         logger.info("Number of CPU cores could not be detected. Setting number of CPU cores to 4")
         traceback.print_exc()
 
-    # Sleep the balancer for 5 minutes to allow initial threads and CPU load to balance
-    # at the initial number of threads
-    time.sleep(300)
     # While there is still links in queue
     while not link_queue.empty():
+        # Sleep the balancer for 5 minutes to allow initial threads and CPU load to balance
+        time.sleep(300)
         # Check the 5 minute average CPU load balance
         five_minute_load_average = os.getloadavg()[1] / core_count
 
@@ -302,7 +301,6 @@ def load_balancer_thread(link_queue, args_array):
                     start_new_thread = multiprocessing.Process(target=main_process,args=(link_queue, args_array, i))
                     start_new_thread.start()
                     time.sleep(2)
-                time.sleep(300)
 
             # If load average less than 1 start single thread
             elif five_minute_load_average < 1:
@@ -310,16 +308,13 @@ def load_balancer_thread(link_queue, args_array):
                 print("Starting another single thread due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%")
                 logger.info("Starting another single thread due to low CPU load balance of: " + str(five_minute_load_average * 100) + "%")
                 # Start another thread and pass in 0 to start right away
-                start_new_thread = multiprocessing.Process(target=main_process,args=(link_queue, args_array, i))
+                start_new_thread = multiprocessing.Process(target=main_process,args=(link_queue, args_array, 1))
                 start_new_thread.start()
-                time.sleep(300)
 
         else:
             # Print message and log that load balancer is starting another thread
             print("Reporting CPU load balance: " + str(five_minute_load_average * 100) + "%")
             logger.info("Reporting CPU load balance: " + str(five_minute_load_average * 100) + "%")
-            # Sleep for another 5 minutes while
-            time.sleep(300)
 
 # Check existing app structure and create it if required
 def validate_existing_file_structure(args_array):
@@ -578,7 +573,7 @@ if __name__=="__main__":
         "uspto_bulk_data_url" : 'https://bulkdata.uspto.gov/',
         "uspto_classification_data_url" : 'https://www.uspto.gov/web/patents/classification/selectnumwithtitle.htm',
         "sandbox" : sandbox, # Sandbox mode will check for XML files already downloaded in the XML dir
-        "log_level" : 3, # Log levels 1 = error, 2 = warning, 3 = info
+        "log_level" : 1, # Log levels 1 = error, 2 = warning, 3 = info
         "stdout_level" : 1, # Stdout levels 1 = verbose, 0 = non-verbose
         "working_directory" : working_directory,
         "default_threads" : default_threads,

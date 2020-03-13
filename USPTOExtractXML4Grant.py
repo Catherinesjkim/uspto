@@ -552,7 +552,6 @@ def extract_XML4_grant(raw_data, args_array):
                     "Department" : exm_department,
                     "FileName" : args_array['file_name']
                 })
-
                 position += 1
 
     # TODO: see if it's claims or description and store accordingly
