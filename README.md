@@ -44,23 +44,30 @@ installation/uspto_create_database_postgresql.sql
 
 ### 2. Run the parser
 
-First, the auth credentials for the database must be added to the file USPTOParser.py if database storage will be specified. Text search for the phrase "# Database args" to find the location where database credentials must be changed. Enter "mysql" or "postgresql" as the database_type. Enter the port of your MySQL or PostgreSQL installation if you have a non-default port. If you changed the default password in the database creation file, then you should also change the password here.
+First, the authentication credentials for the database must be added to the file USPTOParser.py if database storage will be specified. Text search for the phrase "# Database args" to find the location where database credentials must be changed. Enter "mysql" or "postgresql" as the database_type. Enter the port of your MySQL or PostgreSQL installation if you have a non-default port. If you changed the default password in the database creation file, then you should also change the password here.
 
 Secondly, you can set the number of threads with a command line argument '-t [int]' where [int] is a number between 1 and 20.  If you do not specify the number of threads, then the default of 10 threads will be used.
 
-Finally, you must specify the location for the data to be stored.  These options are: '-csv' and '-database'.  You must include at least one. These arguemnts tell the script where you want the data to be stored. The following example is the command to store in csv file and database with 20 process threads.  You should set the 'database_insert_mode' to specify whether you want the data to be inserted into the database after each data object is found and parsed (`each`), or in bulk post parsing of each file (`bulk`).  `bulk` setting improve database transactions per second.
+Finally, you must specify the location for the data to be stored.  These options are: '-csv' and '-database'.  You must include at least one. These arguments tell the script where you want the data to be stored. You should set the 'database_insert_mode' to specify whether you want the data to be inserted into the database after each data object is found and parsed (`each`), or in bulk post parsing of each file (`bulk`).  `bulk` setting greatly improve database performance of transactions per second.
+
+The following example is the command to store in csv file and database with 20 process threads.
 
 $ python USPTOParser.py -csv -database -t 20
 
-### 3. Schedule the updater
 
-The script will also run in update mode. This is done by passing the '-update' argument when running the script.
-The script will then know to check your previous data destination(s) and continue to look for new patent data
-release files that have been published on the USPTO website (https://bulkdata.uspto.gov/).  The new files are then
-parsed and stored in the destinations you previously specified.  Since database data files are released every
-week, the updater can be scheduled once a week to keep your data up-to-date.  Also, you can reduce the number of threads for the updater script to not disrupt the user experience during update time.
+### 3. Check the log files
+
+The script will keep track of processed files in the **LOG** directory. There are log files for grants (**grant_links.log**) and applications (**application_links.log**), and a main log file **USPTO_app.log** which keeps track of errors and warnings from the script.  If the script crashes for any reason, you can simply start the script again and it will clear any partially processed data and start where it left off.
+
+You should check of the **grant_links.log** and **application_links.log** files after the script has completed to make sure that each line in those files says "Processed" at the end.  If the file has not been processed, the line will end with "Unprocessed".
+
+### 4. Schedule the updater
+
+The script will also run in update mode to get all new patent grants and application which are issued each week by the USPTO. This is done by passing the '-update' argument when running the script as the command below.
 
 $ python USPTOParser.py -update -t 3
+
+The script will then know to check your previous data destination(s) and continue to look for new patent data release files that have been published on the USPTO website (https://bulkdata.uspto.gov/).  The new files are then parsed and stored in the destinations you previously specified.  Since database data files are released every week, the updater can be scheduled once a week to keep your data up-to-date.  Also, you can reduce the number of threads for the updater script to not disrupt the user experience during update time.
 
 ## **Further Information:**
 

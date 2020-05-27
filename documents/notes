@@ -30,7 +30,3 @@ SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemana
 - has been processed
 
 - Error in the spacing of contatenated lines of the abstract
-
-- Some years are not correct....
-- 1996 |    19171
--

@@ -15,6 +15,7 @@ import subprocess
 import shutil
 import zipfile
 import urllib.request, urllib.parse, urllib.error
+import codecs
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -65,8 +66,10 @@ def extract_xml_file_from_zip(args_array):
             # Check if an unzip directory exists in the temp directory
             if not os.path.exists(args_array['temp_directory'] + "/unzip"):
                 os.mkdir(args_array['temp_directory'] + "/unzip")
-            # Make a directory for the particular downloaded zip file
-            os.mkdir(args_array['temp_directory'] + "/unzip/" + args_array['file_name'])
+            # Check if a directory exists for the specific file being unzipped
+            if not os.path.exists(args_array['temp_directory'] + "/unzip/" + args_array['file_name']):
+                # Make a directory for the particular downloaded zip file
+                os.mkdir(args_array['temp_directory'] + "/unzip/" + args_array['file_name'])
             # Use a subprocess to unzip linux command
             subprocess.call("unzip " + args_array['temp_zip_file_name'] + " -d " + args_array['temp_directory'] + "/unzip/" + args_array['file_name'], shell=True)
             # Go through each file in the directory and look for the xml file
@@ -131,17 +134,38 @@ def extract_dat_file_from_zip(args_array):
         for name in zip_file.namelist():
             if '.dat' in name or '.txt' in name:
                 data_file_name = name
-        # If xml file not found, then print error message
+                # Print and log that the .dat file was not found
+                print('[APS .dat data file found. Filename: {0}]'.format(data_file_name))
+                logger.info('APS .dat file found. Filename: ' + data_file_name)
+        # If .dat file not found, then print error message
         if data_file_name == "":
-            # Print and log that the xml file was not found
-            print('[APS .dat data file not found.  Filename{0}]'.format(args_array['url_link']))
+            # Print and log that the .dat file was not found
             logger.error('APS .dat file not found. Filename: ' + args_array['url_link'])
 
-        # Process zip file contents of .dat or .txt file and .xml files
-        data_file_contents = zip_file.open(data_file_name,'r')
+        # Check if an unzip directory exists in the temp directory
+        if not os.path.exists(args_array['temp_directory'] + "/unzip"):
+            os.mkdir(args_array['temp_directory'] + "/unzip")
+        # Check if a directory exists for the specific file being unzipped
+        if not os.path.exists(args_array['temp_directory'] + "/unzip/" + args_array['file_name']):
+            # Make a directory for the particular downloaded zip file
+            os.mkdir(args_array['temp_directory'] + "/unzip/" + args_array['file_name'])
 
+        # Open the .dat file contents directly from the zip_file
+        #data_file_contents = zip_file.open(data_file_name,'r')
+        # Open the zip file and extract the .dat file contents
+        zip_file.extract(data_file_name, args_array['temp_directory'] + "/unzip/" + args_array['file_name'])
         # Close the zip file
         zip_file.close()
+        # Create a temp file name for the extracted .dat file
+        temp_data_file_path = args_array['temp_directory'] + "/unzip/" + args_array['file_name'] + "/" + data_file_name
+
+        # Open the .dat file contents from the extracted zip_file
+        data_file_contents = codecs.open(temp_data_file_path, 'r', 'iso-8859-1')
+        # Delete the extracted data file
+        # Open the .dat file and read into an array
+        #with open(temp_data_file_path, "r", errors='ignore') as data_file:
+            #data_file_contents = data_file.readlines()
+        os.remove(temp_data_file_path)
 
         # If not sandbox mode, then delete the .zip file
         if args_array['sandbox'] == False and os.path.exists(args_array['temp_zip_file_name']):
@@ -151,27 +175,36 @@ def extract_dat_file_from_zip(args_array):
             os.remove(args_array['temp_zip_file_name'])
 
         # Print message to stdout
-        print('[data file contents extracted ' + data_file_name + '...]')
-        logger.info('data file contents extracted ' + data_file_name + '...')
+        print('[APS .dat data file contents extracted ' + data_file_name + '...]')
+        logger.info('APS .dat data file contents extracted ' + data_file_name + '...')
         # Return the file contents as array
         return data_file_contents
 
     # Since zip file could not unzip, remove it
     except:
+        # Print exception information to file
+        traceback.print_exc()
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
         # Remove the zip file and return error code
         try:
             # Print message to stdout
             print('[Removing corrupted zip file ' + args_array['temp_zip_file_name'] + ']')
             logger.warning('Removing corrupted file ' + args_array['temp_zip_file_name'])
             # Remove the corrupted zip file
-            delete_zip_file(args_array['temp_zip_file_name'])
+            #delete_zip_file(args_array['temp_zip_file_name'])
             # Return None to signal failed status
             return None
         except:
+            # Print exception information to file
+            traceback.print_exc()
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
             # Print message to stdout
             print('[Failed to remove zip file ' + args_array['temp_zip_file_name'] + ' ]')
             logger.error('Failed to remove zip file ' + args_array['temp_zip_file_name'])
-            traceback.print_exc()
             # Return False to signify that zip file could not be deleted
             return False
 

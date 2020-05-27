@@ -504,19 +504,59 @@ def replace_old_html_characters_old_version(line):
 
 def decode_line(line):
 
-    # Attempt strict decod in to utf-8
+    # Import logger
+    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+
+    # Attempt strict decode in to utf-8
     try:
-        line = line.decode("utf-8", errors='strict')
+        line = line.decode('iso-8859-1').encode("utf-8", 'ignore')
+        line = line.decode("utf-8", 'ignore')
         return line
     except Exception as e:
         # Attempt replace decode to utf-8
         try:
+            logger.warning("Santizer was unable to decode to UTF-8 with strict mode:")
+            logger.warning(line)
+            print("Santizer was unable to decode with to UTF-8 strict mode:")
+            print(line)
+            # Print traceback
+            traceback.print_exc()
+            # Print exception information to file
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
+
+            line = line.decode('iso-8859-1').decode("utf-8", errors='replace')
             line = line.decode("utf-8", errors='replace')
             return line
-        except:
+        except Exception as e:
             # Attempt decode to ascii
             try:
+                logger.warning("Santizer was unable to decode to UTF-8 with replace mode:")
+                logger.warning(line)
+                print("Santizer was unable to decode to UTF-8 with replace mode:")
+                print(line)
+                # Print traceback
+                traceback.print_exc()
+                # Print exception information to file
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
+
+                line = line.decode('iso-8859-1').decode('ascii')
                 line = line.decode('ascii')
+                return line
             except Exception as e:
+                logger.warning("Santizer was unable to decode to ASCII:")
+                logger.warning(line)
+                print("Santizer was unable to decode to ASCII:")
+                # Print traceback
+                traceback.print_exc()
+                # Print exception information to file
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
+                
+                print(line)
                 # Return empty string
                 return ""

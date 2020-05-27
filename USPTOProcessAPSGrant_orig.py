@@ -11,6 +11,8 @@ import time
 import traceback
 import os
 import sys
+import zipfile
+#import unicode
 
 # Import USPTO Parser Functions
 import USPTOLogger
@@ -65,36 +67,38 @@ def process_APS_grant_content(args_array):
     first_patent_found = False
     next_line_loaded_already = False
     end_of_file = False
-    insert_final = False
     patn_found = 0
 
     # Start to read the file in lines
     while end_of_file == False:
+    #for line in data_file_contents:
 
         # Read a single line if there is no line content then load another line
         if next_line_loaded_already == False:
             # Load the next line
             try:
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
             except Exception as e:
-                line = data_file_contents.readline()
-                if not line: insert_final = True;
                 # Print traceback
                 traceback.print_exc()
                 # Print exception information to file
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
+            #line = str(line).decode('utf-8', 'ignore')
+            # Strip whitespace from line
+            line = line.strip()
+            print(line)
 
-        # Initialize that next line is not loaded
+        # Every time through the loop, initialize that next line is not loaded
         next_line_loaded_already = False
 
-        # If EOF then append last patent grant
-        if insert_final:
+        # If return value is EOF
+        if not line:
 
+            #print("-- End of file: " + args_array['file_name'])
             # Set flag to end the while loop
-            end_of_file = True
+            #end_of_file = True
 
             # Store the final patent file for the data
             # Define variables that are not included in APS format
@@ -143,13 +147,12 @@ def process_APS_grant_content(args_array):
             #print "Starting the data storage process of " + args_array['uspto_xml_format'] + " data for contents of: " + args_array['url_link'] + " Started at: " + time.strftime("%c")
             USPTOStoreGrantData.store_grant_data(processed_data_array, args_array)
 
-        else:
-            line = line.strip()
-
         # If the line is start of a patent document
-        if line == "PATN":
+        elif line == "PATN":
 
             patn_found += 1
+            #print("PATN found: " + str(patn_found))
+            #if patn_found >= 3: exit()
             # Initialize the position variables required for classification
             # NOTE: this is because there seems to be a rare anomoly of Records
             # having more than one CLAS tag, otherwise it could be set after the
@@ -261,6 +264,7 @@ def process_APS_grant_content(args_array):
             try:
                 # TODO: need to filter patent numbers in function ???
                 document_id = USPTOSanitizer.fix_patent_number(USPTOSanitizer.replace_old_html_characters(line[3:].strip()))[:20]
+                print("Patent Number: " + str(document_id))
             except:
                 # TODO: exception should be logged since patent number is required.
                 document_id = None
@@ -295,12 +299,12 @@ def process_APS_grant_content(args_array):
             # If TTL found, can be multi-line.  Load next line and check if should be appended or not
             # Load the next line
             line = data_file_contents.readline()
-            if not line: insert_final = True;
+            line = line.strip()
 
             # Check if line has empty header
             if not line[0:3]:
                 # Append the TTL to the title variable above if empty header
-                title += " " + USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:500].strip()
+                title += USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:500]
             # Check if the loaded next line is another type of data
             elif line[0:4].strip() == "ISD":
                 # Set that the next line has been loaded already so it can be found
@@ -310,27 +314,27 @@ def process_APS_grant_content(args_array):
         # Number of Drawings
         elif line[0:3].strip() == "NDR":
             try:
-                number_of_drawings = USPTOSanitizer.replace_old_html_characters(line[3:].strip()).split(",")[0].replace(" ", "").strip()
+                number_of_drawings = USPTOSanitizer.replace_old_html_characters(line[3:].strip()).split(",")[0].replace(" ", "")
                 number_of_drawings = number_of_drawings.split("/")[0]
             except: number_of_drawings = None
         # Number of Figures
         elif line[0:4].strip() == "NFG":
-            try: number_of_figures = USPTOSanitizer.replace_old_html_characters(line[3:].strip()).split(",")[0].replace(" ", "").strip()
+            try: number_of_figures = USPTOSanitizer.replace_old_html_characters(line[3:].strip()).split(",")[0].replace(" ", "")
             except: number_of_drawings = None
         # Term length of patent
         elif line[0:4].strip() == "TRM":
-            try: grant_length = USPTOSanitizer.replace_old_html_characters(line[3:].strip()).split(",")[0].replace(" ", "").strip()
+            try: grant_length = USPTOSanitizer.replace_old_html_characters(line[3:].strip()).split(",")[0].replace(" ", "")
             except: grant_length = None
             # NOTE: (could name database column decimal) If grant length is decimal value, then
             if "." in grant_length:
-                grant_length = grant_length.split(".")[0].strip()
+                grant_length = grant_length.split(".")[0]
 
         # Assistant Examiner
         elif line[0:4].strip() == "EXA":
             try:
                 assistant_examiner = USPTOSanitizer.replace_old_html_characters(line[3:].strip()).split(";")
-                examiner_last_name = assistant_examiner[0][:50].strip()
-                examiner_first_name = assistant_examiner[1][:50].strip()
+                examiner_last_name = assistant_examiner[0][:50]
+                examiner_first_name = assistant_examiner[1][:50]
             except:
                 examiner_first_name = None
                 examiner_last_name = None
@@ -359,8 +363,8 @@ def process_APS_grant_content(args_array):
             examiner_last_name = None
             try:
                 primary_examiner = USPTOSanitizer.replace_old_html_characters(line[3:].strip()).split(";")
-                examiner_last_name = primary_examiner[0][:50].strip()
-                examiner_first_name = primary_examiner[1][:50].strip()
+                examiner_last_name = primary_examiner[0][:50]
+                examiner_first_name = primary_examiner[1][:50]
             except:
                 examiner_last_name = None
                 examiner_first_name = None
@@ -396,7 +400,7 @@ def process_APS_grant_content(args_array):
             while data_parse_completed == False:
                 # Read next line
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
+                line = line.strip()
 
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:4] == "UREF":
@@ -443,7 +447,7 @@ def process_APS_grant_content(args_array):
                     except: citation_document_number = None
                 # Issue Date of cited patent
                 elif line[0:3] == "ISD":
-                    try: citation_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.replace_old_html_characters(line[3:].strip()), args_array, document_id).strip()
+                    try: citation_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.replace_old_html_characters(line[3:].strip()), args_array, document_id)
                     except: citation_date = None
                 # Name of patentee
                 elif line[0:3] == "NAM":
@@ -476,7 +480,7 @@ def process_APS_grant_content(args_array):
 
                 # Load the next line
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
+                line = line.strip()
 
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:3] == "PAL":
@@ -564,7 +568,7 @@ def process_APS_grant_content(args_array):
 
                 # Load the next line
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
+                line = line.strip()
 
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:4] == "FREF":
@@ -671,7 +675,7 @@ def process_APS_grant_content(args_array):
 
                 # Load the next line
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
+                line = line.strip()
 
                 # Collect the main class
                 if line[0:3] == "OCL":
@@ -929,7 +933,7 @@ def process_APS_grant_content(args_array):
 
                 # Load the next line
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
+                line = line.strip()
 
                 # Read next line if not then set end_of_file = True
                 if not line:
@@ -987,7 +991,7 @@ def process_APS_grant_content(args_array):
 
                 # Load the next line
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
+                line = line.strip()
 
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:3] == "PAL":
@@ -1048,7 +1052,7 @@ def process_APS_grant_content(args_array):
 
                 # Load the next line
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
+                line = line.strip()
 
                 # If the inventor tag is found then append last set of data
                 if line[0:4] == "INVT":
@@ -1206,7 +1210,7 @@ def process_APS_grant_content(args_array):
                     # Break the foreign patent citation loop
                     data_parse_completed = True
 
-        # Assignee
+        # Inventor
         elif line[0:4] == "ASSG":
 
             multi_line_flag = ''
@@ -1228,7 +1232,7 @@ def process_APS_grant_content(args_array):
 
                 # Load the next line
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
+                line = line.strip()
 
                 # If the inventor tag is found then append last set of data
                 if line[0:4] == "ASSG":
@@ -1378,7 +1382,7 @@ def process_APS_grant_content(args_array):
 
                 # Load the next line
                 line = data_file_contents.readline()
-                if not line: insert_final = True;
+                line = line.strip()
 
                 # Get the firm name from line
                 if line[0:3] == "FRM":
