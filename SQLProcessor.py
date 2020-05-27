@@ -319,8 +319,8 @@ class SQLProcess:
                 ]
 
             # Print and log found previous attempt to process file
-            print("Starting attempt to remove previous attempt to process the " + call_type + " file: " + file_name + " in table: uspto.STARTED_FILES")
-            logger.info("Starting attempt to remove previous attempt to process the " + call_type + " file:" + file_name + " in table: uspto.STARTED_FILES")
+            print("Starting to remove previous attempt to process the " + call_type + " file: " + file_name + " in table: uspto.STARTED_FILES")
+            logger.info("Starting to remove previous attempt to process the " + call_type + " file:" + file_name + " in table: uspto.STARTED_FILES")
 
             # Loop through each table_name defined by call_type
             for table_name in table_name_array:
