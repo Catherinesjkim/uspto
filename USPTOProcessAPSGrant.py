@@ -977,6 +977,8 @@ def process_APS_grant_content(args_array):
                         # Break the foreign patent citation loop
                         data_parse_completed = True
 
+            # Clear the leading and trailing whitespace
+            abstract = abstract.strip()
 
         # Claims
         elif line[0:4] == "DCLM":
@@ -984,7 +986,6 @@ def process_APS_grant_content(args_array):
             accepted_headers_array = ["PAL"]
             # Initialize empty string to to hold multi-line entries
             claims = ''
-            temp_claims_string = ''
             data_parse_completed = False
 
             # Loop through all CLAIMS until finished
@@ -996,19 +997,17 @@ def process_APS_grant_content(args_array):
 
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:3] == "PAL":
-
                     # Get the citation text from the line
                     try:
-                        claims = USPTOSanitizer.replace_old_html_characters(line[3:].strip())
+                        claims = " " +  USPTOSanitizer.replace_old_html_characters(line[3:].strip())
                     except:
                         logger.error("A claim reference could not be found for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
                 # If line is not empty then append to claims string
                 elif not line[0].strip():
-
                     try:
                         # Append the continued reference text to temp string
-                        claims += USPTOSanitizer.replace_old_html_characters(line[3:].strip())
+                        claims += " " +  USPTOSanitizer.replace_old_html_characters(line[3:].strip())
                     except Exception as e:
                         traceback.print_exc()
                         logger.error("A claim append reference could not be found for grant_id: " + document_id + " in link: " + args_array['url_link'])
@@ -1027,6 +1026,9 @@ def process_APS_grant_content(args_array):
                     next_line_loaded_already = True
                     # Break the foreign patent citation loop
                     data_parse_completed = True
+
+            # Clear the leading and trailing whitespace
+            claims = claims.strip()
 
         # Inventor
         elif line[0:4] == "INVT":

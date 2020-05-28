@@ -561,7 +561,7 @@ def extract_XML2_grant(raw_data, args_array):
         # Collect Abstract from data
         try:
             abstr = patent_root.find('SDOAB')
-            abstract = USPTOSanitizer.return_element_text(abstr)
+            abstract = USPTOSanitizer.return_element_text(abstr).strip()
             #print abstract
         except: abstract = None
 

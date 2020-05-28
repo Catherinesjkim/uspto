@@ -473,7 +473,7 @@ def extract_XML4_application(raw_data, args_array):
     try:
         abstract_element = patent_root.find('abstract')
         if abstract_element is not None:
-            abstract = USPTOSanitizer.return_element_text(abstract_element)
+            abstract = USPTOSanitizer.return_element_text(abstract_element).strip()
     except: abstract = None
     #print abstract
 

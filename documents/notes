@@ -1,4 +1,22 @@
 
+==========================================
+
+- IssueDate is not present in many grant files
+- Applications have r1-r2 etc, and how are those processed? / what are they?  revision files?
+- are they complete revision files?  How to deal with them?
+- has ipgb20190813_wk33 been failing processing?
+
+- Look for MySQL exception types in Python
+- If it's a table lock condition, don't add 1 to the failed attempts counter
+- then the file will never have to be reprocessed due to table lock timeouts
+
+- need to prevent the removal of previous attempts from failing, remove the counter based return on fail
+
+- can move the insertion of a file_name into STARTED_FILES until after the file is finished processing
+- if bulk insertion is being used, and also move the cleaning of the database until after the file
+- has been processed
+
+- Error in the spacing of contatenated lines of the abstract
 
 ======================================
 
@@ -34,23 +52,3 @@ others
     There are some other information are mismatching according to the USPTO website. I'm wondering if they have updated overtime and not updated through bulkdata.
     there is a Class_links.log that is not processed. I'm wondering if this is important? because I want to know cpcclass or usclass as it came into part of my research.
     I also came across that Harvard and other studies have also have bulkdata stored in their website. Have you ever got the chance to play with those data?
-
-
-==========================================
-
-- IssueDate is not present in many grant files
-- Applications have r1-r2 etc, and how are those processed? / what are they?  revision files?
-- are they complete revision files?  How to deal with them?
-- has ipgb20190813_wk33 been failing processing?
-
-- Look for MySQL exception types in Python
-- If it's a table lock condition, don't add 1 to the failed attempts counter
-- then the file will never have to be reprocessed due to table lock timeouts
-
-- need to prevent the removal of previous attempts from failing, remove the counter based return on fail
-
-- can move the insertion of a file_name into STARTED_FILES until after the file is finished processing
-- if bulk insertion is being used, and also move the cleaning of the database until after the file
-- has been processed
-
-- Error in the spacing of contatenated lines of the abstract

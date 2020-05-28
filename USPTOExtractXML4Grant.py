@@ -561,7 +561,7 @@ def extract_XML4_grant(raw_data, args_array):
 
     # Find the abstract
     try:
-        abstract = USPTOSanitizer.return_element_text(patent_root.find('abstract'))
+        abstract = USPTOSanitizer.return_element_text(patent_root.find('abstract')).strip()
     except:
         traceback.print_exc()
         abstract = None

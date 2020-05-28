@@ -379,7 +379,7 @@ def extract_XML1_application(raw_data, args_array):
         position += 1
 
     # Find the abstract of the application
-    try: abstract = USPTOSanitizer.return_element_text(document_root.find('subdoc-abstract'))
+    try: abstract = USPTOSanitizer.return_element_text(document_root.find('subdoc-abstract')).strip()
     except: abstract = None
 
     # Append SQL data into dictionary to be written later
