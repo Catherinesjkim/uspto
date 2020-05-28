@@ -21,6 +21,11 @@ import USPTOSanitizer
 # Function used to extract data from XML2 formatted patent grants
 def extract_XML2_grant(raw_data, args_array):
 
+    #
+    # Data documentation on the fields in XML2 Grant data can be found
+    # in the /documents/data_descriptions/PatentGrantSGMLv19-Documentation.pdf file
+    #
+
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
@@ -66,31 +71,41 @@ def extract_XML2_grant(raw_data, args_array):
     # Start the parsing process for XML
     for r in patent_root.findall('SDOBI'):
 
-        # Collect document data
-        for B100 in r.findall('B100'): #GRANT
+        # Collect main grant document data
+        for B100 in r.findall('B100'):
             try:
                 document_id = USPTOSanitizer.return_element_text(B100.find('B110'))
                 document_id = USPTOSanitizer.fix_patent_number(document_id)[:20]
             except:
                 document_id = None
                 logger.error("No Patent Number was found for: " + url_link)
-            try: kind = USPTOSanitizer.return_element_text(B100.find('B130'))[:2]
+            try:
+                kind = USPTOSanitizer.return_element_text(B100.find('B130'))[:2]
+                app_type = USPTOSanitizer.return_xml2_app_type(args_array, kind)
             except: kind = None
-            try: pub_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.return_element_text(B100.find('B140')), args_array, document_id) # PATENT ISSUE DATE
+            try:
+                # PATENT ISSUE DATE
+                pub_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.return_element_text(B100.find('B140')), args_array, document_id)
             except: pub_date = None
-            try: pub_country = USPTOSanitizer.return_element_text(B100.find('B190')) # PATENT APPLICANT COUNTRY??
+            try:
+                # PATENT APPLICANT COUNTRY??
+                pub_country = USPTOSanitizer.return_element_text(B100.find('B190'))
             except: pub_country = None
 
         # Collect apllication data in document
-        for B200 in r.findall('B200'): # APPLICATION
-            # TODO: find these datas in XML2 applications
-            app_type = None
+        for B200 in r.findall('B200'):
+            # TODO: find this in XML2 applications
             app_country = None
-            try: app_no = USPTOSanitizer.return_element_text(B200.find('B210'))[:20]
+            try:
+                # Application number
+                app_no = USPTOSanitizer.return_element_text(B200.find('B210'))[:20]
             except: app_no = None
-            try: app_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.return_element_text(B200.find('B220')), args_array, document_id) # APPLICATION DATE
+            try:
+                # Application date
+                app_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.return_element_text(B200.find('B220')), args_array, document_id)
             except: app_date = None
-            try: series_code = USPTOSanitizer.return_element_text(B200.find('B211US'))[:2]
+            try:
+                series_code = USPTOSanitizer.return_element_text(B200.find('B211US'))[:2]
             except: series_code = None
 
         # Collect the grant length
@@ -98,9 +113,11 @@ def extract_XML2_grant(raw_data, args_array):
 
         # Collect US classification
         for B500 in r.findall('B500'):
-            for B520 in B500.findall('B520'): #US CLASSIFICATION
+            # US Classification
+            for B520 in B500.findall('B520'):
                 position = 1
-                for B521 in B520.findall('B521'): # USCLASS MAIN
+                # USCLASS
+                for B521 in B520.findall('B521'):
                     n_class_info = USPTOSanitizer.return_element_text(B521)
                     n_class_main, n_subclass = USPTOSanitizer.return_class(n_class_info)
                     n_class_main = n_class_main[:5]
@@ -117,7 +134,8 @@ def extract_XML2_grant(raw_data, args_array):
                     })
 
                     position += 1
-                for B522 in B520.findall('B522'): # USCLASS FURTHER
+                for B522 in B520.findall('B522'):
+                    # USCLASS FURTHER
                     n_class_info = USPTOSanitizer.return_element_text(B522)
                     n_class_main, n_subclass = USPTOSanitizer.return_class(n_class_info)
                     n_class_main = n_class_main[:5]
@@ -376,10 +394,18 @@ def extract_XML2_grant(raw_data, args_array):
                         except: inventor_last_name = None
                         try: inventor_city = USPTOSanitizer.return_element_text(i.find('ADR').find('CITY'))[:100]
                         except: inventor_city = None
-                        try: inventor_state = USPTOSanitizer.return_element_text(i.find('ADR').find('STATE'))[:100]
+                        try:
+                            inventor_state = USPTOSanitizer.return_element_text(i.find('ADR').find('STATE'))[:3]
                         except: inventor_state = None
-                        # TODO: find out if country can be other than US
-                        inventor_country = "US"
+                        # Inventor country
+                        try: inventor_country = USPTOSanitizer.return_element_text(x.find("ADR").find('CTRY'))[:3]
+                        except:
+                            try:
+                                if USPTOSanitizer.is_US_state(inventor_state):
+                                    inventor_country = "US"
+                                else:
+                                    inventor_country = None
+                            except: inventor_country = None
                         inventor_nationality = None
                         inventor_residence = None
 
@@ -412,10 +438,18 @@ def extract_XML2_grant(raw_data, args_array):
                         asn_role = None
                         try: asn_city = USPTOSanitizer.return_element_text(x.find("ADR").find('CITY'))[:100]
                         except: asn_city = None
-                        try: asn_state = USPTOSanitizer.return_element_text(x.find("ADR").find('STATE'))[:100]
+                        try: asn_state = USPTOSanitizer.return_element_text(x.find("ADR").find('STATE'))[:30]
                         except: asn_state = None
-                        # TODO: find out if country is always US because it's never included.  Check all other references also
-                        asn_country = "US"
+                        # Assignee country
+                        try:
+                            asn_country = USPTOSanitizer.return_element_text(x.find("ADR").find('CTRY'))[:3]
+                        except:
+                            try:
+                                if USPTOSanitizer.is_US_state(asn_state):
+                                    asn_country = "US"
+                                else:
+                                    asn_country = None
+                            except: asn_country = None
 
                     # Append SQL data into dictionary to be written later
                     processed_assignee.append({
@@ -434,18 +468,32 @@ def extract_XML2_grant(raw_data, args_array):
                     position += 1
 
             # Collect agent data
-            for B740 in B700.findall('B740'): #AGENT
+            for B740 in B700.findall('B740'):
                 # Reset position for agents
                 position = 1
                 for B741 in B740.findall('B741'):
                     for x in B741.findall('PARTY-US'):
                         try: agent_orgname = USPTOSanitizer.return_element_text(x.find('NAM').find("ONM"))[:300]
                         except: agent_orgname = None
-                        try: agent_last_name = USPTOSanitizer.return_element_text(i.find('NAM').find('FNM'))[:100]
+                        try: agent_last_name = USPTOSanitizer.return_element_text(x.find('NAM').find('FNM'))[:100]
                         except: agent_last_name = None
-                        try: agent_first_name = USPTOSanitizer.return_element_text(i.find('NAM').find('SNM'))[:100]
+                        try: agent_first_name = USPTOSanitizer.return_element_text(x.find('NAM').find('SNM'))[:100]
                         except: agent_first_name = None
-                        agent_country = "US"
+                        # Attorney Address information
+                        try: agent_city = USPTOSanitizer.return_element_text(x.find("ADR").find('CITY'))[:100]
+                        except: agent_city = None
+                        try: agent_state = USPTOSanitizer.return_element_text(x.find("ADR").find('STATE'))[:30]
+                        except: agent_state = None
+                        # Agent country
+                        try:
+                            agent_country = USPTOSanitizer.return_element_text(x.find("ADR").find('CTRY'))[:3]
+                        except:
+                            try:
+                                if USPTOSanitizer.is_US_state(agent_state):
+                                    agent_country = "US"
+                                else:
+                                    agent_country = None
+                            except: agent_country = None
 
                         # Append SQL data into dictionary to be written later
                         processed_agent.append({

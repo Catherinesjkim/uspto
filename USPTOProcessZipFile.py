@@ -38,6 +38,9 @@ def extract_xml_file_from_zip(args_array):
         logger.info('xml file found. Filename: ' + xml_file_name)
         # Open the file to read lines out of
         xml_file = zip_file.open(xml_file_name, 'r')
+        # If sandbox mode then extract the xml file
+        if args_array['sandbox'] == True:
+            zip_file.extract(xml_file_name, args_array['temp_directory'] + "/unzip/" + xml_file_name)
         # Extract the contents from the file
         xml_file_contents = xml_file.readlines()
         # Close the file being read from

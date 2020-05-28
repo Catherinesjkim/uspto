@@ -22,6 +22,11 @@ import USPTOStoreGrantData
 # Used to parse xml files of the type APS
 def process_APS_grant_content(args_array):
 
+    #
+    # Data documentation on the fields in XML2 Grant data can be found
+    # in the /documents/data_descriptions/PatentFullTextAPSGreenBook-Documentation.pdf file
+    #
+
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
@@ -260,7 +265,7 @@ def process_APS_grant_content(args_array):
             document_id = None
             try:
                 # TODO: need to filter patent numbers in function ???
-                document_id = USPTOSanitizer.fix_patent_number(USPTOSanitizer.replace_old_html_characters(line[3:].strip()))[:20]
+                document_id = USPTOSanitizer.fix_APS_patent_number(args_array, USPTOSanitizer.fix_patent_number(USPTOSanitizer.replace_old_html_characters(line[3:].strip())))
             except:
                 # TODO: exception should be logged since patent number is required.
                 document_id = None
@@ -1056,6 +1061,10 @@ def process_APS_grant_content(args_array):
                     # The data collection is complete and should be appended
                     if item_ready_to_insert == True:
 
+                        # US countries were not assigned a CNT value
+                        if inventor_country == None and inventor_state != None:
+                            inventor_country == "USX"
+
                         # Append SQL data into dictionary to be written later
                         try:
                             processed_inventor.append({
@@ -1153,6 +1162,7 @@ def process_APS_grant_content(args_array):
                     # Get the citation text from the line
                     try:
                         inventor_country = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:100]
+                        #inventor_country = USPTOSanitizer.fix_old_country_code(inventor_country)
                         # Reset the item ready to insert
                         item_ready_to_insert = True
                     except:
@@ -1270,7 +1280,6 @@ def process_APS_grant_content(args_array):
                             logger.error("Some data was missing from assignee reference data for grant id: " + document_id + " in url: " + args_array['url_link'])
                             # Reset the item ready to insert
                             item_ready_to_insert = False
-
 
                 # Get and pase the name of the inventor
                 elif line[0:3] == "NAM":

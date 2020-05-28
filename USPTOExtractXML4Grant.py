@@ -361,7 +361,7 @@ def extract_XML4_grant(raw_data, args_array):
                 for apt in apts.findall(applicant_id_string):
                     # Get the inventor status of the applicant
                     try: inventor_status = apt.attrib['app-type']
-                    except: inventor_status = ""
+                    except: inventor_status = None
                     # Get the position number
                     try: inventor_sequence = apt.attrib['sequence']
                     except: inventor_sequence = None

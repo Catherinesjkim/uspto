@@ -198,10 +198,21 @@ def fix_patent_number(document_id):
     # Strip lowercase `e` from patent number
     document_id = document_id.replace("e", "E")
 
-    # TODO: strip trailing dash and number from document_id
-
     # return the fixed patent number
     return document_id
+
+# Fix the 9 digit patent number for APS patent ids
+def fix_APS_patent_number(args_array, document_id):
+    # Import logger
+    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+    # If 9 characters, strip the last one
+    if len(document_id) == 9:
+        return document_id[0:8]
+    elif len(document_id) == 8:
+        return document_id
+    else:
+        logger.warning("-- Malformed patent number for an APS document: " + document_id + " was found in file: " + args_array['file_name'])
+        return document_id
 
 # Strip leading zeros from ....
 def strip_leading_zeros(string):
@@ -556,7 +567,50 @@ def decode_line(line):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 logger.error("Exception: " + str(exc_type) + " in Filename: " + str(fname) + " on Line: " + str(exc_tb.tb_lineno) + " Traceback: " + traceback.format_exc())
-                
+
                 print(line)
                 # Return empty string
                 return ""
+
+
+# Fix the country code
+def fix_old_country_code(code):
+    if len(code) == 3 and code[2] == "X":
+        return code[0:2]
+    else: return code
+
+# Check if state is US code state
+def is_US_state(code):
+
+    code_array = [
+        "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI",
+        "ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI",
+        "MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC",
+        "ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT",
+        "VT","VA","WA","WV","WI","WY","NB"
+    ]
+    if len(code) == 2 and code in code_array:
+        return True
+    else: return False
+
+# Convert the kind field to application reference
+def return_xml2_app_type(args_array, kind):
+
+    # Import logger
+    logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
+
+    if kind == "S":
+        return "design"
+    elif kind == "P":
+        return "plant"
+    elif kind == "H":
+        return "sir"
+    elif kind == "E":
+        return "reissue"
+    elif kind == "A":
+        return "utility"
+    elif len(kind) == 2 and kind[0] == "B":
+        return str(kind[-1]) + " degree re-examination certificate"
+    else:
+        logger.warning("-- Malformed application type for an XML2 document: '" + kind + "' was found in file: " + args_array['file_name'])
+        return None
