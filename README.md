@@ -54,11 +54,11 @@ The following example is the command to store in csv file and database with 20 p
 
 $ python USPTOParser.py -csv -database -t 20
 
-Finally, the script can be run in 'sandbox mode' or normal mode by setting a flag in the args_array called 'sandbox' which is at the top of the main function.  Running in sandbox mode will keep all downloaded .zip files on your computer so that they do not need to be downloaded again if you restart the script or encounter any errors.
+Finally, the script can be run in 'sandbox mode' or normal mode by setting a flag in the args_array called 'sandbox' which is at the top of the main function.  Running the script in sandbox mode will keep all downloaded .zip files and extracted .xml or .dat files on your computer so that they do not need to be downloaded again if you restart the script or encounter any errors, or so that you may inspect the decompressed data files.
 
 ### 3. Check the log files
 
-The script will keep track of processed files in the **LOG** directory. There are log files for grants (**grant_links.log**) and applications (**application_links.log**), and a main log file **USPTO_app.log** which keeps track of errors and warnings from the script.  If the script crashes for any reason, you can simply start the script again and it will clear any partially processed data and start where it left off.  You can set the verbosity of the stdout and **USPTO_app.log** logs with the 'log_level' and 'stdout_level' in the args_array.
+The script will keep track of processed files in the **LOG** directory. There are log files for grants (**grant_links.log**) and applications (**application_links.log**), and a main log file **USPTO_app.log** which keeps track of errors and warnings from the script.  If the script crashes for any reason, you can simply start the script again and it will clear any partially processed data and start where it left off.  You can set the verbosity of the stdout and **USPTO_app.log** logs with the 'log_level' and 'stdout_level' variables at the top of the main function.
 
 You should check of the **grant_links.log** and **application_links.log** files after the script has completed to make sure that each line in those files says "Processed" at the end.  If the file has not been processed, the line will end with "Unprocessed" and you should run the script again to finish any files that were not processed.
 
