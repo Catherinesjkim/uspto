@@ -1,7 +1,7 @@
 
 ==========================================
 
-- IssueDate is not present in many grant files
+- IssueDate is not present in many grant files "0000-00-00" as date???? why??
 - Applications have r1-r2 etc, and how are those processed? / what are they?  revision files?
 - are they complete revision files?  How to deal with them?
 - has ipgb20190813_wk33 been failing processing?
