@@ -40,7 +40,7 @@ def extract_xml_file_from_zip(args_array):
         xml_file = zip_file.open(xml_file_name, 'r')
         # If sandbox mode then extract the xml file
         if args_array['sandbox'] == True:
-            zip_file.extract(xml_file_name, args_array['temp_directory'] + "/unzip/" + xml_file_name)
+            zip_file.extract(xml_file_name, args_array['temp_directory'] + "/unzip/" + args_array['file_name'])
         # Extract the contents from the file
         xml_file_contents = xml_file.readlines()
         # Close the file being read from
@@ -153,8 +153,6 @@ def extract_dat_file_from_zip(args_array):
             # Make a directory for the particular downloaded zip file
             os.mkdir(args_array['temp_directory'] + "/unzip/" + args_array['file_name'])
 
-        # Open the .dat file contents directly from the zip_file
-        #data_file_contents = zip_file.open(data_file_name,'r')
         # Open the zip file and extract the .dat file contents
         zip_file.extract(data_file_name, args_array['temp_directory'] + "/unzip/" + args_array['file_name'])
         # Close the zip file
@@ -164,11 +162,9 @@ def extract_dat_file_from_zip(args_array):
 
         # Open the .dat file contents from the extracted zip_file
         data_file_contents = codecs.open(temp_data_file_path, 'r', 'iso-8859-1')
-        # Delete the extracted data file
-        # Open the .dat file and read into an array
-        #with open(temp_data_file_path, "r", errors='ignore') as data_file:
-            #data_file_contents = data_file.readlines()
-        os.remove(temp_data_file_path)
+        if not args_array['sandbox']:
+            # Delete the extracted data file
+            os.remove(temp_data_file_path)
 
         # If not sandbox mode, then delete the .zip file
         if args_array['sandbox'] == False and os.path.exists(args_array['temp_zip_file_name']):
