@@ -1,6 +1,6 @@
 # **USPTO PATENT DATA PARSER**
 
-Copyright (c) 2018 Ripple Software. All rights reserved.
+Copyright (c) 2020 Ripple Software. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
 
@@ -32,7 +32,7 @@ There are three steps.
 
 ### 1. Install the database
 
-Run the appropriate database creation scripts depending if you intend to store the USPTO data in MySQL or PostgreSQL.  The script will create a user and limit the scope of the user to the uspto database. If you want to change the default password for the user that the script will create, edit the .sql file before running it.
+Run the appropriate database creation scripts depending if you intend to store the USPTO data in MySQL or PostgreSQL.  The script will create a user  'uspto' and limit the scope of the user to the uspto database. If you want to change the default password for the user, edit the appropriate .sql file before running it.  Also, some configuration of your database maybe necessary depending on the settings choose when running the script.  For example the ability to bulk insert CSV files are disabled by default in MySQL.
 
 _MySQL_
 

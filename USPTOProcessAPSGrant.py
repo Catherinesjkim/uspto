@@ -387,16 +387,18 @@ def process_APS_grant_content(args_array):
 
             #print processed_examiner
 
-        # Foreign Reference
+        # USPTO Reference
         elif line[0:4] == "UREF":
             # This header type  has no data on same line but will include further
             # readlines so read another line in a while loop until you finish with foreign references
             # and when non-foreign nonreference is found set a flag that prevents another line from being
             # read next iteration through main loop
 
-            # Set required variables and arrays
+            # Set accepted DAT headers
             accepted_headers_array = ["UREF", "OCL", "PNO", "ISD", "NAM", "OCL", "XCL", "UCL"]
+            # Set a flag that the UREF tag has not finished
             data_parse_completed = False
+            item_ready_to_insert = False
 
             while data_parse_completed == False:
                 # Read next line
@@ -409,7 +411,7 @@ def process_APS_grant_content(args_array):
                     # The data collection is complete and should be appended
                     if item_ready_to_insert == True:
 
-                        # Try to append the item.  If items are missingn it will not append
+                        # Try to append the item.  If items are missinng it will not append
                         # and error will be written to log
                         try:
                             # Append SQL data into dictionary to be written later
@@ -444,7 +446,7 @@ def process_APS_grant_content(args_array):
 
                 # CitedID
                 elif line[0:3] == "PNO":
-                    try: citation_document_number = USPTOSanitizer.fix_patent_number(USPTOSanitizer.replace_old_html_characters(line[3:].strip().replace("*", "").replace(" ", "")))[:20]
+                    try: citation_document_number = USPTOSanitizer.fix_patent_number(USPTOSanitizer.replace_old_html_characters(line[3:].strip().replace("*", "").replace(" ", "")))[:20].strip()
                     except: citation_document_number = None
                 # Issue Date of cited patent
                 elif line[0:3] == "ISD":
@@ -453,7 +455,7 @@ def process_APS_grant_content(args_array):
                 # Name of patentee
                 elif line[0:3] == "NAM":
                     try:
-                        citation_name = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:100]
+                        citation_name = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:100].strip()
                         item_ready_to_insert = True
                     except:
                         citation_name = None
@@ -461,10 +463,32 @@ def process_APS_grant_content(args_array):
 
                 # Catch the tag of next header but not empty line
                 elif line[0:4].strip() not in accepted_headers_array:
+
+                    # Append final UREF to gracit items array
+                    processed_gracit.append({
+                        "table_name" : "uspto.GRACIT_G",
+                        "GrantID" : document_id,
+                        "Position" : position_uref,
+                        "CitedID" : citation_document_number,
+                        "Name" : citation_name,
+                        "Date" : citation_date,
+                        "Country" : "US",
+                        "FileName" : args_array['file_name']
+                    })
+
+                    # Reset all variables to avoid overlap
+                    citation_document_number = None
+                    citation_name = None
+                    citation_date = None
+
+                    # Reset the item ready to insert
+                    item_ready_to_insert = False
+
                     # Set the next_line_loaded_already flag to True
                     next_line_loaded_already = True
                     # Break the foreign patent citation loop
                     data_parse_completed = True
+
 
         # Other References
         elif line[0:4] == "OREF":
@@ -978,7 +1002,8 @@ def process_APS_grant_content(args_array):
                         data_parse_completed = True
 
             # Clear the leading and trailing whitespace
-            abstract = abstract.strip()
+            if abstract:
+                abstract = abstract.strip()
 
         # Claims
         elif line[0:4] == "DCLM":
@@ -1028,7 +1053,8 @@ def process_APS_grant_content(args_array):
                     data_parse_completed = True
 
             # Clear the leading and trailing whitespace
-            claims = claims.strip()
+            if claims:
+                claims = claims.strip()
 
         # Inventor
         elif line[0:4] == "INVT":
