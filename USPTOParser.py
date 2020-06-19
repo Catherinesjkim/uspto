@@ -459,13 +459,15 @@ def build_argument_output():
 # Set the config settings in file based on command arguments
 def set_config_using_command_args(args_array):
     # User wants to update but but no data destination specified,
-    # collect previous configuration settings
+
+    # Collect previous configuration settings
     if "update" in args_array['command_args']:
         # Check for setting data destination and write to file
         if "csv" not in args_array['command_args'] and "database" not in args_array['command_args']:
             config_settings = open(args_array['app_config_file'], "r")
             for line in config_settings.readlines():
-                args_array['command_args'].append(line.strip())
+                print("Previous setting: " + line)
+                args_array['command_args'][line.strip()] = True
             config_settings.close()
 
     # If command line args include data destination, then write to file
