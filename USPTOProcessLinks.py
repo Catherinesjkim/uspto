@@ -317,7 +317,7 @@ def is_duplicate_link(type, link):
     link = link.split("/")[-1]
     if type == "PG":
         #links_to_remove = ["2001.zip", "2000.zip", "1999.zip", "1998.zip", "1997.zip", "1996.zip"]
-        links_to_remove = ["pba2001", "pba2000", "pba1999", "pba1998",
+        links_to_remove = ["pgb2001", "pba2000", "pba1999", "pba1998",
         "pba1997", "pba1996"]
         is_duplicate = False
         for item in links_to_remove:
