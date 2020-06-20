@@ -158,8 +158,10 @@ def update_link_arrays_to_file(all_links_array, args_array):
     # Open files and read in data to check lines for links that exist already
     grant_process_file = open(args_array['grant_process_log_file'], "r+")
     application_process_file = open(args_array['application_process_log_file'], "r+")
+
     grant_process_data_array = grant_process_file.readlines()
     print(str(len(grant_process_data_array)) + " existing grant links were found in the log file")
+
     application_process_data_array = application_process_file.readlines()
     print(str(len(application_process_data_array)) + " existing application links were found in the log file")
     # Close the process log files
@@ -301,7 +303,6 @@ def build_or_update_link_files(args_array):
             all_links_array = USPTOProcessLinks.get_all_links(args_array)
             #print all_links_array
             write_link_arrays_to_file(all_links_array, args_array)
-
         except Exception as e:
             # Log failure building all zip filepaths
             print("Failed to get all links from USPTO bulk data site " + time.strftime("%c"))

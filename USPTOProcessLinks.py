@@ -74,6 +74,9 @@ def return_file_format_from_filename(file_name):
     for key, value in list(format_types.items()):
         if re.compile(value).match(file_name):
             return key
+        else:
+            if re.compile(value).match(file_name.split("/")[-1]):
+                return key
 
 # Download a link into temporary memory and return filename
 def download_zip_file(args_array):
@@ -174,11 +177,15 @@ def get_all_links(args_array):
     # PG = Patent Grants
     # PA = Patent Applications
 
-    # Patent Grant Information Retrieval
-    url_source_USPTO = args_array['uspto_bulk_data_url']
+    # Patent grant and application bulk data url
+    if args_array['bulk_data_source'] == "uspto":
+        bulk_data_url = args_array['uspto_bulk_data_url']
+    elif args_array['bulk_data_source'] == "reedtech":
+        bulk_data_url = args_array['reedtech_bulk_data_url']
+    # Classification url
     url_source_UPC_class = args_array["uspto_classification_data_url"]
 
-    # TODO: fix the class parser
+    # TODO: fix the classification parser
     print('Started grabbing patent classification links... ' + time.strftime("%c"))
     classification_linklist = []
     classification_linklist.append([args_array['classification_text_filename'], "None"])
@@ -186,23 +193,23 @@ def get_all_links(args_array):
     # Log finished building all zip filepaths
     logger.info('Finished grabbing patent classification bibliographic links: ' + time.strftime("%c"))
 
-    print('Started grabbing patent grant bibliographic links... ' + time.strftime("%c"))
     # Get all patent grant data
-    grant_linklist = links_parser("PG", url_source_USPTO)
+    print('Started grabbing patent grant bibliographic links... ' + time.strftime("%c"))
+    grant_linklist = links_parser("PG", args_array['bulk_data_source'], bulk_data_url)
     print('Finished grabbing patent grant bibliographic links... ' + time.strftime("%c"))
     # Log finished building all zip filepaths
     logger.info('Finished grabbing patent grant bibliographic links: ' + time.strftime("%c"))
 
-    print('Started grabbing patent application bibliographic links... ' + time.strftime("%c"))
     # Get all patent application data
-    application_linklist = links_parser("PA", url_source_USPTO)
+    print('Started grabbing patent application bibliographic links... ' + time.strftime("%c"))
+    application_linklist = links_parser("PA", args_array['bulk_data_source'], bulk_data_url)
     print('Finished grabbing patent application bibliographic links... ' + time.strftime("%c"))
     # Log finished building all zip filepaths
     logger.info('Finished grabbing patent application bibliographic links: ' + time.strftime("%c"))
 
     #print 'Started grabbing patent application pair bibliographic links... ' + time.strftime("%c")
     # Get all patent application pair data
-    #application_pair_linklist = links_parser("PAP", url_source_USPTO)
+    #application_pair_linklist = links_parser("PAP", bulk_data_url)
     #print 'Finished grabbing patent application pair bibliographic links... ' + time.strftime("%c")
     # Log finished building all zip filepaths
     #logger.info('Finished grabbing patent application pair bibliographic links: ' + time.strftime("%c"))
@@ -211,13 +218,11 @@ def get_all_links(args_array):
     return {"grants" : grant_linklist, "applications" : application_linklist, "classifications" : classification_linklist}
 
 # Parse USPTO bulk-data site to get document links
-def links_parser(link_type, url):
+def links_parser(link_type, bulk_data_source, bulk_source_url):
 
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
-
-    # Set the context for SSL (not checking!)
-    context = ssl.SSLContext()
+    print("Grabbing " + link_type + " links using " + bulk_data_source + " data source...")
 
     # Define array to hold all links found
     link_array = []
@@ -226,51 +231,97 @@ def links_parser(link_type, url):
     annualized_file_found = False
     annualized_file_link = ""
 
-    print("Grabbing " + link_type + " links...")
-    # First collect all links on USPTO bulk data page
-    content = urllib.request.urlopen(url, context=context).read()
-    soup = BeautifulSoup(content, "html.parser")
-    for link in soup.find_all('a', href=True):
-        # Collet links based on type requested by argument in function call
-
-        # Patent grant
-        if link_type == "PG":
-            if "https://bulkdata.uspto.gov/data/patent/grant/redbook/bibliographic/" in link['href']:
-                link_array.append(link['href'])
-        # Patent Application
-        elif link_type == "PA":
-            if "https://bulkdata.uspto.gov/data/patent/application/redbook/bibliographic/" in link['href']:
-                link_array.append(link['href'])
-        # Patent Application Pair
-        elif link_type == "PAP":
-            if "" in link['href']:
-                link_array.append(link['href'])
-
-    # Go through each found link on the main USPTO page and get the zip files as links and return that array.
-    for item in link_array:
-        content = urllib.request.urlopen(item, context=context).read()
+    # If using USPTO bulk data source
+    if bulk_data_source == "uspto":
+        # Set the context for SSL (not checking!)
+        context = ssl.SSLContext()
+        # First collect all links on USPTO bulk data page
+        content = urllib.request.urlopen(bulk_source_url, context=context).read()
         soup = BeautifulSoup(content, "html.parser")
         for link in soup.find_all('a', href=True):
-            if ".zip" in link['href']:
-                # Check if an annualized link.  If annualized link found then add flag so ONLY that link can be added
-                if re.compile("[0-9]{4}.zip").match(link['href']):
-                    annualized_file_link = [item + "/" + link['href'], return_file_format_from_filename(link['href'])]
-                    annualized_file_found = True
-                elif re.compile("[0-9]{4}[0-9_]{1,4}_xml.zip").match(link['href']) is None and re.compile("[0-9]{4}_xml.zip").match(link['href']) is None:
-                    temp_zip_file_link_array.append([item + "/" + link['href'], return_file_format_from_filename(link['href'])])
+            # Collet links based on type requested by argument in function call
 
-        # Check if Annualized file found
-        if annualized_file_found == True:
-            if annualized_file_link not in final_zip_file_link_array:
-                # Append to the array with format_type
-                final_zip_file_link_array.append(annualized_file_link)
-        else:
-            for link in temp_zip_file_link_array:
-                if link not in final_zip_file_link_array:
-                    final_zip_file_link_array.append(link)
+            # Patent grant
+            if link_type == "PG":
+                if "https://bulkdata.uspto.gov/data/patent/grant/redbook/bibliographic/" in link['href']:
+                    link_array.append(link['href'])
+            # Patent Application
+            elif link_type == "PA":
+                if "https://bulkdata.uspto.gov/data/patent/application/redbook/bibliographic/" in link['href']:
+                    link_array.append(link['href'])
+            # Patent Application Pair
+            elif link_type == "PAP":
+                if "" in link['href']:
+                    link_array.append(link['href'])
+
+        # Go through each found link on the main USPTO page and get the zip files as links and return that array.
+        for item in link_array:
+            content = urllib.request.urlopen(item, context=context).read()
+            soup = BeautifulSoup(content, "html.parser")
+            for link in soup.find_all('a', href=True):
+                if ".zip" in link['href']:
+                    # Check if an annualized link.  If annualized link found then add flag so ONLY that link can be added
+                    if re.compile("[0-9]{4}.zip").match(link['href']):
+                        annualized_file_link = [item + "/" + link['href'], return_file_format_from_filename(link['href'])]
+                        annualized_file_found = True
+                    elif re.compile("[0-9]{4}[0-9_]{1,4}_xml.zip").match(link['href']) is None and re.compile("[0-9]{4}_xml.zip").match(link['href']) is None:
+                        temp_zip_file_link_array.append([item + "/" + link['href'], return_file_format_from_filename(link['href'])])
+
+            # Check if Annualized file found
+            if annualized_file_found == True:
+                if annualized_file_link not in final_zip_file_link_array:
+                    # Append to the array with format_type
+                    final_zip_file_link_array.append(annualized_file_link)
+            else:
+                for link in temp_zip_file_link_array:
+                    if link not in final_zip_file_link_array:
+                        final_zip_file_link_array.append(link)
+
+    # If using Reedtech bulk data source
+    if bulk_data_source == "reedtech":
+        if link_type == "PG":
+            full_source_url = bulk_source_url + "pgrbbib.php"
+        elif link_type == "PA":
+            full_source_url = bulk_source_url + "parbbib.php"
+
+        # Set the context for SSL (not checking!)
+        context = ssl.SSLContext()
+        # First collect all links on USPTO bulk data page
+        content = urllib.request.urlopen(full_source_url, context=context).read()
+        soup = BeautifulSoup(content, "html.parser")
+        for link in soup.find_all('a', href=True):
+            # Collet links based on type requested by argument in function call
+
+            # Patent grant
+            if link_type == "PG":
+                if "downloads/GrantRedBookBib/" in link['href'] and ".zip" in link['href'] and not is_duplicate_link("PG", link['href']):
+                    final_zip_file_link_array.append([bulk_source_url + link['href'], return_file_format_from_filename(link['href'])])
+            # Patent Application
+            elif link_type == "PA":
+                if "downloads/ApplicationRedBookBib/" in link['href'] and ".zip" in link['href'] and not is_duplicate_link("PA", link['href']):
+                    final_zip_file_link_array.append([bulk_source_url + link['href'], return_file_format_from_filename(link['href'])])
+            # Patent Application Pair
+            elif link_type == "PAP":
+                if "" in link['href']:
+                    final_zip_file_link_array.append([bulk_source_url + link['href'], return_file_format_from_filename(link['href'])])
 
     print("Number of downloadable " + link_type + " .zip files found = " + str(len(final_zip_file_link_array)))
     logger.info("Number of downloadable " + link_type + " .zip files found = " + str(len(final_zip_file_link_array)))
-
     # Return the array links to zip files with absolute urls
+    #print(final_zip_file_link_array)
     return final_zip_file_link_array
+
+# Checks if link should be removed because duplicate of weekly
+def is_duplicate_link(type, link):
+    # Get the filename from link
+    link = link.split("/")[-1]
+    if type == "PG":
+        links_to_remove = ["2001.zip", "2000.zip", "1999.zip", "1998.zip", "1997.zip", "1996.zip"]
+        if link in links_to_remove:
+            return True
+        else: return False
+    elif type == "PA":
+        links_to_remove = [""]
+        if link in links_to_remove:
+            return True
+        else: return False

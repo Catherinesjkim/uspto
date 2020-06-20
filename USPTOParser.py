@@ -460,6 +460,10 @@ def build_argument_output():
 def set_config_using_command_args(args_array):
     # User wants to update but but no data destination specified,
 
+    # Set the sandbox mode if '' in command args
+    if 'sandbox' in args_array['command_args']:
+        args_array['sandbox'] = True
+
     # Collect previous configuration settings
     if "update" in args_array['command_args']:
         # Check for setting data destination and write to file
@@ -518,7 +522,7 @@ def handle_application_close(start_time, all_files_processed, args_array):
 if __name__=="__main__":
 
     # If running sandbox mode or not
-    sandbox = True # Sandbox mode will keep all downloaded data files locally to prevent having to download them multiple times
+    sandbox = False # Sandbox mode will keep all downloaded data files locally to prevent having to download them multiple times, this can be set from the command line argument '-sandbox'
     # Log levels
     log_level = 1 # Log levels 1 = error, 2 = warning, 3 = info
     stdout_level = 1 # Stdout levels 1 = verbose, 0 = non-verbose
@@ -526,7 +530,7 @@ if __name__=="__main__":
     # Declare variables
     start_time=time.time()
     working_directory = os.getcwd()
-    allowed_args_array = ["-csv", "-database", "-update", "-t", "-balance", "-h", "-help"]
+    allowed_args_array = ["-csv", "-database", "-update", "-t", "-balance", "-sandbox", "-h", "-help"]
     default_threads = 5
     database_insert_mode = "bulk" # values include `each` and `bulk`
 
@@ -575,7 +579,9 @@ if __name__=="__main__":
     # Create an array of args that can be passed as a group
     # and appended to as needed
     args_array = {
+        "bulk_data_source" : "reedtech", # uspto or reedtech
         "uspto_bulk_data_url" : 'https://bulkdata.uspto.gov/',
+        "reedtech_bulk_data_url" : "https://patents.reedtech.com/",
         "uspto_classification_data_url" : 'https://www.uspto.gov/web/patents/classification/selectnumwithtitle.htm',
         "sandbox" : sandbox,
         "log_level" : log_level,
