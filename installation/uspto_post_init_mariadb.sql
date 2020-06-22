@@ -3,7 +3,7 @@
 -- -----------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS uspto.METRICS_G (
-  `GrantID` VARCHAR(20) DEFAULT NULL,
+  `GrantID` VARCHAR(20) NOT NULL,
   `ForwardCitCnt` INT DEFAULT NULL,
   `BackwardCitCnt` INT DEFAULT NULL,
   `TCT` INT DEFAULT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS uspto.METRICS_G (
 --
 -- Method 1: Insert statement
 --
-INSERT INTO uspto.PATCIT_COUNT_G (`GrantId`, `ForwardCitCnt`, `BackwardCitCnt`)
+INSERT INTO uspto.METRICS_G (`GrantId`, `ForwardCitCnt`, `BackwardCitCnt`)
 SELECT a.GrantID, count(c.CitedID), count(b.GrantID)
 FROM uspto.GRANT as a
 JOIN uspto.GRACIT_G as b ON
@@ -25,24 +25,13 @@ GROUP BY a.GrantID;
 --
 -- Method 2: Update Statement
 --
-UPDATE uspto.METRICS_G
-SET
-ForwardCitCnt = (
-SELECT count(b.CitedID)
-FROM uspto.GRANT as a
-JOIN uspto.GRACIT_G as b ON
-a.GrantID=b.CitedID
-GROUP BY a.GrantID
-)
-WHERE 1=1;
 
-UPDATE uspto.METRICS_G
-SET
-BackwardCitCnt = (
-SELECT count(b.CitedID)
-FROM uspto.GRANT as a
-JOIN uspto.GRACIT_G as b ON
-a.GrantID=b.GrantID
-GROUP BY a.GrantID
-)
-WHERE 1=1;
+INSERT INTO uspto.METRICS_G (`GrantID`) SELECT `GrantID` FROM uspto.GRANT;
+
+UPDATE uspto.METRICS_G, (select CitedID, count(*) as count from uspto.GRACIT_G group by GrantID) as t2
+SET    uspto.METRICS_G.ForwardCitCnt = t2.count
+WHERE  uspto.METRICS_G.GrantID = t2.CitedID;
+
+UPDATE uspto.METRICS_G, (select GrantID, count(*) as count from uspto.GRACIT_G group by GrantID) as t2
+SET    uspto.METRICS_G.BackwardCitCnt = t2.count
+WHERE  uspto.METRICS_G.GrantID = t2.GrantID;

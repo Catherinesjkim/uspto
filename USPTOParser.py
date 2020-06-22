@@ -335,8 +335,8 @@ def validate_existing_file_structure(args_array):
         log_lock.close()
 
         # Print stdout and log the file structure validation process
-        print("Finished creating require directory structure " + time.strftime("%c"))
-        logger.info('Finished creating require directory structure ' + time.strftime("%c"))
+        print("Finished creating required directory structure " + time.strftime("%c"))
+        logger.info('Finished creating required directory structure ' + time.strftime("%c"))
 
         # Return `True` that file structure has been created
         return True
