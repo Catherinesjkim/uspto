@@ -302,7 +302,8 @@ class SQLProcess:
                     "NONPATCIT_G",
                     "EXAMINER_G",
                     "GRACIT_G",
-                    "FORPATCIT_G"
+                    "FORPATCIT_G",
+                    "FOREIGNPRIORITY_G"
                 ]
             # Records deleted for patent applications
             elif call_type == "application":
