@@ -969,7 +969,7 @@ def process_APS_grant_content(args_array):
                                 "FileName" : args_array['file_name']
                             })
 
-                            print(processed_foreignpriority)
+                            #print(processed_foreignpriority)
                             # Increment Position
                             position += 1
                             # Reset all variables to avoid overlap
@@ -1020,7 +1020,7 @@ def process_APS_grant_content(args_array):
                             "FileName" : args_array['file_name']
                         })
 
-                        print(processed_foreignpriority)
+                        #print(processed_foreignpriority)
                         # Increment Position
                         position += 1
                         # Reset all variables to avoid overlap

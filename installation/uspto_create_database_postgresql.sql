@@ -509,6 +509,19 @@ CREATE TABLE IF NOT EXISTS uspto.FORPATCIT_G (
   PRIMARY KEY (GrantID, Position, FileName));
 
 -- -----------------------------------------------------
+-- Table `uspto`.`FOREIGNPRIORITY_G`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS uspto.FOREIGNPRIORITY_G (
+  GrantID VARCHAR(20) NOT NULL,
+  DocumentID VARCHAR(45) NOT NULL,
+  Position INT NOT NULL,
+  Kind VARCHAR(45) DEFAULT NULL,
+  Country VARCHAR(5) DEFAULT NULL,
+  PriorityDate DATE DEFAULT NULL,
+  FileName VARCHAR(45) NOT NULL,
+  PRIMARY KEY (GrantID, Position, FileName));
+
+-- -----------------------------------------------------
 -- Table `uspto`.`STARTED_FILES`
 -- -----------------------------------------------------
 

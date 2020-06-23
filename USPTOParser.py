@@ -524,7 +524,7 @@ if __name__=="__main__":
     # If running sandbox mode or not
     sandbox = False # Sandbox mode will keep all downloaded data files locally to prevent having to download them multiple times, this can be set from the command line argument '-sandbox'
     # Log levels
-    log_level = 3 # Log levels 1 = error, 2 = warning, 3 = info
+    log_level = 1 # Log levels 1 = error, 2 = warning, 3 = info
     stdout_level = 1 # Stdout levels 1 = verbose, 0 = non-verbose
 
     # Declare variables
@@ -579,7 +579,7 @@ if __name__=="__main__":
     # Create an array of args that can be passed as a group
     # and appended to as needed
     args_array = {
-        "bulk_data_source" : "uspto", # uspto or reedtech
+        "bulk_data_source" : "reedtech", # uspto or reedtech
         "uspto_bulk_data_url" : 'https://bulkdata.uspto.gov/',
         "reedtech_bulk_data_url" : "https://patents.reedtech.com/",
         "uspto_classification_data_url" : 'https://www.uspto.gov/web/patents/classification/selectnumwithtitle.htm',

@@ -109,7 +109,6 @@ def extract_XML4_application(raw_data, args_array):
                     "PriorityDate" : pc_date,
                     "FileName" : args_array['file_name']
                 })
-
                 #print(processed_foreignpriority)
 
         # Get International classifcation data
@@ -346,12 +345,9 @@ def extract_XML4_application(raw_data, args_array):
                         "Country" : applicant_country,
                         "FileName" : args_array['file_name']
                     })
-
                     # Increment position
                     position += 1
-
                     #print(processed_applicant)
-                    #exit()
 
             # Get the inventor data element
             invs = parties_element.find('inventors')

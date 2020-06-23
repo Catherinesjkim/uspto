@@ -208,7 +208,7 @@ def fix_APS_patent_number(args_array, document_id):
     # If 9 characters, strip the last one
     if len(document_id) == 9:
         return document_id[0:8]
-    elif len(document_id) == 8:
+    elif len(document_id) == 8 or len(document_id) == 7 or len(document_id) == 6:
         return document_id
     else:
         logger.warning("-- Malformed patent number for an APS document: " + document_id + " was found in file: " + args_array['file_name'])

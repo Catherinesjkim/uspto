@@ -586,9 +586,7 @@ def extract_XML2_grant(raw_data, args_array):
                 "PriorityDate" : pc_date,
                 "FileName" : args_array['file_name']
             })
-
             #print(processed_foreignpriority)
-
             # Increment Position
             position += 1
 

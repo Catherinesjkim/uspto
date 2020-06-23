@@ -117,7 +117,6 @@ def extract_XML1_application(raw_data, args_array):
 
             # Increment Position
             position += 1
-
             #print processed_intclass
 
             # Process any secondary international classes
@@ -202,7 +201,6 @@ def extract_XML1_application(raw_data, args_array):
 
             # Increment position
             position += 1
-
             #print processed_usclass
 
     # Get priority claims
@@ -229,7 +227,7 @@ def extract_XML1_application(raw_data, args_array):
             "FileName" : args_array['file_name']
         })
         position += 1
-        print(processed_foreignpriority)
+        #print(processed_foreignpriority)
 
     # Get invention title
     try: title = technical_information_element.findtext('title-of-invention')[:500]
@@ -283,7 +281,6 @@ def extract_XML1_application(raw_data, args_array):
 
             # Increment position
             position += 1
-
             #print processed_inventor
 
         # For all secordary inventors
