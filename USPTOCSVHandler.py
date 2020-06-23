@@ -48,6 +48,7 @@ def open_csv_files(file_type, file_name, csv_directory):
         field_names_array['usclass'] = ['GrantID','Position', 'Class', 'SubClass', 'Malformed', 'FileName']
         field_names_array['intclass'] = ['GrantID', 'Position', 'Section', 'Class', 'SubClass', 'MainGroup', 'SubGroup', 'Malformed', 'FileName']
         field_names_array['cpcclass'] = ['GrantID', 'Position', 'Section', 'Class', 'SubClass', 'MainGroup', 'SubGroup', 'Malformed', 'FileName']
+        field_names_array['foreignpriority'] = ['GrantID', 'DocumentID', 'Position', 'Kind', 'Country', 'PriorityDate', 'FileName']
 
         # Define all the dictionary arrays to hold writers and filenames
         csv_writer_array['grant'] = {}
@@ -62,6 +63,7 @@ def open_csv_files(file_type, file_name, csv_directory):
         csv_writer_array['usclass'] = {}
         csv_writer_array['intclass'] = {}
         csv_writer_array['cpcclass'] = {}
+        csv_writer_array['foreignpriority'] = {}
 
         # Define all the .csv filenames fullpath and append to array
         csv_writer_array['grant']['csv_file_name'] = csv_directory + 'CSV_G/grant_' + csv_file_name
@@ -76,6 +78,7 @@ def open_csv_files(file_type, file_name, csv_directory):
         csv_writer_array['usclass']['csv_file_name'] = csv_directory + 'CSV_G/usclass_' + csv_file_name
         csv_writer_array['intclass']['csv_file_name'] = csv_directory + 'CSV_G/intclass_' + csv_file_name
         csv_writer_array['cpcclass']['csv_file_name'] = csv_directory + 'CSV_G/cpcclass_' + csv_file_name
+        csv_writer_array['foreignpriority']['csv_file_name'] = csv_directory + 'CSV_G/foreignpriority_' + csv_file_name
 
         # Define all the dictionary arrays to hold writers and filenames
         csv_writer_array['grant']['file'] = open(csv_writer_array['grant']['csv_file_name'], 'w')
@@ -90,6 +93,7 @@ def open_csv_files(file_type, file_name, csv_directory):
         csv_writer_array['usclass']['file'] = open(csv_writer_array['usclass']['csv_file_name'], 'w')
         csv_writer_array['intclass']['file'] = open(csv_writer_array['intclass']['csv_file_name'], 'w')
         csv_writer_array['cpcclass']['file'] = open(csv_writer_array['cpcclass']['csv_file_name'], 'w')
+        csv_writer_array['foreignpriority']['file'] = open(csv_writer_array['foreignpriority']['csv_file_name'], 'w')
 
         # Open all CSV files to write to and append to array
         csv_writer_array['grant']['csv_writer'] = csv.DictWriter(csv_writer_array['grant']['file'], fieldnames = field_names_array['grant'], delimiter = '|', lineterminator = "\n")
@@ -104,6 +108,7 @@ def open_csv_files(file_type, file_name, csv_directory):
         csv_writer_array['usclass']['csv_writer'] = csv.DictWriter(csv_writer_array['usclass']['file'], fieldnames = field_names_array['usclass'], delimiter = '|', lineterminator = "\n")
         csv_writer_array['intclass']['csv_writer'] = csv.DictWriter(csv_writer_array['intclass']['file'], fieldnames = field_names_array['intclass'], delimiter = '|', lineterminator = "\n")
         csv_writer_array['cpcclass']['csv_writer'] = csv.DictWriter(csv_writer_array['cpcclass']['file'], fieldnames = field_names_array['cpcclass'], delimiter = '|', lineterminator = "\n")
+        csv_writer_array['foreignpriority']['csv_writer'] = csv.DictWriter(csv_writer_array['foreignpriority']['file'], fieldnames = field_names_array['foreignpriority'], delimiter = '|', lineterminator = "\n")
 
         # Write the header to each file
         csv_writer_array['grant']['csv_writer'].writeheader()
@@ -118,6 +123,7 @@ def open_csv_files(file_type, file_name, csv_directory):
         csv_writer_array['usclass']['csv_writer'].writeheader()
         csv_writer_array['intclass']['csv_writer'].writeheader()
         csv_writer_array['cpcclass']['csv_writer'].writeheader()
+        csv_writer_array['foreignpriority']['csv_writer'].writeheader()
 
     # If the application CSV file will be written
     elif file_type == "application":

@@ -58,6 +58,7 @@ def process_APS_grant_content(args_array):
     processed_gracit = []
     processed_forpatcit = []
     processed_nonpatcit = []
+    processed_foreignpriority = []
 
     # Extract the .dat file from the .zip file
     data_file_contents = USPTOProcessZipFile.extract_dat_file_from_zip(args_array)
@@ -141,7 +142,8 @@ def process_APS_grant_content(args_array):
                 "processed_intclass" : processed_intclass,
                 "processed_gracit" : processed_gracit,
                 "processed_forpatcit" : processed_forpatcit,
-                "processed_nonpatcit" : processed_nonpatcit
+                "processed_nonpatcit" : processed_nonpatcit,
+                "processed_foreignpriority" : processed_foreignpriority
             }
 
             # Call function to write data to csv or database
@@ -229,7 +231,8 @@ def process_APS_grant_content(args_array):
                     "processed_intclass" : processed_intclass,
                     "processed_gracit" : processed_gracit,
                     "processed_forpatcit" : processed_forpatcit,
-                    "processed_nonpatcit" : processed_nonpatcit
+                    "processed_nonpatcit" : processed_nonpatcit,
+                    "processed_foreignpriority" : processed_foreignpriority
                 }
 
                 #print(processed_data_array)
@@ -250,6 +253,7 @@ def process_APS_grant_content(args_array):
                 processed_gracit = []
                 processed_forpatcit = []
                 processed_nonpatcit = []
+                processed_foreignpriority = []
 
             # If first line found that starts a patent set flag to true
             else:
@@ -340,7 +344,7 @@ def process_APS_grant_content(args_array):
                 examiner_first_name = None
                 examiner_last_name = None
 
-            # Append SQL data into dictionary to be written later
+            # Append data into dictionary to be written later
             processed_examiner.append({
                 "table_name" : "uspto.EXAMINER_G",
                 "GrantID" : document_id,
@@ -370,7 +374,7 @@ def process_APS_grant_content(args_array):
                 examiner_last_name = None
                 examiner_first_name = None
 
-            # Append SQL data into dictionary to be written later
+            # Append data into dictionary to be written later
             processed_examiner.append({
                 "table_name" : "uspto.EXAMINER_G",
                 "GrantID" : document_id,
@@ -381,11 +385,10 @@ def process_APS_grant_content(args_array):
                 "FileName" : args_array['file_name']
             })
 
+            #print(processed_examiner)
             # Reset all variables to avoid overlap
             examiner_first_name = None
             examiner_last_name = None
-
-            #print processed_examiner
 
         # USPTO Reference
         elif line[0:4] == "UREF":
@@ -414,7 +417,7 @@ def process_APS_grant_content(args_array):
                         # Try to append the item.  If items are missinng it will not append
                         # and error will be written to log
                         try:
-                            # Append SQL data into dictionary to be written later
+                            # Append data into dictionary to be written later
                             processed_gracit.append({
                                 "table_name" : "uspto.GRACIT_G",
                                 "GrantID" : document_id,
@@ -426,13 +429,11 @@ def process_APS_grant_content(args_array):
                                 "FileName" : args_array['file_name']
                             })
 
+                            #print(processed_gracit)
                             # Reset all variables to avoid overlap
                             citation_document_number = None
                             citation_name = None
                             citation_date = None
-
-                            #print processed_gracit
-
                             # Increment position for next possible foreign patent reference
                             position_uref += 1
                             # Reset the item ready to insert
@@ -450,7 +451,7 @@ def process_APS_grant_content(args_array):
                     except: citation_document_number = None
                 # Issue Date of cited patent
                 elif line[0:3] == "ISD":
-                    try: citation_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.replace_old_html_characters(line[3:].strip()), args_array, document_id).strip()
+                    try: citation_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.replace_old_html_characters(line[3:].strip()), args_array, document_id)
                     except: citation_date = None
                 # Name of patentee
                 elif line[0:3] == "NAM":
@@ -480,10 +481,8 @@ def process_APS_grant_content(args_array):
                     citation_document_number = None
                     citation_name = None
                     citation_date = None
-
                     # Reset the item ready to insert
                     item_ready_to_insert = False
-
                     # Set the next_line_loaded_already flag to True
                     next_line_loaded_already = True
                     # Break the foreign patent citation loop
@@ -513,7 +512,7 @@ def process_APS_grant_content(args_array):
                     # If the temp_data_string is not empty then append that record
                     if temp_data_string:
 
-                        # Append SQL data into dictionary to be written later
+                        # Append data into dictionary to be written later
                         processed_nonpatcit.append({
                             "table_name" : "uspto.NONPATCIT_G",
                             "GrantID" : document_id,
@@ -523,11 +522,9 @@ def process_APS_grant_content(args_array):
                             "FileName" : args_array['file_name']
                         })
 
-                        #print processed_nonpatcit
-
+                        #print(processed_nonpatcit)
                         # Reset variable to avoid overlap
                         temp_data_string = None
-
                         # Increment counter position
                         position_oref += 1
                         # Set the temp_data_string back to empty
@@ -545,10 +542,8 @@ def process_APS_grant_content(args_array):
 
                 # Catch the tag of next header but not empty line
                 elif not line[0].strip():
-
-                    try:
-                        # Append the continued reference text to temp string
-                        temp_data_string += USPTOSanitizer.replace_old_html_characters(line[3:].strip())
+                    # Append the continued reference text to temp string
+                    try: temp_data_string += USPTOSanitizer.replace_old_html_characters(line[3:].strip())
                     except Exception as e:
                         logger.error("A non patent reference could not be appended for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
@@ -556,7 +551,7 @@ def process_APS_grant_content(args_array):
                 elif line[0:4].strip() not in accepted_headers_array:
 
                     # Complete a final append to the other referenes array
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_nonpatcit.append({
                         "table_name" : "uspto.NONPATCIT_G",
                         "GrantID" : document_id,
@@ -566,13 +561,11 @@ def process_APS_grant_content(args_array):
                         "FileName" : args_array['file_name']
                     })
 
+                    #print(processed_nonpatcit)
                     # Increment the position incase there are data errors
                     position_oref += 1
                     # Reset variable to avoid overlap
                     temp_data_string = None
-
-                    #print processed_nonpatcit
-
                     # Set the next_line_loaded_already flag to True
                     next_line_loaded_already = True
                     # End while loop
@@ -604,7 +597,7 @@ def process_APS_grant_content(args_array):
                         # Try to append the item.  If items are missingn it will not append
                         # and error will be written to log
                         try:
-                            # Append SQL data into dictionary to be written later
+                            # Append data into dictionary to be written later
                             processed_forpatcit.append({
                                 "table_name" : "uspto.FORPATCIT_G",
                                 "GrantID" : document_id,
@@ -615,13 +608,11 @@ def process_APS_grant_content(args_array):
                                 "FileName" : args_array['file_name']
                             })
 
+                            #print(processed_forpatcit)
                             # Reset variable to avoid overlap
                             citation_document_number = None
                             citation_date = None
                             citation_country = None
-
-                            #print processed_forpatcit
-
                             # Increment position for next possible foreign patent reference
                             position_forpat += 1
                             # Reset the item ready to insert
@@ -654,7 +645,7 @@ def process_APS_grant_content(args_array):
                 # If the tag found is not for FREF data, new data set found.
                 elif line[0:4].strip() not in accepted_headers_array:
 
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_forpatcit.append({
                         "table_name" : "uspto.FORPATCIT_G",
                         "GrantID" : document_id,
@@ -669,12 +660,9 @@ def process_APS_grant_content(args_array):
                     citation_document_number = None
                     citation_date = None
                     citation_country = None
-
-                    #print processed_forpatcit
-
+                    #print(processed_forpatcit)
                     # Increment position for next possible foreign patent reference
                     position_forpat += 1
-
                     # Set the next_line_loaded_already flag to True
                     next_line_loaded_already = True
                     # Break the foreign patent citation loop
@@ -752,7 +740,7 @@ def process_APS_grant_content(args_array):
                         n_subclass = None
                         logger.error("An OCL classification error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_usclass.append({
                         "table_name" : "uspto.USCLASS_G",
                         "GrantID" : document_id,
@@ -763,14 +751,12 @@ def process_APS_grant_content(args_array):
                         "FileName" : args_array['file_name']
                     })
 
+                    #print(processed_usclass)
                     # Reset the class and subclass
                     class_string = None
                     n_class_main = None
                     n_subclass = None
                     malformed_class = 0
-
-                    #print processed_usclass
-
                     # Increment position for US class
                     position_usclass += 1
 
@@ -828,7 +814,7 @@ def process_APS_grant_content(args_array):
                         n_subclass = None
                         logger.error("An XCL classification error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_usclass.append({
                         "table_name" : "uspto.USCLASS_G",
                         "GrantID" : document_id,
@@ -899,7 +885,7 @@ def process_APS_grant_content(args_array):
 
 
                     # TODO: find out if field of search is same as Main Group, etc.
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_intclass.append({
                         "table_name" : "uspto.INTCLASS_G",
                         "GrantID" : document_id,
@@ -912,24 +898,20 @@ def process_APS_grant_content(args_array):
                         "FileName" : args_array['file_name']
                     })
 
+                    #print(processed_intclass)
                     # Reset the class and subclass
                     i_class_string = None
                     i_class_main = None
                     i_subclass = None
                     malformed_class = 0
-
-                    #print processed_intclass
-
                     # Increment International class
                     position_intclass += 1
 
 
                 # Looking for next line in reference, id'd by not empty temp_data_string and not empty line
                 elif line.strip() and temp_data_string != '':
-
-                    try:
-                        # Append the continued reference text to temp string
-                        temp_data_string += USPTOSanitizer.replace_old_html_characters(line[3:].strip())
+                    # Append the continued reference text to temp string
+                    try: temp_data_string += USPTOSanitizer.replace_old_html_characters(line[3:].strip())
                     except Exception as e:
                         logger.error("A international class reference could not be appended for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
@@ -942,6 +924,122 @@ def process_APS_grant_content(args_array):
                     next_line_loaded_already = True
                     # Break the foreign patent citation loop
 
+
+        # Foreign Priority
+        elif line[0:4] == "PRIR":
+            # Set the initial position
+            position = 1
+            # This header type  has no data on same line but will include further
+            # readlines so read another line in a while loop until you finish with foreign references
+            # and when non-foreign nonreference is found set a flag that prevents another line from being
+            # read next iteration through main loop
+
+            # Set accepted DAT headers
+            accepted_headers_array = ["PRIR", "CNT", "APD", "APN"]
+            # Set a flag that the UREF tag has not finished
+            data_parse_completed = False
+            item_ready_to_insert = False
+
+            # Set pc_kind = None because it's not included in APS
+            pc_kind = None
+
+            while data_parse_completed == False:
+                # Read next line
+                line = data_file_contents.readline()
+                if not line: insert_final = True;
+
+                # If line is represents another foreign priority document, store the last one into array
+                if line[0:4] == "PRIR":
+
+                    # The data collection is complete and should be appended
+                    if item_ready_to_insert == True:
+
+                        # Try to append the item.  If items are missinng it will not append
+                        # and error will be written to log
+                        try:
+                            # Append data into dictionary to be written later
+                            processed_foreignpriority.append({
+                                "table_name" : "uspto.FOREIGNPRIORITY_G",
+                                "GrantID" : document_id,
+                                "Position" : position,
+                                "Kind" : pc_kind,
+                                "Country" : pc_country,
+                                "DocumentID" : pc_doc_num,
+                                "PriorityDate" : pc_date,
+                                "FileName" : args_array['file_name']
+                            })
+
+                            print(processed_foreignpriority)
+                            # Increment Position
+                            position += 1
+                            # Reset all variables to avoid overlap
+                            pc_country = None
+                            pc_doc_num = None
+                            pc_date = None
+                            # Reset the item ready to insert
+                            item_ready_to_insert = False
+
+                        except Exception as e:
+                            # Reset the item ready to insert
+                            item_ready_to_insert = False
+                            print("Data missing from APS foreign priority for grant id : " + document_id + " in url: " + args_array['url_links'])
+                            logger.error("Some data was missing from the APS foreign priority data for grant id: " + document_id + " in url: " + args_array['url_link'])
+
+                # Priority Country
+                elif line[0:3] == "CNT":
+                    try: pc_country = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:5].strip()
+                    except: pc_country = None
+                # Priotity Application Date
+                elif line[0:3] == "APD":
+                    try: pc_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.replace_old_html_characters(line[3:].strip()), args_array, document_id)
+                    except:
+                        print(line)
+                        pc_date = None
+                # Priority Application Number
+                elif line[0:3] == "APN":
+                    try:
+                        pc_doc_num = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:100].strip()
+                        item_ready_to_insert = True
+                    except:
+                        pc_doc_num = None
+                        item_ready_to_insert = True
+
+                # Catch the tag of next header but not empty line
+                elif line[0:4].strip() not in accepted_headers_array:
+
+                    try:
+                        # Append data into dictionary to be written later
+                        processed_foreignpriority.append({
+                            "table_name" : "uspto.FOREIGNPRIORITY_G",
+                            "GrantID" : document_id,
+                            "Position" : position,
+                            "Kind" : pc_kind,
+                            "Country" : pc_country,
+                            "DocumentID" : pc_doc_num,
+                            "PriorityDate" : pc_date,
+                            "FileName" : args_array['file_name']
+                        })
+
+                        print(processed_foreignpriority)
+                        # Increment Position
+                        position += 1
+                        # Reset all variables to avoid overlap
+                        pc_country = None
+                        pc_doc_num = None
+                        pc_date = None
+
+                    except Exception as e:
+                        # Reset the item ready to insert
+                        item_ready_to_insert = False
+                        print("Data missing from APS foreign priority for grant id : " + document_id + " in url: " + args_array['url_links'])
+                        logger.error("Some data was missing from the APS foreign priority data for grant id: " + document_id + " in url: " + args_array['url_link'])
+
+                    # Reset the item ready to insert
+                    item_ready_to_insert = False
+                    # Set the next_line_loaded_already flag to True
+                    next_line_loaded_already = True
+                    # Break the foreign patent citation loop
+                    data_parse_completed = True
 
         # Abstract
         elif line[0:4] == "ABST":
@@ -971,8 +1069,7 @@ def process_APS_grant_content(args_array):
                     if line[0:3] == "PAL" or line[0:3] == "PAR":
 
                         # Get the abstract text from the line
-                        try:
-                            abstract +=  " " +  USPTOSanitizer.replace_old_html_characters(line[3:].strip())
+                        try: abstract +=  " " +  USPTOSanitizer.replace_old_html_characters(line[3:].strip())
                         except:
                             logger.error("A abstract reference could not be found for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
@@ -995,7 +1092,6 @@ def process_APS_grant_content(args_array):
                         # Set abstract to None if it's still an empty string
                         if not abstract:
                             abstract = None
-
                         # Set the next_line_loaded_already flag to True
                         next_line_loaded_already = True
                         # Break the foreign patent citation loop
@@ -1023,16 +1119,14 @@ def process_APS_grant_content(args_array):
                 # If line is represents another foreign reference, store the last one into array
                 if line[0:3] == "PAL":
                     # Get the citation text from the line
-                    try:
-                        claims = " " +  USPTOSanitizer.replace_old_html_characters(line[3:].strip())
+                    try: claims = " " +  USPTOSanitizer.replace_old_html_characters(line[3:].strip())
                     except:
                         logger.error("A claim reference could not be found for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
                 # If line is not empty then append to claims string
                 elif not line[0].strip():
-                    try:
-                        # Append the continued reference text to temp string
-                        claims += " " +  USPTOSanitizer.replace_old_html_characters(line[3:].strip())
+                    # Append the continued reference text to temp string
+                    try: claims += " " +  USPTOSanitizer.replace_old_html_characters(line[3:].strip())
                     except Exception as e:
                         traceback.print_exc()
                         logger.error("A claim append reference could not be found for grant_id: " + document_id + " in link: " + args_array['url_link'])
@@ -1046,7 +1140,6 @@ def process_APS_grant_content(args_array):
                     # Set claims to None is still empty string
                     if not claims:
                         claims = None
-
                     # Set the next_line_loaded_already flag to True
                     next_line_loaded_already = True
                     # Break the foreign patent citation loop
@@ -1093,7 +1186,7 @@ def process_APS_grant_content(args_array):
                         if inventor_country == None and inventor_state != None:
                             inventor_country == "USX"
 
-                        # Append SQL data into dictionary to be written later
+                        # Append data into dictionary to be written later
                         try:
                             processed_inventor.append({
                                 "table_name" : "uspto.INVENTOR_G",
@@ -1109,8 +1202,7 @@ def process_APS_grant_content(args_array):
                                 "FileName" : args_array['file_name']
                             })
 
-                            #print processed_inventor
-
+                            #print(processed_inventor)
                             # Reset all the variables associated so they don't get reused
                             inventor_first_name = None
                             inventor_last_name = None
@@ -1119,7 +1211,6 @@ def process_APS_grant_content(args_array):
                             inventor_country = None
                             inventor_residence = None
                             inventor_state = None
-
                             # Increment the position
                             position_inventor += 1
                             # Reset the item ready to insert
@@ -1210,7 +1301,7 @@ def process_APS_grant_content(args_array):
                 # If next header is found then store data and end loop
                 elif line[0:4].strip() not in accepted_headers_array:
 
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_inventor.append({
                         "table_name" : "uspto.INVENTOR_G",
                         "GrantID" : document_id,
@@ -1225,9 +1316,9 @@ def process_APS_grant_content(args_array):
                         "FileName" : args_array['file_name']
                     })
 
+                    #print(processed_inventor)
                     # Increment the inventor just in case data has errors
                     position_inventor += 1
-
                     # Reset all the variables associated so they don't get reused
                     inventor_first_name = None
                     inventor_last_name = None
@@ -1236,9 +1327,6 @@ def process_APS_grant_content(args_array):
                     inventor_country = None
                     inventor_residence = None
                     inventor_state = None
-
-                    #print processed_inventor
-
                     # Set the next_line_loaded_already flag to True
                     next_line_loaded_already = True
                     # Break the foreign patent citation loop
@@ -1274,9 +1362,9 @@ def process_APS_grant_content(args_array):
                     # The data collection is complete and should be appended
                     if item_ready_to_insert == True:
 
-                        # Append SQL data into dictionary to be written later
+                        # Append data into dictionary to be written later
                         try:
-                            # Append SQL data into dictionary to be written later
+                            # Append data into dictionary to be written later
                             processed_assignee.append({
                                 "table_name" : "uspto.ASSIGNEE_G",
                                 "GrantID" : document_id,
@@ -1289,15 +1377,13 @@ def process_APS_grant_content(args_array):
                                 "FileName" : args_array['file_name']
                             })
 
+                            #print(processed_assignee)
                             # Reset all variables so they don't get reused.
                             asn_orgname = None
                             asn_city = None
                             asn_state = None
                             asn_country = None
                             asn_role = None
-
-                            #print processed_assignee
-
                             # Increment the position
                             position_assignee += 1
                             # Reset the item ready to insert
@@ -1321,18 +1407,16 @@ def process_APS_grant_content(args_array):
 
                 # Get the street of inventor
                 elif line[0:3] == "CTY":
-                    # Get the citation text from the line
-                    try:
-                        asn_city = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:100]
+                    # Get the assignee city text from the line
+                    try: asn_city = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:100]
                     except:
                         asn_city = None
                         logger.error("A assignee data error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
                 # Get the state of inventor
                 elif line[0:3] == "STA":
-                    # Get the citation text from the line
-                    try:
-                        asn_state = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:100]
+                    # Get the assignee state from the line
+                    try: asn_state = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:100]
                     except:
                         asn_state = None
                         logger.error("A assignee data error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
@@ -1340,8 +1424,7 @@ def process_APS_grant_content(args_array):
                 # Get the state of inventor
                 elif line[0:3] == "COD":
                     # Get the citation text from the line
-                    try:
-                        asn_role = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:45]
+                    try: asn_role = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:45]
                     except:
                         asn_role = None
                         logger.error("A assignee data error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
@@ -1370,7 +1453,7 @@ def process_APS_grant_content(args_array):
                 # if next header is found store and end loop
                 elif line[0:4].strip() not in accepted_headers_array:
 
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_assignee.append({
                         "table_name" : "uspto.ASSIGNEE_G",
                         "GrantID" : document_id,
@@ -1383,15 +1466,13 @@ def process_APS_grant_content(args_array):
                         "FileName" : args_array['file_name']
                     })
 
+                    #print(processed_assignee)
                     # Ensure that all variables that are optionally included will be set.
                     asn_orgname = None
                     asn_city = None
                     asn_state = None
                     asn_country = None
                     asn_role = None
-
-                    #print processed_assignee
-
                     # Increment the position just in case data has errors
                     position_assignee += 1
                     # Set the next_line_loaded_already flag to True
@@ -1420,8 +1501,7 @@ def process_APS_grant_content(args_array):
                 # Get the firm name from line
                 if line[0:3] == "FRM":
                     # Get the firm name from the line
-                    try:
-                        agent_orgname = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:300]
+                    try: agent_orgname = USPTOSanitizer.replace_old_html_characters(line[3:].strip())[:300]
                     except:
                         agent_orgname = None
                         logger.error("An agent data error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
@@ -1438,7 +1518,7 @@ def process_APS_grant_content(args_array):
                         agent_last_name = None
                         logger.error("A agent data error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_agent.append({
                         "table_name" : "uspto.AGENT_G",
                         "GrantID" : document_id,
@@ -1450,14 +1530,12 @@ def process_APS_grant_content(args_array):
                         "FileName" : args_array['file_name']
                     })
 
+                    #print(processed_agent)
                     # Reset all variables so they don't get reused.
                     agent_first_name = None
                     agent_last_name = None
                     agent_country = None
                     agent_orgname = None
-
-                    #print processed_agent
-
                     # Increment position
                     position_agent += 1
 
@@ -1473,7 +1551,7 @@ def process_APS_grant_content(args_array):
                         agent_last_name = None
                         logger.error("A agent data error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_agent.append({
                         "table_name" : "uspto.AGENT_G",
                         "GrantID" : document_id,
@@ -1485,14 +1563,12 @@ def process_APS_grant_content(args_array):
                         "FileName" : args_array['file_name']
                     })
 
+                    #print(processed_agent)
                     # Reset all variables so they don't get reused.
                     agent_first_name = None
                     agent_last_name = None
                     agent_country = None
                     agent_orgname = None
-
-                    #print processed_agent
-
                     # Increment position
                     position_agent += 1
 
@@ -1508,7 +1584,7 @@ def process_APS_grant_content(args_array):
                         agent_last_name = None
                         logger.error("A agent data error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_agent.append({
                         "table_name" : "uspto.AGENT_G",
                         "GrantID" : document_id,
@@ -1520,14 +1596,12 @@ def process_APS_grant_content(args_array):
                         "FileName" : args_array['file_name']
                     })
 
+                    #print(processed_agent)
                     # Reset all variables so they don't get reused.
                     agent_first_name = None
                     agent_last_name = None
                     agent_country = None
                     agent_orgname = None
-
-                    #print processed_agent
-
                     # Increment position
                     position_agent += 1
 
@@ -1543,7 +1617,7 @@ def process_APS_grant_content(args_array):
                         agent_last_name = None
                         logger.error("A agent data error occurred for grant_id: " + document_id + " in link: " + args_array['url_link'])
 
-                    # Append SQL data into dictionary to be written later
+                    # Append data into dictionary to be written later
                     processed_agent.append({
                         "table_name" : "uspto.AGENT_G",
                         "GrantID" : document_id,
@@ -1555,14 +1629,12 @@ def process_APS_grant_content(args_array):
                         "FileName" : args_array['file_name']
                     })
 
+                    #print(processed_agent)
                     # Reset all variables so they don't get reused.
                     agent_first_name = None
                     agent_last_name = None
                     agent_country = None
                     agent_orgname = None
-
-                    #print processed_agent
-
                     # Increment position
                     position_agent += 1
 
@@ -1574,7 +1646,7 @@ def process_APS_grant_content(args_array):
 
     # Close all the open .csv files
     USPTOCSVHandler.close_csv_files(args_array)
-    print("Patents found: " + str(patn_found))
+    #print("Patents found: " + str(patn_found))
     # Set a flag file_processed to ensure that the bulk insert succeeds
     file_processed = True
 

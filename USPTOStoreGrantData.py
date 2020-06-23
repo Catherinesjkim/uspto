@@ -199,6 +199,19 @@ def store_grant_data(processed_data_array, args_array):
                     print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
                     traceback.print_exc()
+        if "processed_foreignpriority" in processed_data_array and len(processed_data_array['processed_foreignpriority']):
+            for data_item in processed_data_array["processed_foreignpriority"]:
+                table_name = data_item['table_name']
+                del data_item['table_name']
+                try:
+                    # Write the dictionary of document data to .csv file
+                    args_array['csv_file_array']['foreignpriority']['csv_writer'].writerow(data_item)
+                    # Append the table onto the array
+                    args_array['csv_file_array']['foreignpriority']['table_name'] = table_name
+                except Exception as e:
+                    print('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
+                    logger.info('- Error writing {0} to .csv file {1} for document: {2} into table {3}. Start Time: {4}'.format(args_array['document_type'], file_name, data_item['GrantID'], table_name, time.strftime("%c")))
+                    traceback.print_exc()
 
 
     # If command arg is set to put data into database

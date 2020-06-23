@@ -29,7 +29,7 @@ def extract_XML4_application(raw_data, args_array):
 
     # Define required arrays
     processed_application = []
-    processed_priority_claims = []
+    processed_foreignpriority = []
     processed_assignee = []
     processed_applicant = []
     processed_agent = []
@@ -83,7 +83,7 @@ def extract_XML4_application(raw_data, args_array):
             try: series_code = r.findtext('us-application-series-code')[:2]
             except: series_code = None
 
-        # Get priority Claims
+        # Get priority claims
         pcs = r.find('priority-claims')
         if pcs is not None:
             for pc in pcs.findall('priority-claim'):
@@ -99,7 +99,7 @@ def extract_XML4_application(raw_data, args_array):
                 except: pc_date = None
 
                 # Append SQL data into dictionary to be written later
-                processed_priority_claims.append({
+                processed_foreignpriority.append({
                     "table_name" : "uspto.FOREIGNPRIORITY_A",
                     "ApplicationID" : app_no,
                     "Position" : pc_sequence,
@@ -110,7 +110,7 @@ def extract_XML4_application(raw_data, args_array):
                     "FileName" : args_array['file_name']
                 })
 
-                #print processed_priority_claims
+                #print(processed_foreignpriority)
 
         # Get International classifcation data
         ics = r.find('classifications-ipcr')
@@ -499,7 +499,7 @@ def extract_XML4_application(raw_data, args_array):
     # Return a dictionary of the processed_ data arrays
     return {
         "processed_application" : processed_application,
-        "processed_priority_claims": processed_priority_claims,
+        "processed_foreignpriority": processed_foreignpriority,
         "processed_assignee" : processed_assignee,
         "processed_agent" : processed_agent,
         "processed_inventor" : processed_inventor,

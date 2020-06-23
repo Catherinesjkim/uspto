@@ -40,6 +40,7 @@ def extract_XML4_grant(raw_data, args_array):
     processed_gracit = []
     processed_forpatcit = []
     processed_nonpatcit = []
+    processed_foreignpriority = []
 
     # Stat process timer
     start_time = time.time()
@@ -554,6 +555,40 @@ def extract_XML4_grant(raw_data, args_array):
                 })
                 position += 1
 
+
+        # Find main priority claims tag
+        pcs = r.find('priority-claims')
+        position = 1
+        if pcs is not None:
+            # Find all priority claims in main tag
+            for pc in pcs.findall('priority-claim'):
+                # Assign data to vars
+                try:  pc_country = pc.findtext('country')[:5].strip()
+                except: pc_country = None
+                try: pc_kind = pc.attrib['kind'][:45].strip()
+                except: pc_kind = None
+                try: pc_doc_num = pc.findtext('doc-number')[:45].strip()
+                except: pc_doc_num = None
+                try: pc_date = USPTOSanitizer.return_formatted_date(pc.findtext('date'), args_array, document_id)
+                except: pc_date = None
+
+                # Append SQL data into dictionary to be written later
+                processed_foreignpriority.append({
+                    "table_name" : "uspto.FOREIGNPRIORITY_G",
+                    "GrantID" : document_id,
+                    "Position" : position,
+                    "Kind" : pc_kind,
+                    "Country" : pc_country,
+                    "DocumentID" : pc_doc_num,
+                    "PriorityDate" : pc_date,
+                    "FileName" : args_array['file_name']
+                })
+
+                #print processed_foreignpriority
+
+                # Increment Position
+                position += 1
+
     # TODO: see if it's claims or description and store accordingly
     try: claims = patent_root.findtext('description').strip()
     except: claims = None
@@ -604,5 +639,6 @@ def extract_XML4_grant(raw_data, args_array):
         "processed_cpcclass" : processed_cpcclass,
         "processed_gracit" : processed_gracit,
         "processed_forpatcit" : processed_forpatcit,
-        "processed_nonpatcit" : processed_nonpatcit
+        "processed_nonpatcit" : processed_nonpatcit,
+        "processed_foreignpriority" : processed_foreignpriority
     }

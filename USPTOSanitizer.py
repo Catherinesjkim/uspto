@@ -599,18 +599,18 @@ def return_xml2_app_type(args_array, kind):
     # Import logger
     logger = USPTOLogger.logging.getLogger("USPTO_Database_Construction")
 
-    if kind == "S":
+    if kind == "S" or kind[0] == "S":
         return "design"
-    elif kind == "P":
+    elif kind == "P" or kind[0] == "P":
         return "plant"
-    elif kind == "H":
+    elif kind == "H" or kind[0] == "H":
         return "sir"
-    elif kind == "E":
+    elif kind == "E" or kind[0] == "E":
         return "reissue"
-    elif kind == "A":
+    elif kind == "A" or kind[0] == "A":
         return "utility"
-    elif len(kind) == 2 and kind[0] == "B":
-        return str(kind[-1]) + " degree re-examination certificate"
+    elif kind == "B" or (len(kind) == 2 and kind[0] == "B"):
+        return str(kind) + " degree re-examination certificate"
     else:
         logger.warning("-- Malformed application type for an XML2 document: '" + kind + "' was found in file: " + args_array['file_name'])
         return None

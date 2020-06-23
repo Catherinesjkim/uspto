@@ -47,6 +47,7 @@ def extract_XML2_grant(raw_data, args_array):
     processed_gracit = []
     processed_forpatcit = []
     processed_nonpatcit = []
+    processed_foreignpriority = []
 
     # Start timer
     start_time = time.time()
@@ -558,6 +559,39 @@ def extract_XML2_grant(raw_data, args_array):
 
                         position += 1
 
+        # Collect foreign priotiry data
+        position = 1
+        for B300 in r.findall('B300'):
+            # Country
+            try: pc_country = USPTOSanitizer.return_element_text(B300.find('B330').find('CTRY'))[:5]
+            except: pc_country = None
+            # Prority filing date
+            try: pc_date = USPTOSanitizer.return_formatted_date(USPTOSanitizer.return_element_text(B300.find('B320').find('DATE'))[:45])
+            except: pc_date = None
+            # Prority document number
+            try: pc_doc_num = USPTOSanitizer.return_element_text(B300.find('B310').find('DNUM'))[:45]
+            except: pc_doc_dum = None
+
+            # Set the fields that are not in gXML2
+            pc_kind = None
+
+            # Append SQL data into dictionary to be written later
+            processed_foreignpriority.append({
+                "table_name" : "uspto.FOREIGNPRIORITY_G",
+                "GrantID" : document_id,
+                "Position" : position,
+                "Kind" : pc_kind,
+                "Country" : pc_country,
+                "DocumentID" : pc_doc_num,
+                "PriorityDate" : pc_date,
+                "FileName" : args_array['file_name']
+            })
+
+            #print(processed_foreignpriority)
+
+            # Increment Position
+            position += 1
+
         # Collect Abstract from data
         try:
             abstr = patent_root.find('SDOAB')
@@ -608,5 +642,6 @@ def extract_XML2_grant(raw_data, args_array):
         "processed_intclass" : processed_intclass,
         "processed_gracit" : processed_gracit,
         "processed_forpatcit" : processed_forpatcit,
-        "processed_nonpatcit" : processed_nonpatcit
+        "processed_nonpatcit" : processed_nonpatcit,
+        "processed_foreignpriority" : processed_foreignpriority
     }

@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`INVENTOR_A` (
   `LastName` VARCHAR(100) DEFAULT NULL,
   `City` VARCHAR(100) DEFAULT NULL,
   `State` VARCHAR(100) DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `Nationality` VARCHAR(100) DEFAULT NULL,
   `Residence` VARCHAR(300) DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
@@ -192,7 +192,7 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `uspto`.`FOREIGNPRIORITY`
+-- Table `uspto`.`FOREIGNPRIORITY_A`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `uspto`.`FOREIGNPRIORITY_A` ;
 
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`FOREIGNPRIORITY_A` (
   `DocumentID` VARCHAR(45) NOT NULL,
   `Position` INT NOT NULL,
   `Kind` VARCHAR(45) DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `PriorityDate` DATE DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`ApplicationID`, `Position`, `FileName`))
@@ -365,7 +365,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`AGENT_A` (
   `OrgName` VARCHAR(300) DEFAULT NULL,
   `LastName` VARCHAR(100) DEFAULT NULL,
   `FirstName` VARCHAR(100) DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`ApplicationID`, `Position`, `FileName`))
 ENGINE = InnoDB;
@@ -383,7 +383,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`ASSIGNEE_A` (
   `Role` VARCHAR(45) DEFAULT NULL,
   `City` VARCHAR(100) DEFAULT NULL,
   `State` VARCHAR(100) DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`ApplicationID`, `Position`, `FileName`))
 ENGINE = InnoDB;
@@ -401,7 +401,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`APPLICANT_A` (
   `LastName` VARCHAR(100) DEFAULT NULL,
   `City` VARCHAR(100) DEFAULT NULL,
   `State` VARCHAR(100) DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`ApplicationID`, `Position`, `FileName`))
 ENGINE = InnoDB;
@@ -488,7 +488,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`APPLICANT_G` (
   `LastName` VARCHAR(100) DEFAULT NULL,
   `City` VARCHAR(100) DEFAULT NULL,
   `State` VARCHAR(100) DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`GrantID`, `Position`, `FileName`))
 ENGINE = InnoDB;
@@ -505,7 +505,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`INVENTOR_G` (
   `LastName` VARCHAR(100) DEFAULT NULL,
   `City` VARCHAR(100) DEFAULT NULL,
   `State` VARCHAR(100) DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `Nationality` VARCHAR(100) DEFAULT NULL,
   `Residence` VARCHAR(300) DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
@@ -540,7 +540,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`AGENT_G` (
   `OrgName` VARCHAR(300) DEFAULT NULL,
   `LastName` VARCHAR(100) DEFAULT NULL,
   `FirstName` VARCHAR(100) DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`GrantID`, `Position`, `FileName`))
 ENGINE = InnoDB;
@@ -558,7 +558,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`ASSIGNEE_G` (
   `Role` VARCHAR(45) DEFAULT NULL,
   `City` VARCHAR(100) DEFAULT NULL,
   `State` VARCHAR(100) DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`GrantID`, `Position`, `FileName`))
 ENGINE = InnoDB;
@@ -592,7 +592,7 @@ CREATE TABLE IF NOT EXISTS `uspto`.`GRACIT_G` (
   `Kind` VARCHAR(10) DEFAULT NULL,
   `Name` VARCHAR(100) DEFAULT NULL,
   `Date` DATE DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `Category` BOOLEAN DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`GrantID`, `Position`, `FileName`))
@@ -610,8 +610,24 @@ CREATE TABLE IF NOT EXISTS `uspto`.`FORPATCIT_G` (
   `Kind` VARCHAR(10) DEFAULT NULL,
   `Name` VARCHAR(100) DEFAULT NULL,
   `Date` DATE DEFAULT NULL,
-  `Country` VARCHAR(100) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
   `Category` BOOLEAN DEFAULT NULL,
+  `FileName` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`GrantID`, `Position`, `FileName`))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `uspto`.`FOREIGNPRIORITY_G`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `uspto`.`FOREIGNPRIORITY_G` ;
+
+CREATE TABLE IF NOT EXISTS `uspto`.`FOREIGNPRIORITY_G` (
+  `GrantID` VARCHAR(20) NOT NULL,
+  `DocumentID` VARCHAR(45) NOT NULL,
+  `Position` INT NOT NULL,
+  `Kind` VARCHAR(45) DEFAULT NULL,
+  `Country` VARCHAR(5) DEFAULT NULL,
+  `PriorityDate` DATE DEFAULT NULL,
   `FileName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`GrantID`, `Position`, `FileName`))
 ENGINE = InnoDB;

@@ -15,6 +15,7 @@ import sys
 
 # Import USPTO Parser Functions
 import USPTOLogger
+import USPTOSanitizer
 
 # Function used to extract data from XML1 formatted patent applications
 def extract_XML1_application(raw_data, args_array):
@@ -28,6 +29,7 @@ def extract_XML1_application(raw_data, args_array):
 
     # Define required arrays
     processed_application = []
+    processed_foreignpriority = []
     processed_assignee = []
     processed_agent = []
     processed_inventor = []
@@ -152,8 +154,7 @@ def extract_XML1_application(raw_data, args_array):
 
                     # Increment position
                     position += 1
-
-                    #print processed_intclass
+                    #print(processed_intclass)
 
     # Get US classification data
     nc = technical_information_element.find('classification-us')
@@ -179,7 +180,6 @@ def extract_XML1_application(raw_data, args_array):
 
         # Increment position
         position += 1
-
         #print processed_usclass
 
         us_classification_secondary_element = nc.find('classification-us-secondary')
@@ -204,6 +204,32 @@ def extract_XML1_application(raw_data, args_array):
             position += 1
 
             #print processed_usclass
+
+    # Get priority claims
+    position = 1
+    pc_kind = None
+    for pc in r.findall('foreign-priority-data'):
+        try: pc_country = pc.findtext('country-code')[:100]
+        except: pc_country = None
+        try: pc_doc_num = pc.find('priority-application-number').findtext('doc-number')[:100]
+        except: pc_doc_num = None
+        try: pc_date = USPTOSanitizer.return_formatted_date(pc.findtext('filing-date'), args_array, document_id)
+        except:
+            pc_date = None
+
+        # Append SQL data into dictionary to be written later
+        processed_foreignpriority.append({
+            "table_name" : "uspto.FOREIGNPRIORITY_A",
+            "ApplicationID" : app_no,
+            "Position" : position,
+            "Kind" : pc_kind,
+            "Country" : pc_country,
+            "DocumentID" : pc_doc_num,
+            "PriorityDate" : pc_date,
+            "FileName" : args_array['file_name']
+        })
+        position += 1
+        print(processed_foreignpriority)
 
     # Get invention title
     try: title = technical_information_element.findtext('title-of-invention')[:500]
@@ -402,6 +428,7 @@ def extract_XML1_application(raw_data, args_array):
     # Return a dictionary of the processed_ data arrays
     return {
         "processed_application" : processed_application,
+        "processed_foreignpriority" : processed_foreignpriority,
         "processed_assignee" : processed_assignee,
         "processed_agent" : processed_agent,
         "processed_inventor" : processed_inventor,
